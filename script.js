@@ -117,7 +117,7 @@ function setGreetingCards(name, greet) {
 }
 
 // ── Pages that are live (others show "Coming Soon") ───────────────────────
-const LIVE_PAGES = ['home', 'about', 'findings', 'market', 'tableau', 'report', 'products', 'quiz', 'sompal'];
+const LIVE_PAGES = ['home', 'about', 'findings', 'market', 'tableau', 'report', 'products', 'sompal'];
 
 // ── Navigation ─────────────────────────────────────────────────────────────
 function navigateTo(pageId, btn) {
@@ -148,10 +148,7 @@ function navigateTo(pageId, btn) {
     setTimeout(animateMarketBars, 200);
   }
 
-  // Init quiz when navigating to it
-  if (pageId === 'quiz') {
-    setTimeout(quizRenderStep, 50);
-  }
+
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -268,8 +265,10 @@ document.addEventListener('keydown', function (e) {
 });
 
 
-// ── QUIZ PAGE ────────────────────────────────────────────────────────────
-const QUIZ_QUESTIONS = [
+// ── Benchmarking Tool ──────────────────────────────────────────────────────
+
+// Survey dataset averages (from the 358-respondent study)
+const BHUTAN_DATA = {
   {
     section: 'Section 1 · Demographics',
     q: 'Where do you currently live?',
@@ -691,22 +690,7 @@ Keep the tone warm, personal, non-judgmental, and encouraging. Use simple langua
   }
 }
 
-function quizReset() {
-  quizStep = 0;
-  quizAnswers = {};
-  document.getElementById('quiz-card').style.display = 'block';
-  document.getElementById('quiz-top-bar').style.display = 'flex';
-  document.getElementById('quiz-results').style.display = 'none';
-  document.getElementById('quiz-ai-loading').style.display = 'flex';
-  document.getElementById('quiz-ai-content').style.display = 'none';
-  document.getElementById('quiz-ai-content').innerHTML = '';
-  if (document.getElementById('page-quiz').classList.contains('active')) {
-    quizRenderStep();
-  }
-}
 
-
-// ── Benchmarking Tool ──────────────────────────────────────────────────────
 
 // Survey dataset averages (from the 358-respondent study)
 const BHUTAN_DATA = {
