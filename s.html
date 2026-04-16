@@ -1,504 +1,277 @@
-<!-- ════════════ SOMPAL TECH — Sleep & Lifestyle Platform Page ════════════ -->
-<div class="page" id="page-sompal">
+/* ── Bhutan Lifestyle Study · script.js ── */
 
-  <!-- Back bar -->
-  <div class="sp-back-bar">
-    <button class="sp-back-btn" onclick="navigateTo('products', document.querySelector('[data-page=\'products\']'))">← Products</button>
-    <span class="sp-back-bar-title">🌙 SomPel Tech · Sleep &amp; Lifestyle Platform</span>
-  </div>
+let visitorName = '';
 
-  <div id="sp-app">
+// ── Toggle PDF/preview viewer ──────────────────────────────────────────────
+function togglePdfReader(viewerId, btn) {
+  const viewer = document.getElementById(viewerId);
+  if (!viewer) return;
+  const isOpen = viewer.style.display !== 'none';
+  viewer.style.display = isOpen ? 'none' : 'block';
+  if (btn) btn.classList.toggle('prc-toggle-btn--active', !isOpen);
+}
 
-<!-- SP NAV -->
-<nav class="sp-nav">
-  <div class="sp-nav-left">
-    <span style="font-size:1.35rem;">🌙</span>
-    <div>
-      <div class="sp-logo">SomPel Tech</div>
-      <div class="sp-tagline">Sleep &amp; Lifestyle · Bhutan</div>
-    </div>
-    <span id="nav-badge" class="nav-badge"></span>
-  </div>
-  <div class="nav-tabs" id="sp-nav-tabs">
-    <button class="nav-tab active" id="nt-home"  onclick="gp('home')">Home</button>
-    <button class="nav-tab hidden"  id="nt-qp"   onclick="gp('qp')">① Profile</button>
-    <button class="nav-tab hidden"  id="nt-qh"   onclick="gp('qh')">② Habits</button>
-    <button class="nav-tab hidden"  id="nt-qr"   onclick="gp('qr')">③ Results</button>
-    <button class="nav-tab hidden"  id="nt-qt"   onclick="gp('qt')">④ Tips</button>
-    <button class="nav-tab hidden"  id="nt-fp"   onclick="gp('fp')">① Profile</button>
-    <button class="nav-tab hidden"  id="nt-fr"   onclick="gp('fr')">② Reminder</button>
-    <button class="nav-tab hidden"  id="nt-fh"   onclick="gp('fh')">③ Track</button>
-    <button class="nav-tab hidden"  id="nt-fi"   onclick="gp('fi')">④ Insights</button>
-    <button class="nav-tab hidden"  id="nt-ft"   onclick="gp('ft')">⑤ Trends</button>
-    <button class="nav-tab hidden"  id="nt-ftp"  onclick="gp('ftp')">⑥ Tips</button>
-  </div>
-</nav>
+// ── Show home section (tabs) ───────────────────────────────────────────────
+function showHomeSection(sectionId, btn) {
+  document.querySelectorAll('.home-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.home-tab').forEach(b => b.classList.remove('active'));
+  const target = document.getElementById('home-' + sectionId);
+  if (target) target.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
 
-<!-- ════════════ HOME ════════════ -->
-<div class="sp-page active" id="pg-home">
-  <div class="hero">
-    <div class="hero-badge">🇧🇹 Built for Urban &amp; Rural Bhutan</div>
-    <h1>Better Sleep.<br>Brighter Days.</h1>
-    <p>SomPel Tech helps you understand and improve your daily habits — personalized to your age, location, and lifestyle.</p>
-  </div>
-  <div class="mode-area">
-    <div class="mode-label">How would you like to use SomPel Tech?</div>
-    <div class="mode-cards">
-      <div class="mode-card qc" id="mc-q" onclick="selMode('q')">
-        <div class="mi">⚡</div>
-        <h3>Quick Check</h3>
-        <div class="desc">Fill in your habits once and get personalized recommendations instantly — no ongoing tracking needed.</div>
-        <ul class="feat-list">
-          <li><span class="feat-dot"></span>Age group &amp; location comparison</li>
-          <li><span class="feat-dot"></span>One-time habit log</li>
-          <li><span class="feat-dot"></span>Sleep quality scale</li>
-          <li><span class="feat-dot"></span>Wellness score</li>
-          <li><span class="feat-dot"></span>Personalized recommendations</li>
-          <li><span class="feat-dot"></span>Sleep education tips</li>
-        </ul>
-        <button class="start-btn" onclick="startMode('q');event.stopPropagation()">Start Quick Check →</button>
-      </div>
-      <div class="mode-card ft" id="mc-f" onclick="selMode('f')">
-        <div class="mi">📊</div>
-        <h3>Full Tracker</h3>
-        <div class="desc">Log habits daily, set sleep reminders, watch trend graphs, and track your progress week by week.</div>
-        <ul class="feat-list">
-          <li><span class="feat-dot"></span>Age group &amp; location comparison</li>
-          <li><span class="feat-dot"></span>Sleep schedule reminder + alarm sound</li>
-          <li><span class="feat-dot"></span>Daily habit logging</li>
-          <li><span class="feat-dot"></span>Sleep quality scale</li>
-          <li><span class="feat-dot"></span>Wellness score ring</li>
-          <li><span class="feat-dot"></span>Weekly &amp; monthly trend graphs</li>
-          <li><span class="feat-dot"></span>Personalized recommendations</li>
-          <li><span class="feat-dot"></span>Sleep education tips</li>
-        </ul>
-        <button class="start-btn" onclick="startMode('f');event.stopPropagation()">Start Full Tracker →</button>
-      </div>
-    </div>
-  </div>
-</div>
+// ── Google Sheets logging ──────────────────────────────────────────────────
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbys3-Yefk8RbNEMZFzBJ9xupG4WMWhitYAw1EfoJnQwDEI-miDb9jNC2bthJtGbLGib2A/exec';
 
-<!-- ════════════ QUICK CHECK ════════════ -->
+function logVisitor(name) {
+  if (!SHEET_URL || SHEET_URL === 'YOUR_APPS_SCRIPT_URL') return;
+  const now = new Date().toLocaleString('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', hour12: true,
+  });
+  fetch(SHEET_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, time: now }),
+    mode: 'no-cors',
+  }).catch(() => {});
+}
 
-<!-- QC Step 1: Profile -->
-<div class="sp-page" id="pg-qp">
-  <div class="section">
-    <span class="back-link" onclick="gp('home')">← Back to Home</span>
-    <div class="steps">
-      <div class="step active">1 · Profile</div>
-      <div class="step">2 · Habits</div>
-      <div class="step">3 · Results</div>
-      <div class="step">4 · Tips</div>
-    </div>
-    <h2 class="section-title">Your Profile</h2>
-    <p class="section-sub">Select your age group and residence to see Bhutan benchmarks — then save your profile.</p>
-    <div class="card">
-      <h3>👥 Age Group Comparison</h3>
-      <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem;">See how habits compare to people in your age group across Bhutan.</p>
-      <div class="fl" style="margin-bottom:.45rem;">Age Group</div>
-      <div class="atabs" id="q-atabs">
-        <button class="atab active" onclick="setQAge(this,'u18')">Under 18</button>
-        <button class="atab" onclick="setQAge(this,'18-25')">18–25</button>
-        <button class="atab" onclick="setQAge(this,'26-35')">26–35</button>
-        <button class="atab" onclick="setQAge(this,'36-50')">36–50</button>
-        <button class="atab" onclick="setQAge(this,'50+')">50+</button>
-      </div>
-      <div class="fl" style="margin-bottom:.45rem;margin-top:.8rem;">Residence</div>
-      <div class="ltabs" id="q-ltabs">
-        <button class="ltab active urban" onclick="setQLoc(this,'urban')">Urban</button>
-        <button class="ltab" onclick="setQLoc(this,'rural')">Rural</button>
-      </div>
-      <div class="cgrid" id="qcg"></div>
-    </div>
-    <div class="card">
-      <h3>📝 Save to Profile</h3>
-      <div class="pg">
-        <div class="fg"><label class="fl">Age Group</label>
-          <select id="qsa" onchange="qSyncAge()">
-            <option value="">Select</option><option value="u18">Under 18</option><option value="18-25">18–25</option><option value="26-35">26–35</option><option value="36-50">36–50</option><option value="50+">50+</option>
-          </select></div>
-        <div class="fg"><label class="fl">Residence</label>
-          <select id="qsl" onchange="qSyncLoc()">
-            <option value="">Select</option><option value="urban">Urban</option><option value="rural">Rural</option>
-          </select></div>
-      </div>
-    </div>
-    <div class="nb">
-      <div class="nbt"><strong>Step 1 of 4</strong> — Next: log your habits for today</div>
-      <button class="btn btn-a" onclick="gp('qh')">Next: Log Habits →</button>
-    </div>
-  </div>
-</div>
+// ── Greeting helper ────────────────────────────────────────────────────────
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
 
-<!-- QC Step 2: Habits -->
-<div class="sp-page" id="pg-qh">
-  <div class="section">
-    <span class="back-link" onclick="gp('qp')">← Back to Profile</span>
-    <div class="steps">
-      <div class="step done">1 · Profile ✓</div>
-      <div class="step active">2 · Habits</div>
-      <div class="step">3 · Results</div>
-      <div class="step">4 · Tips</div>
-    </div>
-    <h2 class="section-title">Log Your Habits</h2>
-    <p class="section-sub">Fill in today's habits once to unlock your personalized results.</p>
-    <div class="card">
-      <h3>📋 Today's Habits</h3>
-      <div class="lfgrid">
-        <div class="fg"><label class="fl">Work Hours Today</label>
-          <select id="qlw"><option value="">Select</option><option value="0-4">0 – 4 hrs</option><option value="5-6">5 – 6 hrs</option><option value="7-8">7 – 8 hrs</option><option value="9+">8 or more / 9+</option></select></div>
-        <div class="fg"><label class="fl">Sleep Hours Last Night</label>
-          <select id="qls"><option value="">Select</option><option value="0-4">0 – 4 hrs</option><option value="5-6">5 – 6 hrs</option><option value="7-8">7 – 8 hrs</option><option value="9+">9+ hrs</option></select></div>
-        <div class="fg"><label class="fl">Screen Time Before Bed</label>
-          <select id="qlsc"><option value="">Select</option><option value="none">No phone before bed</option><option value="30min">Less than 30 min</option><option value="1hr">30 min – 1 hr</option><option value="2hr">1 – 2 hrs</option><option value="3hr">2 – 3 hrs</option><option value="3+hr">More than 3 hrs</option></select></div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>😴 Sleep Quality &amp; Energy</h3>
-      <div class="llabels"><span>1 = Strongly Disagree</span><span>5 = Strongly Agree</span></div>
-      <div id="qlic"></div>
-    </div>
-    <div class="nb">
-      <div class="nbt"><strong>Step 2 of 4</strong> — Next: see your personalized results</div>
-      <button class="btn btn-g" onclick="submitQ()">See My Results →</button>
-    </div>
-  </div>
-</div>
+// ── Name submission ────────────────────────────────────────────────────────
+function submitName() {
+  const input = document.getElementById('inp-name');
+  const err   = document.getElementById('name-error');
+  const name  = input.value.trim();
 
-<!-- QC Step 3: Results -->
-<div class="sp-page" id="pg-qr">
-  <div class="section">
-    <span class="back-link" onclick="gp('qh')">← Back to Habits</span>
-    <div class="steps">
-      <div class="step done">1 · Profile ✓</div>
-      <div class="step done">2 · Habits ✓</div>
-      <div class="step active">3 · Results</div>
-      <div class="step">4 · Tips</div>
-    </div>
-    <h2 class="section-title">Your Results</h2>
-    <p class="section-sub">Personalized recommendations based on your age, location, and habits.</p>
-    <div class="card">
-      <h3>🏆 Wellness Score</h3>
-      <div class="sring">
-        <div class="srw">
-          <svg width="112" height="112" viewBox="0 0 112 112">
-            <circle cx="56" cy="56" r="46" fill="none" stroke="rgba(107,163,104,0.12)" stroke-width="9"/>
-            <circle id="qarc" cx="56" cy="56" r="46" fill="none" stroke="var(--green)" stroke-width="9" stroke-dasharray="289" stroke-dashoffset="289" stroke-linecap="round" style="transition:stroke-dashoffset 1.2s ease;"/>
-          </svg>
-          <div class="snum" id="qsn">—<span>score</span></div>
-        </div>
-        <div class="sdetails"><h3 id="qsl2">Calculating…</h3><p id="qsd" style="color:var(--sp-muted);font-size:.86rem;margin-top:.3rem;"></p></div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>💡 Personalized Recommendations</h3>
-      <p style="font-size:.83rem;color:var(--sp-muted);margin-bottom:1.1rem;">Tailored to your age group, location, and habits — not generic tips.</p>
-      <div id="qrecs"></div>
-    </div>
-    <div class="nb">
-      <div class="nbt"><strong>Step 3 of 4</strong> — Next: read research-backed sleep tips</div>
-      <button class="btn btn-p" onclick="gp('qt')">Next: Sleep Tips →</button>
-    </div>
-    <div class="nb" style="margin-top:.7rem;">
-      <div class="nbt">Want daily tracking &amp; trend graphs? Try the <strong>Full Tracker</strong></div>
-      <button class="btn btn-ghost" onclick="startMode('f')">Switch to Full Tracker →</button>
-    </div>
-  </div>
-</div>
+  if (!name) {
+    err.style.display = 'block';
+    input.focus();
+    return;
+  }
 
-<!-- QC Step 4: Tips -->
-<div class="sp-page" id="pg-qt">
-  <div class="section">
-    <span class="back-link" onclick="gp('qr')">← Back to Results</span>
-    <div class="steps">
-      <div class="step done">1 · Profile ✓</div>
-      <div class="step done">2 · Habits ✓</div>
-      <div class="step done">3 · Results ✓</div>
-      <div class="step active">4 · Tips</div>
-    </div>
-    <h2 class="section-title">Sleep Education Tips</h2>
-    <p class="section-sub">Short, research-backed tips on caffeine, light, temperature, and wind-down routines.</p>
-    <div class="card" id="qt-ai-tip-card">
-      <h3>✨ Your Personalised Tip of the Week</h3>
-      <div id="qt-ai-tip-loading" class="sp-ai-loading">
-        <div class="sp-ai-spinner"></div>
-        <div class="sp-ai-loading-text">Generating your personalised tip…</div>
-      </div>
-      <div id="qt-ai-tip-content" style="display:none;font-size:.88rem;color:var(--text2,#6A6560);line-height:1.6;"></div>
-    </div>
-    <div class="tgrid" id="qt-tips"></div>
-    <div class="nb" style="margin-top:1.8rem;">
-      <div class="nbt">Ready to track your progress over time?</div>
-      <button class="btn btn-a" onclick="startMode('f')">Try Full Tracker →</button>
-    </div>
-  </div>
-</div>
+  err.style.display = 'none';
+  visitorName = name;
+  logVisitor(name);
 
-<!-- ════════════ FULL TRACKER ════════════ -->
+  // Set avatar (first letter)
+  const avatar = document.getElementById('sidebar-avatar');
+  avatar.textContent = name.charAt(0).toUpperCase();
 
-<!-- FT Step 1: Profile -->
-<div class="sp-page" id="pg-fp">
-  <div class="section">
-    <span class="back-link" onclick="gp('home')">← Back to Home</span>
-    <div class="steps">
-      <div class="step active">1 · Profile</div>
-      <div class="step">2 · Reminder</div>
-      <div class="step">3 · Track</div>
-      <div class="step">4 · Insights</div>
-      <div class="step">5 · Trends</div>
-      <div class="step">6 · Tips</div>
-    </div>
-    <h2 class="section-title">Your Profile</h2>
-    <p class="section-sub">Set your age group and residence. We'll use this to personalise your entire experience.</p>
-    <div class="card">
-      <h3>👥 Age Group Comparison — Bhutan</h3>
-      <p style="font-size:.83rem;color:var(--sp-muted);margin-bottom:1rem;">Understand where you stand and what the healthiest benchmarks look like.</p>
-      <div class="fl" style="margin-bottom:.45rem;">Age Group</div>
-      <div class="atabs" id="f-atabs">
-        <button class="atab active" onclick="setFAge(this,'u18')">Under 18</button>
-        <button class="atab" onclick="setFAge(this,'18-25')">18–25</button>
-        <button class="atab" onclick="setFAge(this,'26-35')">26–35</button>
-        <button class="atab" onclick="setFAge(this,'36-50')">36–50</button>
-        <button class="atab" onclick="setFAge(this,'50+')">50+</button>
-      </div>
-      <div class="fl" style="margin-bottom:.45rem;margin-top:.8rem;">Residence</div>
-      <div class="ltabs" id="f-ltabs">
-        <button class="ltab active urban" onclick="setFLoc(this,'urban')">Urban</button>
-        <button class="ltab" onclick="setFLoc(this,'rural')">Rural</button>
-      </div>
-      <div class="cgrid" id="fcg"></div>
-    </div>
-    <div class="card">
-      <h3>📝 Save to Profile</h3>
-      <div class="pg">
-        <div class="fg"><label class="fl">Age Group</label>
-          <select id="fsa" onchange="fSyncAge()">
-            <option value="">Select</option><option value="u18">Under 18</option><option value="18-25">18–25</option><option value="26-35">26–35</option><option value="36-50">36–50</option><option value="50+">50+</option>
-          </select></div>
-        <div class="fg"><label class="fl">Residence</label>
-          <select id="fsl" onchange="fSyncLoc()">
-            <option value="">Select</option><option value="urban">Urban</option><option value="rural">Rural</option>
-          </select></div>
-      </div>
-    </div>
-    <div class="nb">
-      <div class="nbt"><strong>Step 1 of 6</strong> — Next: set your sleep schedule reminder</div>
-      <button class="btn btn-a" onclick="gp('fr')">Next: Set Reminder →</button>
-    </div>
-  </div>
-</div>
+  // Set username in sidebar
+  document.getElementById('sidebar-username').textContent = name;
 
-<!-- FT Step 2: Reminder -->
-<div class="sp-page" id="pg-fr">
-  <div class="section">
-    <span class="back-link" onclick="gp('fp')">← Back to Profile</span>
-    <div class="steps">
-      <div class="step done">1 · Profile ✓</div>
-      <div class="step active">2 · Reminder</div>
-      <div class="step">3 · Track</div>
-      <div class="step">4 · Insights</div>
-      <div class="step">5 · Trends</div>
-      <div class="step">6 · Tips</div>
-    </div>
-    <h2 class="section-title">Sleep Schedule Reminder</h2>
-    <p class="section-sub">Set a target bedtime and wake time. Choose a sound. Consistent timing is the #1 sleep habit.</p>
-    <div class="card">
-      <h3>⏰ Set Your Alarm</h3>
-      <div class="arow">
-        <div class="fg"><label class="fl">Target Bedtime</label><input type="time" id="ab" value="22:00"></div>
-        <div class="fg"><label class="fl">Target Wake Time</label><input type="time" id="aw" value="06:00"></div>
-        <div style="padding-bottom:.05rem;"><button class="btn btn-a" onclick="setAlarm()" style="padding:.58rem 1.1rem;">Set Reminder</button></div>
-      </div>
-      <div style="margin-top:1.1rem;">
-        <div class="fl" style="margin-bottom:.45rem;">Alarm Sound</div>
-        <div class="sounds">
-          <button class="schip active" onclick="pickSound(this,'Gentle Bell')">🔔 Gentle Bell</button>
-          <button class="schip" onclick="pickSound(this,'Nature')">🌿 Nature</button>
-          <button class="schip" onclick="pickSound(this,'Soft Chime')">🎵 Soft Chime</button>
-          <button class="schip" onclick="pickSound(this,'Tibetan Bowl')">🪘 Tibetan Bowl</button>
-        </div>
-      </div>
-      <div id="alarmst" style="margin-top:.9rem;font-size:.81rem;color:var(--green);display:none;">✓ Reminder set: <span id="alarmt"></span></div>
-    </div>
-    <div class="nb">
-      <div class="nbt"><strong>Step 2 of 6</strong> — Next: log today's habits</div>
-      <button class="btn btn-a" onclick="gp('fh')">Next: Log Habits →</button>
-    </div>
-  </div>
-</div>
+  // Personalised greetings for page cards
+  const greet = getGreeting();
+  setGreetingCards(name, greet);
 
-<!-- FT Step 3: Track -->
-<div class="sp-page" id="pg-fh">
-  <div class="section">
-    <span class="back-link" onclick="gp('fr')">← Back to Reminder</span>
-    <div class="steps">
-      <div class="step done">1 · Profile ✓</div>
-      <div class="step done">2 · Reminder ✓</div>
-      <div class="step active">3 · Track</div>
-      <div class="step">4 · Insights</div>
-      <div class="step">5 · Trends</div>
-      <div class="step">6 · Tips</div>
-    </div>
-    <h2 class="section-title">Daily Habit Log</h2>
-    <p class="section-sub">Log work hours, screen time, and sleep duration daily. The more you log, the richer your insights.</p>
-    <div class="card">
-      <h3>📋 Today's Habits</h3>
-      <div class="lfgrid">
-        <div class="fg"><label class="fl">Work Hours Today</label>
-          <select id="flw"><option value="">Select</option><option value="0-4">0 – 4 hrs</option><option value="5-6">5 – 6 hrs</option><option value="7-8">7 – 8 hrs</option><option value="9+">8 or more / 9+</option></select></div>
-        <div class="fg"><label class="fl">Sleep Hours Last Night</label>
-          <select id="fls"><option value="">Select</option><option value="0-4">0 – 4 hrs</option><option value="5-6">5 – 6 hrs</option><option value="7-8">7 – 8 hrs</option><option value="9+">9+ hrs</option></select></div>
-        <div class="fg"><label class="fl">Screen Time Before Bed</label>
-          <select id="flsc"><option value="">Select</option><option value="none">No phone before bed</option><option value="30min">Less than 30 min</option><option value="1hr">30 min – 1 hr</option><option value="2hr">1 – 2 hrs</option><option value="3hr">2 – 3 hrs</option><option value="3+hr">More than 3 hrs</option></select></div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>😴 Sleep Quality &amp; Energy</h3>
-      <div class="llabels"><span>1 = Strongly Disagree</span><span>5 = Strongly Agree</span></div>
-      <div id="flic"></div>
-      <button class="logbtn" onclick="fLog()">✓ Save Today's Log</button>
-    </div>
-    <div class="card">
-      <h3>📅 Recent Logs</h3>
-      <div style="overflow-x:auto;">
-        <table class="ltable">
-          <thead><tr><th>Date</th><th>Work</th><th>Sleep</th><th>Screen</th><th>Quality</th></tr></thead>
-          <tbody id="fltb"><tr><td colspan="5" style="color:var(--sp-muted);text-align:center;padding:1.5rem;">No logs yet — save your first entry above.</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="nb">
-      <div class="nbt"><strong>Step 3 of 6</strong> — Next: view your wellness score and insights</div>
-      <button class="btn btn-g" onclick="gotoInsights()">Next: View Insights →</button>
-    </div>
-  </div>
-</div>
+  // Show greeting bar
+  const bar = document.getElementById('greeting-bar');
+  document.getElementById('greeting-text').innerHTML =
+    `${greet}, <strong>${name}</strong> — welcome to SomPel Tech website 2026.`;
 
-<!-- FT Step 4: Insights -->
-<div class="sp-page" id="pg-fi">
-  <div class="section">
-    <span class="back-link" onclick="gp('fh')">← Back to Track</span>
-    <div class="steps">
-      <div class="step done">1 · Profile ✓</div>
-      <div class="step done">2 · Reminder ✓</div>
-      <div class="step done">3 · Track ✓</div>
-      <div class="step active">4 · Insights</div>
-      <div class="step">5 · Trends</div>
-      <div class="step">6 · Tips</div>
-    </div>
-    <h2 class="section-title">Insights</h2>
-    <p class="section-sub">Your wellness score, age-group benchmarks, and personalized recommendations.</p>
-    <div class="card">
-      <h3>🏆 Wellness Score</h3>
-      <div class="sring">
-        <div class="srw">
-          <svg width="112" height="112" viewBox="0 0 112 112">
-            <circle cx="56" cy="56" r="46" fill="none" stroke="rgba(107,163,104,0.12)" stroke-width="9"/>
-            <circle id="farc" cx="56" cy="56" r="46" fill="none" stroke="var(--green)" stroke-width="9" stroke-dasharray="289" stroke-dashoffset="289" stroke-linecap="round" style="transition:stroke-dashoffset 1.2s ease;"/>
-          </svg>
-          <div class="snum" id="fsn">—<span>score</span></div>
-        </div>
-        <div class="sdetails"><h3 id="fsl3">Log habits to see your score</h3><p id="fsd" style="color:var(--sp-muted);font-size:.86rem;margin-top:.3rem;">Save at least one day in Step 3 to unlock your wellness score.</p></div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>👥 Age Group Comparison</h3>
-      <div class="cgrid" id="ficg"></div>
-      <div id="fibars"></div>
-    </div>
-    <div class="card">
-      <h3>💡 Personalized Recommendations</h3>
-      <p style="font-size:.83rem;color:var(--sp-muted);margin-bottom:1.1rem;">Based on your age group, location, and logged habits — specific actions for your life.</p>
-      <div id="frecs"><p style="color:var(--sp-muted);font-size:.86rem;">Log habits in Step 3 to unlock personalized recommendations.</p></div>
-    </div>
-    <div class="nb">
-      <div class="nbt"><strong>Step 4 of 6</strong> — Next: view your weekly and monthly trend graphs</div>
-      <button class="btn btn-p" onclick="gotoTrends()">Next: View Trends →</button>
-    </div>
-    <div class="nb" style="margin-top:.7rem;">
-      <div class="nbt">Keep improving — log another day's habits</div>
-      <button class="btn btn-ghost" onclick="gp('fh')">← Log Another Day</button>
-    </div>
-  </div>
-</div>
+  // Transition screens
+  document.getElementById('name-screen').style.display = 'none';
 
-<!-- FT Step 5: Trends -->
-<div class="sp-page" id="pg-ft">
-  <div class="section">
-    <span class="back-link" onclick="gp('fi')">← Back to Insights</span>
-    <div class="steps">
-      <div class="step done">1 · Profile ✓</div>
-      <div class="step done">2 · Reminder ✓</div>
-      <div class="step done">3 · Track ✓</div>
-      <div class="step done">4 · Insights ✓</div>
-      <div class="step active">5 · Trends</div>
-      <div class="step">6 · Tips</div>
-    </div>
-    <h2 class="section-title">Trend Graphs</h2>
-    <p class="section-sub">Visual weekly and monthly charts showing your progress. Spot which nights you sleep best.</p>
-    <div class="card">
-      <h3>📈 Sleep · Screen Time · Energy</h3>
-      <div class="ctoggle">
-        <button class="cbtn active" onclick="setChart(this,'w')">Weekly</button>
-        <button class="cbtn" onclick="setChart(this,'m')">Monthly</button>
-      </div>
-      <canvas id="tc" height="220"></canvas>
-      <div style="display:flex;gap:1.4rem;margin-top:.7rem;flex-wrap:wrap;">
-        <span style="font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;"><span style="display:inline-block;width:12px;height:4px;border-radius:2px;background:var(--green)"></span>Sleep (hrs)</span>
-        <span style="font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;"><span style="display:inline-block;width:12px;height:4px;border-radius:2px;background:var(--accent)"></span>Screen (hrs)</span>
-        <span style="font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;"><span style="display:inline-block;width:12px;height:4px;border-radius:2px;background:var(--sky)"></span>Energy (1–5)</span>
-      </div>
-    </div>
-    <div class="nb">
-      <div class="nbt"><strong>Step 5 of 6</strong> — Next: read research-backed sleep tips</div>
-      <button class="btn btn-p" onclick="gp('ftp')">Next: Sleep Tips →</button>
-    </div>
-    <div class="nb" style="margin-top:.7rem;">
-      <div class="nbt">Add more data — log another day</div>
-      <button class="btn btn-ghost" onclick="gp('fh')">← Log Another Day</button>
-    </div>
-  </div>
-</div>
+  const appScreen = document.getElementById('app-screen');
+  appScreen.classList.add('visible');
+  appScreen.style.opacity = '0';
+  appScreen.style.transition = 'opacity 0.4s ease';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { appScreen.style.opacity = '1'; });
+  });
 
-<!-- FT Step 6: Tips -->
-<div class="sp-page" id="pg-ftp">
-  <div class="section">
-    <span class="back-link" onclick="gp('ft')">← Back to Trends</span>
-    <div class="steps">
-      <div class="step done">1 · Profile ✓</div>
-      <div class="step done">2 · Reminder ✓</div>
-      <div class="step done">3 · Track ✓</div>
-      <div class="step done">4 · Insights ✓</div>
-      <div class="step done">5 · Trends ✓</div>
-      <div class="step active">6 · Tips</div>
-    </div>
-    <h2 class="section-title">Sleep Education Tips</h2>
-    <p class="section-sub">Weekly tips on caffeine, light exposure, bedroom temperature, and wind-down routines.</p>
-    <div class="card" id="ft-ai-tip-card">
-      <h3>✨ Your Personalised Tip of the Week</h3>
-      <div id="ft-ai-tip-loading" class="sp-ai-loading">
-        <div class="sp-ai-spinner"></div>
-        <div class="sp-ai-loading-text">Generating your personalised tip…</div>
-      </div>
-      <div id="ft-ai-tip-content" style="display:none;font-size:.88rem;color:var(--text2,#6A6560);line-height:1.6;"></div>
-    </div>
-    <div class="tgrid" id="ft-tips"></div>
-    <div class="nb" style="margin-top:1.8rem;">
-      <div class="nbt">Apply what you've learned — log tomorrow's habits</div>
-      <button class="btn btn-a" onclick="gp('fh')">Log Tomorrow →</button>
-    </div>
-    <div class="nb" style="margin-top:.7rem;">
-      <div class="nbt">Review your progress</div>
-      <button class="btn btn-ghost" onclick="gp('fi')">← Back to Insights</button>
-    </div>
-  </div>
-</div>
+  // Animate market bars after a short delay (they'll be visible on market page)
+  setTimeout(animateMarketBars, 600);
 
-<footer class="sp-footer">
-  <p>🌙 <strong>SomPel Tech</strong> — Supporting healthier sleep for urban and rural Bhutan.</p>
-  <p style="margin-top:.35rem;">Inspired by the stories of Pelmo &amp; Singye.</p>
-</footer>
-<div class="toast" id="toast"></div>
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
 
-  </div><!-- /#sp-app -->
-</div><!-- /#page-sompal -->
+// ── Per-page personalised greeting cards ───────────────────────────────────
+function setGreetingCards(name, greet) {
+  const cards = [
+    {
+      id: 'about-greeting-text',
+      text: 'This section explains why this study was conducted, who carried it out, and what questions it set out to answer.',
+    },
+    {
+      id: 'findings-greeting-text',
+      text: `Here's a breakdown of the seven key findings from the study — from respondent distribution to market readiness for wellness tools.`,
+    },
+    {
+      id: 'market-greeting-text',
+      text: `This section examines whether Bhutan has a viable market for digital wellness tools — and what the data says.`,
+    },
+    {
+      id: 'products-greeting-text',
+      text: `Explore the tools built from this research — try the live Benchmarking Platform or stay tuned for the upcoming Sleep & Lifestyle App.`,
+    },
+  ];
+  cards.forEach(({ id, text }) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  });
+}
+
+// ── Pages that are live (others show "Coming Soon") ───────────────────────
+const LIVE_PAGES = ['home', 'about', 'findings', 'market', 'tableau', 'report', 'products', 'sompal'];
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+function navigateTo(pageId, btn) {
+  // If page isn't live yet, show the coming-soon overlay
+  if (!LIVE_PAGES.includes(pageId)) {
+    showComingSoon(pageId);
+    return;
+  }
+
+  // Deactivate all pages & nav items
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  // Activate target page
+  const target = document.getElementById('page-' + pageId);
+  if (target) {
+    target.classList.add('active');
+    target.style.animation = 'none';
+    target.offsetHeight; // reflow
+    target.style.animation = '';
+  }
+
+  // Activate nav button
+  if (btn) btn.classList.add('active');
+
+  // Animate bars if navigating to market page
+  if (pageId === 'market') {
+    setTimeout(animateMarketBars, 200);
+  }
+
+
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Coming Soon overlay ────────────────────────────────────────────────────
+const PAGE_LABELS = {
+  about:    { label: 'About This Project', icon: 'ℹ️' },
+  findings: { label: 'Key Findings',        icon: '📊' },
+  market:   { label: 'Market Readiness',    icon: '📱' },
+  tableau:  { label: 'Tableau Story',       icon: '📐' },
+  report:   { label: 'Report',              icon: '📄' },
+  products: { label: 'Product',             icon: '💡' },
+  sompal:   { label: 'Sleep & Lifestyle Platform', icon: '🌙' },
+};
+
+function showComingSoon(pageId) {
+  // Remove any existing overlay
+  const old = document.getElementById('coming-soon-overlay');
+  if (old) old.remove();
+
+  const info = PAGE_LABELS[pageId] || { label: pageId, icon: '🔒' };
+
+  const overlay = document.createElement('div');
+  overlay.id = 'coming-soon-overlay';
+  overlay.innerHTML = `
+    <div class="cs-backdrop" onclick="closeComingSoon()"></div>
+    <div class="cs-card">
+      <div class="cs-icon">${info.icon}</div>
+      <div class="cs-tag">Coming Soon</div>
+      <h2 class="cs-title">${info.label}</h2>
+      <p class="cs-text">This section is being prepared and will be available soon. Stay tuned!</p>
+      <button class="cs-btn" onclick="closeComingSoon()">← Back to Home</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Trigger animation
+  requestAnimationFrame(() => overlay.classList.add('cs-visible'));
+}
+
+function closeComingSoon() {
+  const overlay = document.getElementById('coming-soon-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('cs-visible');
+  setTimeout(() => overlay.remove(), 280);
+}
+
+// ── Market bar animation ───────────────────────────────────────────────────
+let barsAnimated = false;
+
+function animateMarketBars() {
+  // Animate both old .market-bar-fill and new .mkt-card-bar-fill
+  const bars = document.querySelectorAll('.market-bar-fill, .mkt-card-bar-fill');
+  bars.forEach(bar => {
+    const target = bar.getAttribute('data-target');
+    if (target) {
+      bar.style.width = '0';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          bar.style.width = target + '%';
+        });
+      });
+    }
+  });
+}
+
+// ── Show the SomPel platform page (Benchmarking / Sleep tool) ──────────────
+function showBenchmarkTool() {
+  const btn = document.querySelector('[data-page="sompal"]') || null;
+  navigateTo('sompal', btn);
+}
+
+// ── Scroll to finding card ─────────────────────────────────────────────────
+function scrollToFinding(id) {
+  // Make sure findings page is active
+  const findingsBtn = document.querySelector('[data-page="findings"]');
+  navigateTo('findings', findingsBtn);
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('finding-highlight');
+      setTimeout(() => el.classList.remove('finding-highlight'), 1400);
+    }
+  }, 150);
+}
+
+
+function doSignOut() {
+  const appScreen = document.getElementById('app-screen');
+  appScreen.style.transition = 'opacity 0.3s ease';
+  appScreen.style.opacity = '0';
+
+  setTimeout(() => {
+    appScreen.classList.remove('visible');
+    appScreen.style.opacity = '';
+    appScreen.style.transition = '';
+
+    document.getElementById('name-screen').style.display = 'flex';
+    document.getElementById('inp-name').value = '';
+    document.getElementById('name-error').style.display = 'none';
+    visitorName = '';
+
+    // Reset nav to home
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-home').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const homeBtn = document.querySelector('[data-page="home"]');
+    if (homeBtn) homeBtn.classList.add('active');
+
+    barsAnimated = false;
+  }, 300);
+}
+
+// ── Keyboard: Enter on name screen ────────────────────────────────────────
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter') return;
+  const ns = document.getElementById('name-screen');
+  if (ns && ns.style.display !== 'none') {
+    submitName();
+  }
+});

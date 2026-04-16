@@ -109,6 +109,10 @@ function setGreetingCards(name, greet) {
       id: 'market-greeting-text',
       text: `This section examines whether Bhutan has a viable market for digital wellness tools — and what the data says.`,
     },
+    {
+      id: 'products-greeting-text',
+      text: `Explore the tools built from this research — try the live Benchmarking Platform or stay tuned for the upcoming Sleep & Lifestyle App.`,
+    },
   ];
   cards.forEach(({ id, text }) => {
     const el = document.getElementById(id);
@@ -155,12 +159,19 @@ function navigateTo(pageId, btn) {
 
 // ── Coming Soon overlay ────────────────────────────────────────────────────
 const PAGE_LABELS = {
-  about:    { label: 'About This Project', icon: 'ℹ️' },
-  findings: { label: 'Key Findings',        icon: '📊' },
-  market:   { label: 'Market Readiness',    icon: '📱' },
-  tableau:  { label: 'Tableau Story',       icon: '📐' },
-  report:   { label: 'Report',              icon: '📄' },
+  about:    { label: 'About This Project',          icon: 'ℹ️' },
+  findings: { label: 'Key Findings',                icon: '📊' },
+  market:   { label: 'Market Readiness',            icon: '📱' },
+  tableau:  { label: 'Tableau Story',               icon: '📐' },
+  report:   { label: 'Report',                      icon: '📄' },
+  products: { label: 'Product',                     icon: '💡' },
+  sompal:   { label: 'Sleep & Lifestyle Platform',  icon: '🌙' },
 };
+
+// ── Navigate into the SomPel platform (called by Products "Try it now" btn) ─
+function showBenchmarkTool() {
+  navigateTo('sompal', document.querySelector('[data-page="sompal"]'));
+}
 
 function showComingSoon(pageId) {
   // Remove any existing overlay

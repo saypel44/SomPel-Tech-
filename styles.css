@@ -98,7 +98,7 @@ body::before {
 #name-screen::after {
   content: '';
   position: absolute;
-  width: 700px; height: 700px;
+  width: 1000px; height: 1000px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(107,163,104,0.12) 0%, rgba(167,199,231,0.08) 45%, transparent 70%);
   top: 50%; left: 50%;
@@ -216,10 +216,17 @@ body::before {
   min-height: 100vh;
   flex-direction: row;
   margin-left: var(--sidebar-w);
+
 }
+
 #app-screen.visible {
   display: flex;
+  opacity: 1;
 }
+
+/* #app-screen.visible {
+  display: flex;
+} */
 
 /* ══════════════════════════════════════
    SIDEBAR → LEFT NAVIGATION BAR
@@ -375,19 +382,19 @@ body::before {
   width: 100%;
   display: flex; align-items: center; gap: 8px;
   padding: 8px 12px;
-  background: #EFF5EF;
-  border: 1px solid #C8D8C8;
+  background: rgba(123,169,137,0.08);  /* Sage green light background */
+  border: 1.5px solid rgba(123,169,137,0.25);  /* Sage green border */
   border-radius: var(--radius-sm);
-  color: var(--sidebar-muted);
+  color: var(--sidebar-text);  /* Dark text */
   font-family: 'Outfit', sans-serif;
   font-size: 0.76rem; font-weight: 500;
   cursor: pointer; transition: all 0.18s;
   margin-bottom: 14px;
 }
 .signout-btn:hover {
-  border-color: var(--red);
-  background: #FFF0F0;
-  color: #C0392B;
+  border-color: rgba(123,169,137,0.5);  /* Sage green border on hover */
+  background: rgba(123,169,137,0.12);  /* Slightly darker sage green */
+  color: var(--sidebar-text);
 }
 
 .sidebar-footer-text {
@@ -407,7 +414,7 @@ body::before {
    MAIN CONTENT
 ══════════════════════════════════════ */
 .main-content {
-  margin-left: 300px;
+  margin-left: 200px;
   margin-top: 59px;
   display: flex;
   flex-direction: column;
@@ -880,7 +887,7 @@ body::before {
   .main-content { margin-left: 0; }
   .page-inner { padding: 32px 20px 60px; }
   .greeting-bar { padding: 10px 20px; }
-  .stats-row { gap: 8px; }
+  .stats-row { gap: 8px; } 
   .stat-card { min-width: 80px; }
   .findings-grid { grid-template-columns: 1fr; }
   .sidebar { padding: 0 8px; }
