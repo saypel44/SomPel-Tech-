@@ -74,10 +74,11 @@
         </button>
         <button class="nav-item" data-page="products" onclick="navigateTo('products', this)">
           <span class="nav-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8l-2 4h12l-2-4z"/></svg>
           </span>
           <span>Products</span>
         </button>
+
       </nav>
 
       <div class="sidebar-bottom">
@@ -776,9 +777,38 @@
       <!-- ── END PAGE: REPORT ── -->
 
       <!-- ── PAGE: PRODUCTS ── -->
-      
-    
-  
+      <div class="page" id="page-products">
+        <div class="page-inner">
+          <div class="page-eyebrow">SomPel Tech · Products</div>
+          <h1 class="page-title">Our <em>Products</em></h1>
+          <div class="page-divider"></div>
+
+          <div class="about-greeting-card" id="products-greeting-card">
+            <div class="about-greeting-icon">💡</div>
+            <p id="products-greeting-text">Explore the tools and applications being developed by SomPel Tech to improve sleep health and daily wellbeing in Bhutan.</p>
+          </div>
+
+          <div class="content-section">
+            <h2 class="section-heading">Evidence-Based Wellness Tools</h2>
+            <p class="section-text">These products are designed directly from the insights gathered in the Bhutan Lifestyle &amp; Wellbeing 2026 study. Each tool targets a specific gap identified in the research — from sleep tracking to personalized habit coaching.</p>
+          </div>
+
+          <div class="report-options">
+
+            <div class="report-card">
+              <div class="report-card-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <h3 class="report-card-title">SomPel Sleep Tracker</h3>
+              <p class="report-card-desc">A mobile app that logs bedtime, wake time, and sleep quality each day. Uses your data to surface patterns and suggest evidence-based improvements tailored for Bhutanese lifestyles.</p>
+              <button class="report-btn" onclick="alert('Coming soon — SomPel Sleep Tracker')">Coming Soon →</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <!-- ── END PAGE: PRODUCTS ── -->
+
     </main> <!-- /.main-content -->
   </div><!-- /#app-screen -->
 

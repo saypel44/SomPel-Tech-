@@ -127,6 +127,10 @@ function setGreetingCards(name, greet) {
       id: 'market-greeting-text',
       text: `This section examines whether Bhutan has a viable market for digital wellness tools — and what the data says.`,
     },
+    {
+      id: 'products-greeting-text',
+      text: `Explore the tools and applications being developed by SomPel Tech to improve sleep health and daily wellbeing in Bhutan.`,
+    },
   ];
 
   cards.forEach(({ id, text }) => {
@@ -183,6 +187,141 @@ const PAGE_LABELS = {
   market:   { label: 'Market Readiness',            icon: '📱' },
   tableau:  { label: 'Tableau Story',               icon: '📐' },
   report:   { label: 'Report',                      icon: '📄' },
-  products: { label: 'Product',                     icon: '💡' },
+  products: { label: 'Products',                    icon: '📦' },
 };
 
+
+
+// ── Sign out ───────────────────────────────────────────────────────────────
+
+function doSignOut() {
+  visitorName = '';
+
+  // Reset app screen
+  const appScreen = document.getElementById('app-screen');
+  appScreen.classList.remove('visible');
+  appScreen.style.opacity = '';
+  appScreen.style.transition = '';
+
+  // Reset name input
+  const input = document.getElementById('inp-name');
+  if (input) { input.value = ''; }
+  document.getElementById('name-error').style.display = 'none';
+
+  // Reset sidebar user
+  document.getElementById('sidebar-avatar').textContent = '?';
+  document.getElementById('sidebar-username').textContent = '';
+
+  // Reset greeting bar
+  document.getElementById('greeting-text').innerHTML = '';
+
+  // Reset nav — home active
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const homeBtn = document.querySelector('.nav-item[data-page="home"]');
+  if (homeBtn) homeBtn.classList.add('active');
+
+  // Reset pages — home active
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const homePage = document.getElementById('page-home');
+  if (homePage) homePage.classList.add('active');
+
+  // Show name screen
+  document.getElementById('name-screen').style.display = '';
+
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+
+// ── Animate market bar fills ───────────────────────────────────────────────
+
+function animateMarketBars() {
+  document.querySelectorAll('.mkt-card-bar-fill[data-target]').forEach(bar => {
+    const target = parseFloat(bar.getAttribute('data-target')) || 0;
+    bar.style.transition = 'width 1s cubic-bezier(0.22,1,0.36,1)';
+    bar.style.width = target + '%';
+  });
+
+  // Also animate plain fc-bar-fills (findings page)
+  document.querySelectorAll('.fc-bar-fill[style*="width"]').forEach(bar => {
+    const w = bar.style.width;
+    bar.style.width = '0';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        bar.style.transition = 'width 1s cubic-bezier(0.22,1,0.36,1)';
+        bar.style.width = w;
+      });
+    });
+  });
+}
+
+
+// ── Scroll to a specific finding card ─────────────────────────────────────
+
+function scrollToFinding(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const offset = 80; // account for sticky greeting bar
+  const top = el.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top, behavior: 'smooth' });
+}
+
+
+// ── Coming Soon overlay ────────────────────────────────────────────────────
+
+function showComingSoon(pageId) {
+  // Remove any existing overlay first
+  const existing = document.getElementById('coming-soon-overlay');
+  if (existing) existing.remove();
+
+  const info = PAGE_LABELS[pageId] || { label: pageId, icon: '🚧' };
+
+  const overlay = document.createElement('div');
+  overlay.id = 'coming-soon-overlay';
+  overlay.style.cssText = `
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(249,249,247,0.92);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+  `;
+
+  overlay.innerHTML = `
+    <div style="
+      background: var(--page);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 52px;
+      text-align: center;
+      max-width: 380px;
+      width: 90%;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.10);
+    ">
+      <div style="font-size: 2.4rem; margin-bottom: 16px;">${info.icon}</div>
+      <div style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em;
+                  text-transform: uppercase; color: var(--muted); margin-bottom: 10px;">
+        Coming Soon
+      </div>
+      <h2 style="font-family: 'Playfair Display', serif; font-size: 1.5rem;
+                 font-weight: 700; color: var(--text); margin-bottom: 12px;">
+        ${info.label}
+      </h2>
+      <p style="font-size: 0.85rem; color: var(--text2); line-height: 1.7; margin-bottom: 28px;">
+        This section is currently being prepared. Check back soon.
+      </p>
+      <button onclick="document.getElementById('coming-soon-overlay').remove()"
+        style="
+          padding: 10px 24px;
+          background: var(--green);
+          border: none; border-radius: 8px;
+          color: #fff; font-family: 'Outfit', sans-serif;
+          font-size: 0.83rem; font-weight: 600;
+          cursor: pointer; transition: background 0.2s;
+        "
+        onmouseover="this.style.background='var(--green-lt)'"
+        onmouseout="this.style.background='var(--green)'">
+        ← Go Back
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+}
