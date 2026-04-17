@@ -127,10 +127,10 @@ function setGreetingCards(name, greet) {
       id: 'market-greeting-text',
       text: `This section examines whether Bhutan has a viable market for digital wellness tools — and what the data says.`,
     },
-    {
-      id: 'products-greeting-text',
-      text: `Explore the tools built from this research — try the live Benchmarking Platform or stay tuned for the upcoming Sleep & Lifestyle App.`,
-    },
+    // {
+    //   id: 'products-greeting-text',
+    //   text: `Explore the tools built from this research — try the live Benchmarking Platform or stay tuned for the upcoming Sleep & Lifestyle App.`,
+    // },
   ];
 
   cards.forEach(({ id, text }) => {
@@ -142,7 +142,7 @@ function setGreetingCards(name, greet) {
 
 // ── Pages that are live (others show "Coming Soon") ───────────────────────
 
-const LIVE_PAGES = ['home', 'about', 'findings', 'market', 'tableau', 'report', 'products', 'sompal'];
+const LIVE_PAGES = ['home', 'about', 'findings', 'market', 'tableau', 'report', 'products'];
 
 
 // ── Navigation ─────────────────────────────────────────────────────────────
@@ -188,7 +188,6 @@ const PAGE_LABELS = {
   tableau:  { label: 'Tableau Story',               icon: '📐' },
   report:   { label: 'Report',                      icon: '📄' },
   products: { label: 'Product',                     icon: '💡' },
-  sompal:   { label: 'Sleep & Lifestyle Platform',  icon: '🌙' },
 };
 
 
@@ -272,32 +271,35 @@ function scrollToFinding(id) {
 }
 
 
-// ── Sign out ───────────────────────────────────────────────────────────────
-
 function doSignOut() {
   const appScreen = document.getElementById('app-screen');
-  appScreen.style.transition = 'opacity 0.3s ease';
-  appScreen.style.opacity = '0';
+
+  // Hide app screen (CSS handles animation)
+  appScreen.classList.remove('visible');
 
   setTimeout(() => {
-    appScreen.classList.remove('visible');
-    appScreen.style.opacity = '';
-    appScreen.style.transition = '';
-
+    // Show name screen
     document.getElementById('name-screen').style.display = 'flex';
+
+    // Reset input + error
     document.getElementById('inp-name').value = '';
     document.getElementById('name-error').style.display = 'none';
+
+    // Reset stored name
     visitorName = '';
 
-    // Reset nav to home
+    // Reset pages
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-home').classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
+    // Reset nav
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     const homeBtn = document.querySelector('[data-page="home"]');
     if (homeBtn) homeBtn.classList.add('active');
 
+    // Reset animations
     barsAnimated = false;
+
   }, 300);
 }
 
