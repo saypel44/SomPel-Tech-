@@ -218,16 +218,11 @@ body::before {
 #app-screen {
   display: none;
   min-height: 100vh;
-  flex-direction: row;
-  margin-left: var(--sidebar-w);
-
 }
 
 #app-screen.visible {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
+  display: block;
+  margin-left: var(--sidebar-w);
 }
 
 
@@ -390,21 +385,23 @@ body::before {
    MAIN CONTENT
 ══════════════════════════════════════ */
 .main-content {
-  margin-left: 200px;
-  margin-top: 59px;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
 }
 
 /* Greeting bar */
 .greeting-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   padding: 10px 48px;
   font-size: 0.82rem; color: var(--text2);
   letter-spacing: 0.01em;
   flex-shrink: 0;
-  margin-top: 0;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   width: 100%;
 }
@@ -1898,9 +1895,4 @@ body::before {
   .fc-compare-header, .fc-compare-row { grid-template-columns: 1fr 1fr 1fr; font-size: 0.72rem; }
   .mkt-big-stat { flex-direction: column; align-items: flex-start; gap: 8px; }
   .mkt-big-num { font-size: 2.2rem; }
-}
-
-
-#products .page-inner {
-  padding-top: 20px;
 }
