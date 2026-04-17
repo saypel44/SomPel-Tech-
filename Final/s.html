@@ -2,44 +2,33 @@
 
 let visitorName = '';
 
-
 // ── Toggle PDF/preview viewer ──────────────────────────────────────────────
-
 function togglePdfReader(viewerId, btn) {
   const viewer = document.getElementById(viewerId);
   if (!viewer) return;
-
   const isOpen = viewer.style.display !== 'none';
   viewer.style.display = isOpen ? 'none' : 'block';
-
   if (btn) btn.classList.toggle('prc-toggle-btn--active', !isOpen);
 }
 
-
 // ── Show home section (tabs) ───────────────────────────────────────────────
-
 function showHomeSection(sectionId, btn) {
   document.querySelectorAll('.home-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.home-tab').forEach(b => b.classList.remove('active'));
-
   const target = document.getElementById('home-' + sectionId);
   if (target) target.classList.add('active');
   if (btn) btn.classList.add('active');
 }
 
-
 // ── Google Sheets logging ──────────────────────────────────────────────────
-
 const SHEET_URL = 'https://script.google.com/macros/s/AKfycbys3-Yefk8RbNEMZFzBJ9xupG4WMWhitYAw1EfoJnQwDEI-miDb9jNC2bthJtGbLGib2A/exec';
 
 function logVisitor(name) {
   if (!SHEET_URL || SHEET_URL === 'YOUR_APPS_SCRIPT_URL') return;
-
   const now = new Date().toLocaleString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit', hour12: true,
   });
-
   fetch(SHEET_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -48,9 +37,7 @@ function logVisitor(name) {
   }).catch(() => {});
 }
 
-
 // ── Greeting helper ────────────────────────────────────────────────────────
-
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 12) return 'Good morning';
@@ -58,9 +45,7 @@ function getGreeting() {
   return 'Good evening';
 }
 
-
 // ── Name submission ────────────────────────────────────────────────────────
-
 function submitName() {
   const input = document.getElementById('inp-name');
   const err   = document.getElementById('name-error');
@@ -99,7 +84,6 @@ function submitName() {
   appScreen.classList.add('visible');
   appScreen.style.opacity = '0';
   appScreen.style.transition = 'opacity 0.4s ease';
-
   requestAnimationFrame(() => {
     requestAnimationFrame(() => { appScreen.style.opacity = '1'; });
   });
@@ -110,15 +94,13 @@ function submitName() {
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
-
 // ── Per-page personalised greeting cards ───────────────────────────────────
-
 function setGreetingCards(name, greet) {
   const cards = [
-    // {
-    //   id: 'about-greeting-text',
-    //   text: 'This section explains why this study was conducted, who carried it out, and what questions it set out to answer.',
-    // },
+    {
+      id: 'about-greeting-text',
+      text: 'This section explains why this study was conducted, who carried it out, and what questions it set out to answer.',
+    },
     {
       id: 'findings-greeting-text',
       text: `Here's a breakdown of the seven key findings from the study — from respondent distribution to market readiness for wellness tools.`,
@@ -132,21 +114,16 @@ function setGreetingCards(name, greet) {
       text: `Explore the tools built from this research — try the live Benchmarking Platform or stay tuned for the upcoming Sleep & Lifestyle App.`,
     },
   ];
-
   cards.forEach(({ id, text }) => {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
   });
 }
 
-
 // ── Pages that are live (others show "Coming Soon") ───────────────────────
-
 const LIVE_PAGES = ['home', 'about', 'findings', 'market', 'tableau', 'report', 'products', 'sompal'];
 
-
 // ── Navigation ─────────────────────────────────────────────────────────────
-
 function navigateTo(pageId, btn) {
   // If page isn't live yet, show the coming-soon overlay
   if (!LIVE_PAGES.includes(pageId)) {
@@ -175,28 +152,21 @@ function navigateTo(pageId, btn) {
     setTimeout(animateMarketBars, 200);
   }
 
+
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-
 // ── Coming Soon overlay ────────────────────────────────────────────────────
-
 const PAGE_LABELS = {
-  about:    { label: 'About This Project',          icon: 'ℹ️' },
-  findings: { label: 'Key Findings',                icon: '📊' },
-  market:   { label: 'Market Readiness',            icon: '📱' },
-  tableau:  { label: 'Tableau Story',               icon: '📐' },
-  report:   { label: 'Report',                      icon: '📄' },
-  products: { label: 'Product',                     icon: '💡' },
-  sompal:   { label: 'Sleep & Lifestyle Platform',  icon: '🌙' },
+  about:    { label: 'About This Project', icon: 'ℹ️' },
+  findings: { label: 'Key Findings',        icon: '📊' },
+  market:   { label: 'Market Readiness',    icon: '📱' },
+  tableau:  { label: 'Tableau Story',       icon: '📐' },
+  report:   { label: 'Report',              icon: '📄' },
+  products: { label: 'Product',             icon: '💡' },
+  sompal:   { label: 'Sleep & Lifestyle Platform', icon: '🌙' },
 };
-
-
-// ── Navigate into the SomPel platform (called by Products "Try it now" btn) ─
-
-function showBenchmarkTool() {
-  navigateTo('sompal', document.querySelector('[data-page="sompal"]'));
-}
 
 function showComingSoon(pageId) {
   // Remove any existing overlay
@@ -226,20 +196,16 @@ function showComingSoon(pageId) {
 function closeComingSoon() {
   const overlay = document.getElementById('coming-soon-overlay');
   if (!overlay) return;
-
   overlay.classList.remove('cs-visible');
   setTimeout(() => overlay.remove(), 280);
 }
 
-
 // ── Market bar animation ───────────────────────────────────────────────────
-
 let barsAnimated = false;
 
 function animateMarketBars() {
   // Animate both old .market-bar-fill and new .mkt-card-bar-fill
   const bars = document.querySelectorAll('.market-bar-fill, .mkt-card-bar-fill');
-
   bars.forEach(bar => {
     const target = bar.getAttribute('data-target');
     if (target) {
@@ -253,14 +219,17 @@ function animateMarketBars() {
   });
 }
 
+// ── Show the SomPel platform page (Benchmarking / Sleep tool) ──────────────
+function showBenchmarkTool() {
+  const btn = document.querySelector('[data-page="sompal"]') || null;
+  navigateTo('sompal', btn);
+}
 
 // ── Scroll to finding card ─────────────────────────────────────────────────
-
 function scrollToFinding(id) {
   // Make sure findings page is active
   const findingsBtn = document.querySelector('[data-page="findings"]');
   navigateTo('findings', findingsBtn);
-
   setTimeout(() => {
     const el = document.getElementById(id);
     if (el) {
@@ -271,8 +240,6 @@ function scrollToFinding(id) {
   }, 150);
 }
 
-
-// ── Sign out ───────────────────────────────────────────────────────────────
 
 function doSignOut() {
   const appScreen = document.getElementById('app-screen');
@@ -293,7 +260,6 @@ function doSignOut() {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-home').classList.add('active');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
     const homeBtn = document.querySelector('[data-page="home"]');
     if (homeBtn) homeBtn.classList.add('active');
 
@@ -301,12 +267,9 @@ function doSignOut() {
   }, 300);
 }
 
-
 // ── Keyboard: Enter on name screen ────────────────────────────────────────
-
 document.addEventListener('keydown', function (e) {
   if (e.key !== 'Enter') return;
-
   const ns = document.getElementById('name-screen');
   if (ns && ns.style.display !== 'none') {
     submitName();
