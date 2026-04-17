@@ -374,14 +374,14 @@ body::before {
   font-weight: 500;
 }
 @media (max-width: 1000px) {
-  .sidebar-footer-text { display: none; }
-  .sidebar-bottom { display: none; }
-}
+  .sidebar-footer-text { display: flex; }
+  .sidebar-bottom { display: flex; }
+} 
 
-  .sidebar-bottom {
-    display: none;
+  /* .sidebar-bottom {
+    display: flex;
   }
-  
+   */
 
 /* ══════════════════════════════════════
    MAIN CONTENT
