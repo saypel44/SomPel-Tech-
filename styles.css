@@ -1899,3 +1899,8 @@ body::before {
   .mkt-big-stat { flex-direction: column; align-items: flex-start; gap: 8px; }
   .mkt-big-num { font-size: 2.2rem; }
 }
+
+
+#products .page-inner {
+  padding-top: 20px;
+}
