@@ -190,10 +190,6 @@ const PAGE_LABELS = {
   products: { label: 'Products',                    icon: '📦' },
 };
 
-
-
-// ── Sign out ───────────────────────────────────────────────────────────────
-
 function doSignOut() {
   visitorName = '';
 
@@ -202,11 +198,6 @@ function doSignOut() {
   appScreen.classList.remove('visible');
   appScreen.style.opacity = '';
   appScreen.style.transition = '';
-
-  // Reset name input
-  const input = document.getElementById('inp-name');
-  if (input) { input.value = ''; }
-  document.getElementById('name-error').style.display = 'none';
 
   // Reset sidebar user
   document.getElementById('sidebar-avatar').textContent = '?';
@@ -221,17 +212,19 @@ function doSignOut() {
   if (homeBtn) homeBtn.classList.add('active');
 
   // Reset pages — home active
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = '';
+  });
   const homePage = document.getElementById('page-home');
   if (homePage) homePage.classList.add('active');
 
-  // tried to add here
-  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-  document.getElementById('page-report').style.display = 'block';
+  // Reset name input
+  document.getElementById('inp-name').value = '';
+  document.getElementById('name-error').style.display = 'none';
 
   // Show name screen
   document.getElementById('name-screen').style.display = '';
-
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
