@@ -97,10 +97,10 @@ function submitName() {
 // ── Per-page personalised greeting cards ───────────────────────────────────
 function setGreetingCards(name, greet) {
   const cards = [
-    {
-      id: 'about-greeting-text',
-      text: 'This section explains why this study was conducted, who carried it out, and what questions it set out to answer.',
-    },
+    // {
+    //   id: 'about-greeting-text',
+    //   text: 'This section explains why this study was conducted, who carried it out, and what questions it set out to answer.',
+    // },
     {
       id: 'findings-greeting-text',
       text: `Here's a breakdown of the seven key findings from the study — from respondent distribution to market readiness for wellness tools.`,
