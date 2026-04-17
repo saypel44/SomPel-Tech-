@@ -667,9 +667,12 @@
           <div class="page-eyebrow">Tableau Story</div>
           <h1 class="page-title"> Files Available </em></h1>
           <div class="page-divider"></div>
-          <p class="section-text" style="margin-bottom:32px;">
-          Here are the files related to the project. Click "Preview" to view the Tableau Public story and the report directly on this page, or click "Download" to access the files.
-          </p>
+
+          <div class="about-greeting-card" id="files-greeting-card">
+            <div class="about-greeting-icon">📊</div>
+            <p id="files-greeting-text"></p>
+          </div>
+
           <!-- ── Tableau Public card ── -->
           <div class="project-resource-card" id="tableau-resource-card">
             <div class="prc-header">
@@ -732,85 +735,29 @@
           </div>
           </div>
         </div>
-      </div>
       <!-- ── END PAGE: TABLEAU STORY ── -->
+      
+      <!-- page: products -->
 
-      <!-- ── PAGE: REPORT / files ── -->
-      <div class="page" id="page-report">
-        <div class="page-inner">
-          <div class="page-eyebrow">Full Report</div>
-          <h1 class="page-title">Research <em>Report</em></h1>
-          <div class="page-divider"></div>
-
-          <p class="section-text" style="margin-bottom:32px;">
-            The complete research report covers the methodology, data analysis, findings,
-            and recommendations from the Bhutan Lifestyle &amp; Wellbeing  2026.
-          </p>
-          <div class="report-options">
-            <div class="report-card">
-              <div class="report-card-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-              </div>
-              <h3 class="report-card-title">Full PDF Report</h3>
-              <p class="report-card-desc">Download the complete research report including all charts, analysis, and references.</p>
-              <button class="report-btn" onclick="alert('Link your PDF here')">Download PDF →</button>
-            </div>
-            <div class="report-card">
-              <div class="report-card-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-              </div>
-              <h3 class="report-card-title">Executive Summary</h3>
-              <p class="report-card-desc">A concise two-page overview of the most important findings and recommendations.</p>
-              <button class="report-btn" onclick="alert('Link your summary here')">Download Summary →</button>
-            </div>
-            <div class="report-card">
-              <div class="report-card-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-              </div>
-              <h3 class="report-card-title">Raw Dataset</h3>
-              <p class="report-card-desc">Access the anonymised survey dataset used in this study for independent analysis.</p>
-              <button class="report-btn" onclick="alert('Link your dataset here')">Access Dataset →</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- ── END PAGE: REPORT ── -->
-
-      <!-- ── PAGE: PRODUCTS ── -->
       <div class="page" id="page-products">
         <div class="page-inner">
-          <div class="page-eyebrow">SomPel Tech · Products</div>
-          <h1 class="page-title">Our <em>Products</em></h1>
+          <div class="page-eyebrow">Products</div>
+          <h1 class="page-title">What Products is it?</h1>
           <div class="page-divider"></div>
 
           <div class="about-greeting-card" id="products-greeting-card">
-            <div class="about-greeting-icon">💡</div>
-            <p id="products-greeting-text">Explore the tools and applications being developed by SomPel Tech to improve sleep health and daily wellbeing in Bhutan.</p>
+            <div class="about-greeting-icon">📊</div>
+            <p id="products-greeting-text"></p>
           </div>
 
-          <div class="content-section">
-            <h2 class="section-heading">Evidence-Based Wellness Tools</h2>
-            <p class="section-text">These products are designed directly from the insights gathered in the Bhutan Lifestyle &amp; Wellbeing 2026 study. Each tool targets a specific gap identified in the research — from sleep tracking to personalized habit coaching.</p>
-          </div>
-
-          <div class="report-options">
-
-            <div class="report-card">
-              <div class="report-card-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
-              </div>
-              <h3 class="report-card-title">SomPel Sleep Tracker</h3>
-              <p class="report-card-desc">A mobile app that logs bedtime, wake time, and sleep quality each day. Uses your data to surface patterns and suggest evidence-based improvements tailored for Bhutanese lifestyles.</p>
-              <button class="report-btn" onclick="alert('Coming soon — SomPel Sleep Tracker')">Coming Soon →</button>
-            </div>
-
-          </div>
         </div>
       </div>
-      <!-- ── END PAGE: PRODUCTS ── -->
-
+        
+     </div>
     </main> <!-- /.main-content -->
-  </div><!-- /#app-screen -->
+  </div>
+</body>
+<!-- /#app-screen -->
 
   <script src="script.js"></script>
 </body>

@@ -157,11 +157,15 @@ function navigateTo(pageId, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
+  // added here 
+  
+
+
   // Activate target page
   const target = document.getElementById('page-' + pageId);
   if (target) {
     target.classList.add('active');
-    target.style.animation = 'none';
+    target.style.animation = 'active';
     target.offsetHeight; // reflow
     target.style.animation = '';
   }
@@ -170,7 +174,7 @@ function navigateTo(pageId, btn) {
   if (btn) btn.classList.add('active');
 
   // Animate bars if navigating to market page
-  if (pageId === 'market') {
+  if (pageId === 'product') {
     setTimeout(animateMarketBars, 200);
   }
 
