@@ -1357,110 +1357,6 @@ body::before {
   border-radius: 99px;
 }
 
-/* ══════════════════════════════════════
-   COMING SOON OVERLAY
-══════════════════════════════════════ */
-#coming-soon-overlay {
-  position: fixed; inset: 0;
-  z-index: 500;
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.28s ease;
-}
-#coming-soon-overlay.cs-visible {
-  opacity: 1; pointer-events: all;
-}
-
-.cs-backdrop {
-  position: absolute; inset: 0;
-  background: rgba(20, 30, 20, 0.42);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  cursor: pointer;
-}
-
-.cs-card {
-  position: relative; z-index: 1;
-  background: linear-gradient(160deg, #F7FBF7 0%, #EBF5F8 100%);
-  border: 1.5px solid rgba(107,163,104,0.28);
-  border-radius: 20px;
-  padding: 48px 44px 40px;
-  max-width: 400px; width: 100%;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 4px 16px rgba(107,163,104,0.10);
-  transform: translateY(20px) scale(0.97);
-  transition: transform 0.32s cubic-bezier(0.22,1,0.36,1);
-}
-#coming-soon-overlay.cs-visible .cs-card {
-  transform: translateY(0) scale(1);
-}
-
-/* top stripe */
-.cs-card::before {
-  content: '';
-  position: absolute; top:0; left:0; right:0; height: 3px;
-  background: linear-gradient(90deg, var(--green), var(--sky-lt));
-  border-radius: 20px 20px 0 0;
-}
-
-.cs-icon {
-  font-size: 2.8rem; margin-bottom: 16px;
-  animation: floatIcon 3s ease-in-out infinite;
-}
-@keyframes floatIcon {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-6px); }
-}
-
-.cs-tag {
-  display: inline-block;
-  font-size: 0.63rem; font-weight: 700;
-  letter-spacing: 0.15em; text-transform: uppercase;
-  padding: 4px 12px; border-radius: 99px;
-  background: rgba(107,163,104,0.10);
-  color: var(--green);
-  border: 1px solid rgba(107,163,104,0.24);
-  margin-bottom: 14px;
-}
-
-.cs-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.45rem; font-weight: 700;
-  color: var(--text); margin-bottom: 12px;
-  letter-spacing: -0.01em;
-}
-
-.cs-text {
-  font-size: 0.87rem; color: var(--text2);
-  line-height: 1.75; margin-bottom: 28px;
-}
-
-.cs-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 11px 24px;
-  background: linear-gradient(90deg, var(--green), var(--sky));
-  border: none; border-radius: 99px;
-  color: #fff; font-family: 'Outfit', sans-serif;
-  font-size: 0.85rem; font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.02em;
-  box-shadow: 0 4px 14px rgba(107,163,104,0.28);
-}
-.cs-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(107,163,104,0.38);
-}
-.cs-btn:active { transform: translateY(0); }
-
-/* dim non-live nav items */
-.nav-item[data-page]:not([data-page="home"]):not([data-page="about"]):not([data-page="findings"]):not([data-page="market"]):not([data-page="tableau"]):not([data-page="report"]):not([data-page="products"]) {
-  opacity: 0.55;
-}
-.nav-item[data-page]:not([data-page="home"]):not([data-page="about"]):not([data-page="findings"]):not([data-page="market"]):not([data-page="tableau"]):not([data-page="report"]):not([data-page="products"]):hover {
-  opacity: 0.85;
-}
 
 /* ── Project Resource Cards (Report + Tableau) ─────────────────────────── */
 .project-resource-card {
@@ -1576,6 +1472,7 @@ body::before {
 .mw-badge-sub {
   font-size: 0.73rem; color: var(--muted); font-style: italic;
 }
+
 
 /* Donut + bars side-by-side */
 .mw-visual-row {
