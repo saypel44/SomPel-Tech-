@@ -127,10 +127,6 @@ function setGreetingCards(name, greet) {
       id: 'market-greeting-text',
       text: `This section examines whether Bhutan has a viable market for digital wellness tools — and what the data says.`,
     },
-    // {
-    //   id: 'products-greeting-text',
-    //   text: `Explore the tools built from this research — try the live Benchmarking Platform or stay tuned for the upcoming Sleep & Lifestyle App.`,
-    // },
   ];
 
   cards.forEach(({ id, text }) => {
@@ -142,7 +138,7 @@ function setGreetingCards(name, greet) {
 
 // ── Pages that are live (others show "Coming Soon") ───────────────────────
 
-const LIVE_PAGES = ['home', 'about', 'findings', 'market', 'tableau', 'report', 'products'];
+const LIVE_PAGES = ['home', 'about', 'findings', 'market', 'tableau', 'report'];
 
 
 // ── Navigation ─────────────────────────────────────────────────────────────
