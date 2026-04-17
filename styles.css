@@ -221,12 +221,10 @@ body::before {
 
 #app-screen.visible {
   display: flex;
-  opacity: 1;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
-
-/* #app-screen.visible {
-  display: flex;
-} */
 
 /* ══════════════════════════════════════
    SIDEBAR → LEFT NAVIGATION BAR
