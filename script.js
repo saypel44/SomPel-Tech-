@@ -115,10 +115,6 @@ function submitName() {
 
 function setGreetingCards(name, greet) {
   const cards = [
-    // {
-    //   id: 'about-greeting-text',
-    //   text: 'This section explains why this study was conducted, who carried it out, and what questions it set out to answer.',
-    // },
     {
       id: 'findings-greeting-text',
       text: `Here's a breakdown of the seven key findings from the study — from respondent distribution to market readiness for wellness tools.`,
@@ -126,6 +122,10 @@ function setGreetingCards(name, greet) {
     {
       id: 'market-greeting-text',
       text: `This section examines whether Bhutan has a viable market for digital wellness tools — and what the data says.`,
+    },
+    {
+      id: 'files-greeting-text',
+      text: 'Here are the files related to the project. Click "Preview" to view the Tableau Public story and the report directly on this page, or click "Download" to access the files.'
     },
     {
       id: 'products-greeting-text',
@@ -153,7 +153,6 @@ function navigateTo(pageId, btn) {
     showComingSoon(pageId);
     return;
   }
-
   // Deactivate all pages & nav items
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -177,9 +176,6 @@ function navigateTo(pageId, btn) {
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
-
-// ── Coming Soon overlay ────────────────────────────────────────────────────
 
 const PAGE_LABELS = {
   about:    { label: 'About This Project',          icon: 'ℹ️' },
@@ -225,6 +221,10 @@ function doSignOut() {
   const homePage = document.getElementById('page-home');
   if (homePage) homePage.classList.add('active');
 
+  // tried to add here
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+  document.getElementById('page-report').style.display = 'block';
+
   // Show name screen
   document.getElementById('name-screen').style.display = '';
 
@@ -265,63 +265,3 @@ function scrollToFinding(id) {
   window.scrollTo({ top, behavior: 'smooth' });
 }
 
-
-// ── Coming Soon overlay ────────────────────────────────────────────────────
-
-function showComingSoon(pageId) {
-  // Remove any existing overlay first
-  const existing = document.getElementById('coming-soon-overlay');
-  if (existing) existing.remove();
-
-  const info = PAGE_LABELS[pageId] || { label: pageId, icon: '🚧' };
-
-  const overlay = document.createElement('div');
-  overlay.id = 'coming-soon-overlay';
-  overlay.style.cssText = `
-    position: fixed; inset: 0; z-index: 200;
-    background: rgba(249,249,247,0.92);
-    backdrop-filter: blur(6px);
-    display: flex; align-items: center; justify-content: center;
-  `;
-
-  overlay.innerHTML = `
-    <div style="
-      background: var(--page);
-      border: 1.5px solid var(--border);
-      border-radius: 16px;
-      padding: 48px 52px;
-      text-align: center;
-      max-width: 380px;
-      width: 90%;
-      box-shadow: 0 8px 48px rgba(0,0,0,0.10);
-    ">
-      <div style="font-size: 2.4rem; margin-bottom: 16px;">${info.icon}</div>
-      <div style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em;
-                  text-transform: uppercase; color: var(--muted); margin-bottom: 10px;">
-        Coming Soon
-      </div>
-      <h2 style="font-family: 'Playfair Display', serif; font-size: 1.5rem;
-                 font-weight: 700; color: var(--text); margin-bottom: 12px;">
-        ${info.label}
-      </h2>
-      <p style="font-size: 0.85rem; color: var(--text2); line-height: 1.7; margin-bottom: 28px;">
-        This section is currently being prepared. Check back soon.
-      </p>
-      <button onclick="document.getElementById('coming-soon-overlay').remove()"
-        style="
-          padding: 10px 24px;
-          background: var(--green);
-          border: none; border-radius: 8px;
-          color: #fff; font-family: 'Outfit', sans-serif;
-          font-size: 0.83rem; font-weight: 600;
-          cursor: pointer; transition: background 0.2s;
-        "
-        onmouseover="this.style.background='var(--green-lt)'"
-        onmouseout="this.style.background='var(--green)'">
-        ← Go Back
-      </button>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-}

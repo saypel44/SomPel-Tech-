@@ -225,8 +225,6 @@ body::before {
   margin-left: var(--sidebar-w);
 }
 
-
-
 /* ══════════════════════════════════════
    SIDEBAR → LEFT NAVIGATION BAR
 ══════════════════════════════════════ */
@@ -435,6 +433,24 @@ body::before {
 }
 .page.active { display: block; }
 
+/* added here */
+.page-inner {
+  max-width: auto;
+  margin: top left;
+  padding: px 48px 80px;
+}
+
+.page-inner { padding: 40px 28px 60px; }
+  .greeting-bar { padding: 10px 28px; }
+  .nav-item span:not(.nav-icon) { display: none; }
+  .nav-item { padding: 7px 9px; }
+
+.page-products {
+    height: top;
+    min-height: top;
+    padding: 10px;
+}
+
 @keyframes pageIn {
   from { opacity:0; transform:translateY(12px); }
   to   { opacity:1; transform:translateY(0); }
@@ -573,6 +589,7 @@ body::before {
   animation: findingPulse 1.4s ease forwards !important;
 }
 
+
 /* ══════════════════════════════════════
    ABOUT PAGE — GREETING CARD
 ══════════════════════════════════════ */
@@ -589,6 +606,9 @@ body::before {
   font-size: 0.88rem; color: var(--text2);
   line-height: 1.75; font-style: italic;
 }
+
+
+
 
 /* ── Content sections ── */
 .content-section { margin-bottom: 32px; }
