@@ -262,3 +262,64 @@ function scrollToFinding(id) {
   window.scrollTo({ top, behavior: 'smooth' });
 }
 
+
+
+// ── Mobile sidebar toggle ──────────────────────────────────────────────────
+
+function toggleMobileSidebar() {
+  const sidebar  = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  const isOpen   = sidebar.classList.contains('open');
+  if (isOpen) {
+    closeMobileSidebar();
+  } else {
+    sidebar.classList.add('open');
+    backdrop.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeMobileSidebar() {
+  const sidebar  = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  sidebar.classList.remove('open');
+  backdrop.classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+
+// ── Sync bottom nav active state ──────────────────────────────────────────
+
+function syncBottomNav(btn) {
+  const pageId = btn.getAttribute('data-page');
+  document.querySelectorAll('.bottom-nav-item').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-page') === pageId);
+  });
+  // Also close drawer if open
+  closeMobileSidebar();
+}
+
+
+// ── Patch navigateTo to also sync bottom nav ──────────────────────────────
+
+const _origNavigateTo = navigateTo;
+navigateTo = function(pageId, btn) {
+  _origNavigateTo(pageId, btn);
+  // Sync bottom nav
+  document.querySelectorAll('.bottom-nav-item').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-page') === pageId);
+  });
+  // Close mobile sidebar if open
+  closeMobileSidebar();
+};
+
+
+// ── Close sidebar on nav-item click (sidebar drawer) ─────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.sidebar .nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      if (window.innerWidth <= 768) closeMobileSidebar();
+    });
+  });
+});
