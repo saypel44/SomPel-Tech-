@@ -378,10 +378,10 @@ body::before {
   .sidebar-bottom { display: flex; }
 } 
 
-  /* .sidebar-bottom {
+  .sidebar-bottom {
     display: flex;
   }
-   */
+  
 
 /* ══════════════════════════════════════
    MAIN CONTENT
@@ -437,23 +437,6 @@ body::before {
 }
 .page.active { display: flex; flex-direction: column; }
 
-/* added here */
-.page-inner {
-  max-width: auto;
-  margin: top left;
-  padding: px 48px 80px;
-}
-
-.page-inner { padding: 40px 28px 60px; }
-  .greeting-bar { padding: 10px 28px; }
-  .nav-item span:not(.nav-icon) { display: none; }
-  .nav-item { padding: 7px 9px; }
-
-.page-products {
-    height: top;
-    min-height: top;
-    padding: 10px;
-}
 
 @keyframes pageIn {
   from { opacity:0; transform:translateY(12px); }
@@ -876,7 +859,7 @@ body::before {
 @media (max-width: 900px) {
   .page-inner { padding: 40px 28px 60px; }
   .greeting-bar { padding: 10px 28px; }
-  .nav-item span:not(.nav-icon) { display: none; }
+  .nav-item span:not(.nav-icon) { display: active; }
   .nav-item { padding: 7px 9px; }
 }
 
