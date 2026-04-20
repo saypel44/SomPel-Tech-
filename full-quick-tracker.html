@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Full Quick Tracker · SomPel Tech</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Outfit',sans-serif;background:#F9F9F7;display:flex;align-items:flex-start;justify-content:center;min-height:100vh;padding:32px 20px;}
+    .tracker-card{background:#fff;border-radius:16px;padding:40px 36px;max-width:500px;width:100%;box-shadow:0 4px 32px rgba(0,0,0,0.10);border:1.5px solid rgba(122,171,200,0.25);}
+    .top-bar{height:4px;background:linear-gradient(90deg,#6BA368,#7AABC8);border-radius:14px 14px 0 0;margin:-40px -36px 32px;}
+    .tracker-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7AABC8;margin-bottom:8px;}
+    .tracker-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#1C1C1E;margin-bottom:6px;}
+    .tracker-sub{font-size:0.84rem;color:#8A8884;margin-bottom:28px;line-height:1.6;}
+    .field{margin-bottom:16px;}
+    .field label{display:block;font-size:0.78rem;font-weight:600;color:#4A4848;margin-bottom:5px;}
+    .field select,.field input{width:100%;padding:11px 14px;border:1.5px solid #DEDDD8;border-radius:8px;font-size:0.9rem;font-family:'Outfit',sans-serif;background:#F2F2EF;color:#1C1C1E;outline:none;transition:border-color 0.2s;}
+    .field select:focus,.field input:focus{border-color:#7AABC8;box-shadow:0 0 0 3px rgba(122,171,200,0.15);}
+    .submit-btn{width:100%;padding:13px;background:linear-gradient(90deg,#6BA368,#7AABC8);border:none;border-radius:8px;color:#fff;font-size:0.92rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:6px;transition:opacity 0.2s,transform 0.2s;}
+    .submit-btn:hover{opacity:0.88;transform:translateY(-1px);}
+    .results{margin-top:22px;display:flex;flex-direction:column;gap:10px;display:none;}
+    .results.visible{display:flex;}
+    .tip{padding:12px 16px;border-radius:8px;font-size:0.85rem;line-height:1.65;}
+    .tip.good{background:rgba(107,163,104,0.10);border:1px solid rgba(107,163,104,0.25);color:#2E5E2C;}
+    .tip.warn{background:rgba(244,208,111,0.15);border:1px solid rgba(244,208,111,0.40);color:#7A5C00;}
+    .tip.bad {background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.22); color:#8B2011;}
+    .back-link{display:inline-block;margin-top:20px;font-size:0.8rem;color:#6BA368;text-decoration:none;font-weight:600;}
+    .back-link:hover{text-decoration:underline;}
+  </style>
+</head>
+<body>
+  <div class="tracker-card">
+    <div class="top-bar"></div>
+    <div class="tracker-eyebrow">Tool 2</div>
+    <div class="tracker-title">📋 Full Quick Tracker</div>
+    <div class="tracker-sub">Fill in all fields for a detailed sleep & energy analysis.</div>
+
+    <div class="field">
+      <label>Sleep Quality (last night)</label>
+      <select id="fqt-sleep">
+        <option value="">— Select —</option>
+        <option value="1">1 – Very poor</option>
+        <option value="2">2 – Poor</option>
+        <option value="3">3 – Fair</option>
+        <option value="4">4 – Good</option>
+        <option value="5">5 – Excellent</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Day Energy Level (today)</label>
+      <select id="fqt-energy">
+        <option value="">— Select —</option>
+        <option value="1">1 – Exhausted</option>
+        <option value="2">2 – Low</option>
+        <option value="3">3 – Moderate</option>
+        <option value="4">4 – High</option>
+        <option value="5">5 – Peak</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Hours slept</label>
+      <input type="number" id="fqt-hours" min="0" max="24" placeholder="e.g. 7">
+    </div>
+    <div class="field">
+      <label>Exercise today</label>
+      <select id="fqt-exercise">
+        <option value="">— Select —</option>
+        <option value="none">None</option>
+        <option value="light">Light (walk / stretch)</option>
+        <option value="moderate">Moderate (30+ min)</option>
+        <option value="intense">Intense (60+ min)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Caffeine intake</label>
+      <select id="fqt-caffeine">
+        <option value="">— Select —</option>
+        <option value="none">None</option>
+        <option value="morning">Morning only</option>
+        <option value="afternoon">Afternoon / Evening</option>
+      </select>
+    </div>
+
+    <button class="submit-btn" onclick="submitFull()">Get Full Analysis →</button>
+
+    <div class="results" id="fqt-results"></div>
+    <a class="back-link" href="javascript:window.close()">← Close this tab</a>
+  </div>
+
+  <script>
+    function submitFull() {
+      const sleep    = parseInt(document.getElementById('fqt-sleep').value)   || 0;
+      const energy   = parseInt(document.getElementById('fqt-energy').value)  || 0;
+      const hours    = parseFloat(document.getElementById('fqt-hours').value) || 0;
+      const exercise = document.getElementById('fqt-exercise').value;
+      const caffeine = document.getElementById('fqt-caffeine').value;
+
+      if (!sleep || !energy || !hours || !exercise || !caffeine) {
+        alert('Please fill in all fields.'); return;
+      }
+
+      const tips = [];
+
+      if      (hours < 6) tips.push({ t:'⏰ Under 6 hrs — aim for 7–9 hrs tonight.', c:'bad' });
+      else if (hours < 7) tips.push({ t:'⏰ Slightly short — try sleeping 30 min earlier.', c:'warn' });
+      else if (hours > 9) tips.push({ t:'⏰ Oversleeping — consistent 7–8 hrs is ideal.', c:'warn' });
+      else                tips.push({ t:'✅ Great sleep duration!', c:'good' });
+
+      if      (sleep <= 2) tips.push({ t:'😴 Poor quality — no screens 1 hr before bed, keep room cool & dark.', c:'bad' });
+      else if (sleep === 3) tips.push({ t:'😴 Fair quality — add a short wind-down routine before bed.', c:'warn' });
+      else                  tips.push({ t:'😴 Good sleep quality — keep it up!', c:'good' });
+
+      if      (energy <= 2) tips.push({ t:'⚡ Low energy — short walk + hydration can help significantly.', c:'bad' });
+      else if (energy === 3) tips.push({ t:'⚡ Moderate energy — movement breaks every 90 min help.', c:'warn' });
+      else                   tips.push({ t:'⚡ Great energy level — maintain your routine!', c:'good' });
+
+      if      (exercise === 'none')  tips.push({ t:'🏃 No exercise — even 15 min of walking improves sleep quality.', c:'warn' });
+      else if (exercise === 'light') tips.push({ t:'🏃 Light activity — build toward 30 min most days.', c:'warn' });
+      else                           tips.push({ t:'🏃 Great exercise habit — one of the strongest predictors of good sleep!', c:'good' });
+
+      if      (caffeine === 'afternoon') tips.push({ t:'☕ Afternoon/evening caffeine disrupts sleep — cut off by 2 PM.', c:'bad' });
+      else if (caffeine === 'morning')   tips.push({ t:'☕ Morning caffeine is fine — good habit.', c:'good' });
+      else                               tips.push({ t:'☕ No caffeine — nothing disrupting your sleep there.', c:'good' });
+
+      const container = document.getElementById('fqt-results');
+      container.innerHTML = tips.map(({ t, c }) => `<div class="tip ${c}">${t}</div>`).join('');
+      container.className = 'results visible';
+    }
+  </script>
+</body>
+</html>
