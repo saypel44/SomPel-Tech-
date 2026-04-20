@@ -157,10 +157,6 @@ function navigateTo(pageId, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-  // added here 
-  
-
-
   // Activate target page
   const target = document.getElementById('page-' + pageId);
   if (target) {
@@ -173,8 +169,16 @@ function navigateTo(pageId, btn) {
   // Activate nav button
   if (btn) btn.classList.add('active');
 
+  // Sync bottom nav active state
+  document.querySelectorAll('.bottom-nav-item').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-page') === pageId);
+  });
+
+  // Close mobile sidebar if open
+  closeMobileSidebar();
+
   // Animate bars if navigating to market page
-  if (pageId === 'product') {
+  if (pageId === 'market') {
     setTimeout(animateMarketBars, 200);
   }
 
@@ -300,26 +304,22 @@ function syncBottomNav(btn) {
 }
 
 
-// ── Patch navigateTo to also sync bottom nav ──────────────────────────────
-
-const _origNavigateTo = navigateTo;
-navigateTo = function(pageId, btn) {
-  _origNavigateTo(pageId, btn);
-  // Sync bottom nav
-  document.querySelectorAll('.bottom-nav-item').forEach(b => {
-    b.classList.toggle('active', b.getAttribute('data-page') === pageId);
-  });
-  // Close mobile sidebar if open
-  closeMobileSidebar();
-};
-
-
-// ── Close sidebar on nav-item click (sidebar drawer) ─────────────────────
+// ── DOMContentLoaded: sidebar close + Enter key on name input ─────────────
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  // Close sidebar drawer when a sidebar nav item is clicked on mobile
   document.querySelectorAll('.sidebar .nav-item').forEach(item => {
     item.addEventListener('click', () => {
       if (window.innerWidth <= 768) closeMobileSidebar();
     });
   });
+
+  // Allow pressing Enter to submit the name screen
+  const nameInput = document.getElementById('inp-name');
+  if (nameInput) {
+    nameInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitName();
+    });
+  }
 });
