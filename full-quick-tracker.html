@@ -1,132 +1,727 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Full Quick Tracker · SomPel Tech</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Outfit',sans-serif;background:#F9F9F7;display:flex;align-items:flex-start;justify-content:center;min-height:100vh;padding:32px 20px;}
-    .tracker-card{background:#fff;border-radius:16px;padding:40px 36px;max-width:500px;width:100%;box-shadow:0 4px 32px rgba(0,0,0,0.10);border:1.5px solid rgba(122,171,200,0.25);}
-    .top-bar{height:4px;background:linear-gradient(90deg,#6BA368,#7AABC8);border-radius:14px 14px 0 0;margin:-40px -36px 32px;}
-    .tracker-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7AABC8;margin-bottom:8px;}
-    .tracker-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#1C1C1E;margin-bottom:6px;}
-    .tracker-sub{font-size:0.84rem;color:#8A8884;margin-bottom:28px;line-height:1.6;}
-    .field{margin-bottom:16px;}
-    .field label{display:block;font-size:0.78rem;font-weight:600;color:#4A4848;margin-bottom:5px;}
-    .field select,.field input{width:100%;padding:11px 14px;border:1.5px solid #DEDDD8;border-radius:8px;font-size:0.9rem;font-family:'Outfit',sans-serif;background:#F2F2EF;color:#1C1C1E;outline:none;transition:border-color 0.2s;}
-    .field select:focus,.field input:focus{border-color:#7AABC8;box-shadow:0 0 0 3px rgba(122,171,200,0.15);}
-    .submit-btn{width:100%;padding:13px;background:linear-gradient(90deg,#6BA368,#7AABC8);border:none;border-radius:8px;color:#fff;font-size:0.92rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:6px;transition:opacity 0.2s,transform 0.2s;}
-    .submit-btn:hover{opacity:0.88;transform:translateY(-1px);}
-    .results{margin-top:22px;display:flex;flex-direction:column;gap:10px;display:none;}
-    .results.visible{display:flex;}
-    .tip{padding:12px 16px;border-radius:8px;font-size:0.85rem;line-height:1.65;}
-    .tip.good{background:rgba(107,163,104,0.10);border:1px solid rgba(107,163,104,0.25);color:#2E5E2C;}
-    .tip.warn{background:rgba(244,208,111,0.15);border:1px solid rgba(244,208,111,0.40);color:#7A5C00;}
-    .tip.bad {background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.22); color:#8B2011;}
-    .back-link{display:inline-block;margin-top:20px;font-size:0.8rem;color:#6BA368;text-decoration:none;font-weight:600;}
-    .back-link:hover{text-decoration:underline;}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Full Tracker – Daily Habit Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#0F6E56;
+  --amber:#BA7517;--amber-light:#FAEEDA;
+  --red:#C0392B;--red-light:#FDEDEC;
+  --blue:#185FA5;--blue-light:#E6F1FB;
+  --bg:#F2F0E9;--surface:#ffffff;--surface2:#F7F6F2;
+  --text:#1C1B18;--muted:#7A7870;--border:rgba(0,0,0,0.10);
+  --radius:10px;--radius-lg:16px;
+}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+h1,h2,h3{font-family:'Playfair Display',serif}
+
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem}
+.nav-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--green-dark)}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{padding:6px 14px;border-radius:20px;border:none;background:transparent;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;color:var(--muted);transition:all .15s}
+.nav-tab.active{background:var(--green-light);color:var(--green-dark);font-weight:500}
+
+/* LAYOUT */
+.page{display:none;max-width:720px;margin:0 auto;padding:1.5rem 1rem 4rem}
+.page.active{display:block}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.4rem;margin-bottom:1rem}
+.card-title{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:1rem}
+
+/* SECTION HEADER */
+.sec-head{display:flex;align-items:center;gap:10px;margin:1.5rem 0 .75rem}
+.sec-dot{width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.sec-label{font-size:12px;font-weight:500;color:var(--muted)}
+
+/* FORM ELEMENTS */
+select,input[type=time]{font-family:'Sora',sans-serif;font-size:13px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);width:100%;outline:none;transition:border .15s}
+select:focus,input[type=time]:focus{border-color:var(--green)}
+.field{margin-bottom:.9rem}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:500}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* LIKERT */
+.likert-q{margin-bottom:.9rem}
+.likert-q p{font-size:13px;color:var(--text);margin-bottom:6px}
+.likert-opts{display:flex;gap:5px;flex-wrap:wrap}
+.lopt{border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;background:var(--surface2);color:var(--muted);font-family:'Sora',sans-serif;transition:all .15s;white-space:nowrap}
+.lopt:hover{border-color:var(--green);color:var(--green)}
+.lopt.sel{background:var(--green-light);border-color:var(--green);color:var(--green-dark);font-weight:500}
+
+/* PROGRESS */
+.prog-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:1.5rem}
+.prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
+
+/* SUBMIT */
+.btn-primary{width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;transition:background .15s;margin-top:.5rem}
+.btn-primary:hover{background:var(--green-dark)}
+.btn-primary:disabled{background:#ccc;cursor:not-allowed}
+.btn-ghost{width:100%;padding:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;cursor:pointer;font-family:'Sora',sans-serif;margin-top:.5rem}
+.btn-ghost:hover{background:var(--surface2)}
+
+/* DAY BADGE */
+.day-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green-dark);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;margin-bottom:1rem}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:1rem}
+.stat{background:var(--surface2);border-radius:var(--radius);padding:.9rem;text-align:center}
+.stat-val{font-size:20px;font-weight:600;color:var(--text)}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.04em;text-transform:uppercase}
+
+/* TREND CHIP */
+.trend-chip{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:500}
+.trend-chip.pos{background:var(--green-light);color:var(--green-dark)}
+.trend-chip.neg{background:var(--red-light);color:var(--red)}
+.trend-chip.neu{background:var(--surface2);color:var(--muted)}
+
+/* REC CARD */
+.rec{border-left:3px solid var(--green);background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:.9rem 1.1rem;margin-bottom:.65rem}
+.rec.warn{border-left-color:var(--amber);background:var(--amber-light)}
+.rec.bad{border-left-color:var(--red);background:var(--red-light)}
+.rec h4{font-size:13px;font-weight:600;margin-bottom:.25rem}
+.rec p{font-size:12px;color:var(--muted);line-height:1.55}
+
+/* HISTORY */
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid var(--border);font-size:12px}
+.hist-item:last-child{border-bottom:none}
+.hist-day{font-weight:500;color:var(--text)}
+.hist-meta{color:var(--muted);font-size:11px}
+.hist-score{font-weight:600;font-size:13px}
+.hist-score.good{color:var(--green)}
+.hist-score.ok{color:var(--amber)}
+.hist-score.low{color:var(--red)}
+
+/* ALARM INDICATOR */
+.alarm-set{display:inline-flex;align-items:center;gap:4px;background:var(--blue-light);color:var(--blue);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:500;margin-top:4px}
+
+/* CHART WRAPPER */
+.chart-wrap{position:relative;height:220px;margin-top:.5rem}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:2rem 1rem;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:.5rem}
+.empty p{font-size:13px}
+
+/* PROFILE PILL */
+.profile-pill{display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:var(--radius);padding:.6rem 1rem;margin-bottom:1rem;font-size:12px;color:var(--muted)}
+.profile-pill strong{color:var(--text);font-size:13px}
+
+/* CONSISTENCY BADGE */
+.consist{display:flex;align-items:center;gap:8px;padding:.6rem 1rem;border-radius:var(--radius);font-size:12px;font-weight:500;margin-bottom:.75rem}
+.consist.good{background:var(--green-light);color:var(--green-dark)}
+.consist.warn{background:var(--amber-light);color:var(--amber)}
+.consist.bad{background:var(--red-light);color:var(--red)}
+</style>
 </head>
 <body>
-  <div class="tracker-card">
-    <div class="top-bar"></div>
-    <div class="tracker-eyebrow">Tool 2</div>
-    <div class="tracker-title">📋 Full Quick Tracker</div>
-    <div class="tracker-sub">Fill in all fields for a detailed sleep & energy analysis.</div>
 
-    <div class="field">
-      <label>Sleep Quality (last night)</label>
-      <select id="fqt-sleep">
-        <option value="">— Select —</option>
-        <option value="1">1 – Very poor</option>
-        <option value="2">2 – Poor</option>
-        <option value="3">3 – Fair</option>
-        <option value="4">4 – Good</option>
-        <option value="5">5 – Excellent</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Day Energy Level (today)</label>
-      <select id="fqt-energy">
-        <option value="">— Select —</option>
-        <option value="1">1 – Exhausted</option>
-        <option value="2">2 – Low</option>
-        <option value="3">3 – Moderate</option>
-        <option value="4">4 – High</option>
-        <option value="5">5 – Peak</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Hours slept</label>
-      <input type="number" id="fqt-hours" min="0" max="24" placeholder="e.g. 7">
-    </div>
-    <div class="field">
-      <label>Exercise today</label>
-      <select id="fqt-exercise">
-        <option value="">— Select —</option>
-        <option value="none">None</option>
-        <option value="light">Light (walk / stretch)</option>
-        <option value="moderate">Moderate (30+ min)</option>
-        <option value="intense">Intense (60+ min)</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Caffeine intake</label>
-      <select id="fqt-caffeine">
-        <option value="">— Select —</option>
-        <option value="none">None</option>
-        <option value="morning">Morning only</option>
-        <option value="afternoon">Afternoon / Evening</option>
-      </select>
-    </div>
+<nav>
+  <div class="nav-logo">Full Tracker</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('log')">Log Today</button>
+    <button class="nav-tab" onclick="switchTab('trends')">Trends</button>
+    <button class="nav-tab" onclick="switchTab('history')">History</button>
+    <button class="nav-tab" onclick="switchTab('profile')">Profile</button>
+  </div>
+</nav>
 
-    <button class="submit-btn" onclick="submitFull()">Get Full Analysis →</button>
-
-    <div class="results" id="fqt-results"></div>
-    <a class="back-link" href="javascript:window.close()">← Close this tab</a>
+<!-- ═══════════════ LOG PAGE ═══════════════ -->
+<div id="page-log" class="page active">
+  <div style="margin-bottom:1.2rem">
+    <div id="day-badge" class="day-badge">📅 Day 1 · <span id="today-date"></span></div>
+    <h2 style="font-size:22px;font-weight:700;line-height:1.2" id="log-heading">Log your day</h2>
+    <p style="font-size:12px;color:var(--muted);margin-top:.3rem">Fill in your habits for today to build your trend.</p>
+    <div class="prog-bar" style="margin-top:1rem"><div class="prog-fill" id="log-progress" style="width:0%"></div></div>
   </div>
 
-  <script>
-    function submitFull() {
-      const sleep    = parseInt(document.getElementById('fqt-sleep').value)   || 0;
-      const energy   = parseInt(document.getElementById('fqt-energy').value)  || 0;
-      const hours    = parseFloat(document.getElementById('fqt-hours').value) || 0;
-      const exercise = document.getElementById('fqt-exercise').value;
-      const caffeine = document.getElementById('fqt-caffeine').value;
+  <div id="already-logged" style="display:none">
+    <div class="card" style="text-align:center;padding:2rem">
+      <div style="font-size:32px;margin-bottom:.5rem">✅</div>
+      <h3 style="font-size:16px;margin-bottom:.3rem">Already logged today!</h3>
+      <p style="font-size:12px;color:var(--muted)">Come back tomorrow to continue your streak.</p>
+      <button class="btn-ghost" style="margin-top:1rem;max-width:200px;margin-left:auto;margin-right:auto" onclick="viewTrends()">View trends →</button>
+    </div>
+  </div>
 
-      if (!sleep || !energy || !hours || !exercise || !caffeine) {
-        alert('Please fill in all fields.'); return;
-      }
+  <div id="log-form">
+    <!-- SECTION A: Profile (only shown on first log) -->
+    <div id="profile-section">
+      <div class="sec-head"><div class="sec-dot">A</div><span class="sec-label">About you (one-time setup)</span></div>
 
-      const tips = [];
+      <div class="card">
+        <div class="field">
+          <label>Age group</label>
+          <select id="p-age">
+            <option value="">Select…</option>
+            <option>Under 18</option><option>18–25</option><option>26–35</option><option>36–50</option><option>50+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Where do you live?</label>
+          <select id="p-loc">
+            <option value="">Select…</option>
+            <option>Urban</option><option>Semi-urban</option><option>Rural</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Type of work</label>
+          <select id="p-work">
+            <option value="">Select…</option>
+            <option>Mostly sitting work</option><option>Mostly physical work</option><option>Both sitting and physical</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
-      if      (hours < 6) tips.push({ t:'⏰ Under 6 hrs — aim for 7–9 hrs tonight.', c:'bad' });
-      else if (hours < 7) tips.push({ t:'⏰ Slightly short — try sleeping 30 min earlier.', c:'warn' });
-      else if (hours > 9) tips.push({ t:'⏰ Oversleeping — consistent 7–8 hrs is ideal.', c:'warn' });
-      else                tips.push({ t:'✅ Great sleep duration!', c:'good' });
+    <!-- SECTION B: Daily Inputs -->
+    <div class="sec-head"><div class="sec-dot">B</div><span class="sec-label">Daily lifestyle inputs</span></div>
 
-      if      (sleep <= 2) tips.push({ t:'😴 Poor quality — no screens 1 hr before bed, keep room cool & dark.', c:'bad' });
-      else if (sleep === 3) tips.push({ t:'😴 Fair quality — add a short wind-down routine before bed.', c:'warn' });
-      else                  tips.push({ t:'😴 Good sleep quality — keep it up!', c:'good' });
+    <div class="card">
+      <div class="card-title">Work hours</div>
+      <div class="field">
+        <label>How many hours do you want to work today?</label>
+        <select id="b-workhours" onchange="updateProg()">
+          <option value="">Select target…</option>
+          <option value="0–4">0–4 hours</option><option value="5–6">5–6 hours</option>
+          <option value="7–8">7–8 hours</option><option value="9+">9 or more hours</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Set work alarm — start time</label>
+        <div class="row2">
+          <div><label style="font-size:11px;margin-bottom:3px;display:block">Start (AM/PM)</label><input type="time" id="b-work-start" onchange="updateProg();showAlarm('work-alarm')"/></div>
+          <div><label style="font-size:11px;margin-bottom:3px;display:block">End (AM/PM)</label><input type="time" id="b-work-end" onchange="updateProg();showAlarm('work-alarm')"/></div>
+        </div>
+        <div id="work-alarm" class="alarm-set" style="display:none">⏰ Work alarm set</div>
+      </div>
+    </div>
 
-      if      (energy <= 2) tips.push({ t:'⚡ Low energy — short walk + hydration can help significantly.', c:'bad' });
-      else if (energy === 3) tips.push({ t:'⚡ Moderate energy — movement breaks every 90 min help.', c:'warn' });
-      else                   tips.push({ t:'⚡ Great energy level — maintain your routine!', c:'good' });
+    <div class="card">
+      <div class="card-title">Sleep hours</div>
+      <div class="field">
+        <label>How many hours do you want to sleep tonight?</label>
+        <select id="b-sleephours" onchange="updateProg()">
+          <option value="">Select target…</option>
+          <option value="0–4">0–4 hours</option><option value="5–6">5–6 hours</option>
+          <option value="7–8">7–8 hours</option><option value="9+">9 or more hours</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Set sleep alarm</label>
+        <div class="row2">
+          <div><label style="font-size:11px;margin-bottom:3px;display:block">Bedtime (PM)</label><input type="time" id="b-bedtime" onchange="updateProg();showAlarm('sleep-alarm')"/></div>
+          <div><label style="font-size:11px;margin-bottom:3px;display:block">Wake-up (AM)</label><input type="time" id="b-waketime" onchange="updateProg();showAlarm('sleep-alarm')"/></div>
+        </div>
+        <div id="sleep-alarm" class="alarm-set" style="display:none">⏰ Sleep alarm set</div>
+      </div>
+    </div>
 
-      if      (exercise === 'none')  tips.push({ t:'🏃 No exercise — even 15 min of walking improves sleep quality.', c:'warn' });
-      else if (exercise === 'light') tips.push({ t:'🏃 Light activity — build toward 30 min most days.', c:'warn' });
-      else                           tips.push({ t:'🏃 Great exercise habit — one of the strongest predictors of good sleep!', c:'good' });
+    <div class="card">
+      <div class="card-title">Phone before bed</div>
+      <div class="field">
+        <label>Phone screen time before sleeping</label>
+        <select id="b-phone" onchange="updateProg()">
+          <option value="">Select…</option>
+          <option value="none">No phone before bed</option>
+          <option value="<30min">Less than 30 minutes</option>
+          <option value="30min-1h">30 min – 1 hour</option>
+          <option value="1-2h">1–2 hours</option>
+          <option value="2-3h">2–3 hours</option>
+          <option value=">3h">More than 3 hours</option>
+        </select>
+      </div>
+      <div id="phone-time-field" class="field" style="display:none">
+        <label>Track phone use end time (PM)</label>
+        <input type="time" id="b-phone-end" onchange="showAlarm('phone-alarm')"/>
+        <div id="phone-alarm" class="alarm-set" style="display:none">⏰ Phone cutoff alarm set</div>
+      </div>
+    </div>
 
-      if      (caffeine === 'afternoon') tips.push({ t:'☕ Afternoon/evening caffeine disrupts sleep — cut off by 2 PM.', c:'bad' });
-      else if (caffeine === 'morning')   tips.push({ t:'☕ Morning caffeine is fine — good habit.', c:'good' });
-      else                               tips.push({ t:'☕ No caffeine — nothing disrupting your sleep there.', c:'good' });
+    <!-- SECTION C: Likert -->
+    <div class="sec-head"><div class="sec-dot">C</div><span class="sec-label">Sleep quality & energy outcomes</span></div>
 
-      const container = document.getElementById('fqt-results');
-      container.innerHTML = tips.map(({ t, c }) => `<div class="tip ${c}">${t}</div>`).join('');
-      container.className = 'results visible';
-    }
-  </script>
+    <div class="card">
+      <div class="card-title">Rate how you feel today</div>
+      <div class="likert-q"><p>I fall asleep easily.</p>
+        <div class="likert-opts" data-lq="l1">
+          <button class="lopt" data-v="5">Strongly agree</button><button class="lopt" data-v="4">Agree</button><button class="lopt" data-v="3">Neutral</button><button class="lopt" data-v="2">Disagree</button><button class="lopt" data-v="1">Strongly disagree</button>
+        </div>
+      </div>
+      <div class="likert-q"><p>I sleep well most nights.</p>
+        <div class="likert-opts" data-lq="l2">
+          <button class="lopt" data-v="5">Strongly agree</button><button class="lopt" data-v="4">Agree</button><button class="lopt" data-v="3">Neutral</button><button class="lopt" data-v="2">Disagree</button><button class="lopt" data-v="1">Strongly disagree</button>
+        </div>
+      </div>
+      <div class="likert-q"><p>I wake up feeling rested.</p>
+        <div class="likert-opts" data-lq="l3">
+          <button class="lopt" data-v="5">Strongly agree</button><button class="lopt" data-v="4">Agree</button><button class="lopt" data-v="3">Neutral</button><button class="lopt" data-v="2">Disagree</button><button class="lopt" data-v="1">Strongly disagree</button>
+        </div>
+      </div>
+      <div class="likert-q"><p>I feel sleepy during the day.</p>
+        <div class="likert-opts" data-lq="l4">
+          <button class="lopt" data-v="5">Strongly agree</button><button class="lopt" data-v="4">Agree</button><button class="lopt" data-v="3">Neutral</button><button class="lopt" data-v="2">Disagree</button><button class="lopt" data-v="1">Strongly disagree</button>
+        </div>
+      </div>
+      <div class="likert-q"><p>I have enough energy during the day.</p>
+        <div class="likert-opts" data-lq="l5">
+          <button class="lopt" data-v="5">Strongly agree</button><button class="lopt" data-v="4">Agree</button><button class="lopt" data-v="3">Neutral</button><button class="lopt" data-v="2">Disagree</button><button class="lopt" data-v="1">Strongly disagree</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="save-btn" disabled onclick="saveDay()">Save today's log</button>
+  </div>
+
+  <!-- TODAY'S RESULT (shown after save) -->
+  <div id="today-result" style="display:none">
+    <div class="card" style="border:1.5px solid var(--green)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
+        <span style="font-size:20px">🌿</span>
+        <h3 style="font-size:16px;font-family:'Playfair Display',serif">Based on your answers…</h3>
+      </div>
+      <p id="result-text" style="font-size:13px;line-height:1.65;color:var(--text)"></p>
+    </div>
+    <div class="stat-grid" id="result-stats"></div>
+    <div style="margin-top:.5rem">
+      <p style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem">Personalised recommendations</p>
+      <div id="result-recs"></div>
+    </div>
+    <button class="btn-ghost" onclick="viewTrends()">View your trends →</button>
+  </div>
+</div>
+
+<!-- ═══════════════ TRENDS PAGE ═══════════════ -->
+<div id="page-trends" class="page">
+  <h2 style="font-size:22px;margin-bottom:.3rem">Your trends</h2>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:1.5rem">Tracking builds insight — keep logging daily.</p>
+
+  <div id="trends-empty" class="empty">
+    <div class="empty-icon">📊</div>
+    <p>No data yet. Log your first day to start seeing trends.</p>
+  </div>
+
+  <div id="trends-content" style="display:none">
+    <div class="card">
+      <div class="card-title">Average hours you spend</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem" id="avg-chips"></div>
+      <div class="chart-wrap"><canvas id="hours-chart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Your outcome trends</div>
+      <div id="outcome-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem"></div>
+      <div class="chart-wrap"><canvas id="outcome-chart"></canvas></div>
+    </div>
+
+    <div class="card" id="consistency-card">
+      <div class="card-title">Alarm consistency</div>
+      <div id="consistency-content"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Recommendations from trends</div>
+      <div id="trend-recs"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ HISTORY PAGE ═══════════════ -->
+<div id="page-history" class="page">
+  <h2 style="font-size:22px;margin-bottom:.3rem">Log history</h2>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:1.5rem">All your logged days.</p>
+  <div id="history-empty" class="empty">
+    <div class="empty-icon">📋</div>
+    <p>No history yet. Start logging daily!</p>
+  </div>
+  <div class="card" id="history-list" style="display:none"></div>
+  <button class="btn-ghost" id="clear-btn" style="display:none;color:#C0392B;border-color:#C0392B" onclick="clearData()">Clear all data</button>
+</div>
+
+<!-- ═══════════════ PROFILE PAGE ═══════════════ -->
+<div id="page-profile" class="page">
+  <h2 style="font-size:22px;margin-bottom:.3rem">Your profile</h2>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:1.5rem">Edit your personal details anytime.</p>
+  <div class="card">
+    <div class="field"><label>Age group</label>
+      <select id="prof-age">
+        <option value="">Select…</option>
+        <option>Under 18</option><option>18–25</option><option>26–35</option><option>36–50</option><option>50+</option>
+      </select>
+    </div>
+    <div class="field"><label>Where do you live?</label>
+      <select id="prof-loc">
+        <option value="">Select…</option>
+        <option>Urban</option><option>Semi-urban</option><option>Rural</option>
+      </select>
+    </div>
+    <div class="field"><label>Type of work</label>
+      <select id="prof-work">
+        <option value="">Select…</option>
+        <option>Mostly sitting work</option><option>Mostly physical work</option><option>Both sitting and physical</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="saveProfile()">Save profile</button>
+  </div>
+  <div class="card" style="margin-top:.5rem">
+    <p style="font-size:12px;color:var(--muted);margin-bottom:.5rem">Total days logged: <strong id="total-days">0</strong></p>
+    <p style="font-size:12px;color:var(--muted)">Data is stored locally on your device only.</p>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────
+const STATE_KEY = 'fulltracker_v2';
+let state = { profile: {}, logs: [] };
+let hoursChart = null, outcomeChart = null;
+const lAnswers = {};
+
+// ─── INIT ─────────────────────────────────────────────────
+function load() {
+  try { const d = localStorage.getItem(STATE_KEY); if (d) state = JSON.parse(d); } catch(e) {}
+  initLog();
+  renderTrends();
+  renderHistory();
+  renderProfile();
+}
+
+function save() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+
+// ─── DATE UTILS ───────────────────────────────────────────
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function fmtDate(s) { const d = new Date(s+'T00:00:00'); return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+function dayNum() { return state.logs.length + 1; }
+
+// ─── LOG PAGE INIT ────────────────────────────────────────
+function initLog() {
+  const today = todayStr();
+  document.getElementById('today-date').textContent = fmtDate(today);
+  document.getElementById('day-badge').querySelector('span').textContent = fmtDate(today);
+  const n = dayNum();
+  document.getElementById('day-badge').innerHTML = `📅 Day ${n} &nbsp;·&nbsp; ${fmtDate(today)}`;
+  document.getElementById('log-heading').textContent = n === 1 ? 'Log your first day' : `Log Day ${n}`;
+
+  const alreadyLogged = state.logs.find(l => l.date === today);
+  if (alreadyLogged) {
+    document.getElementById('already-logged').style.display = 'block';
+    document.getElementById('log-form').style.display = 'none';
+    return;
+  }
+
+  // Show/hide profile section
+  const hasProfile = state.profile && state.profile.age;
+  document.getElementById('profile-section').style.display = hasProfile ? 'none' : 'block';
+
+  // Phone field toggle
+  document.getElementById('b-phone').addEventListener('change', function() {
+    document.getElementById('phone-time-field').style.display = this.value && this.value !== 'none' ? 'block' : 'none';
+    updateProg();
+  });
+
+  // Likert
+  document.querySelectorAll('.likert-opts').forEach(grp => {
+    grp.querySelectorAll('.lopt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        grp.querySelectorAll('.lopt').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+        lAnswers[grp.dataset.lq] = parseInt(btn.dataset.v);
+        updateProg();
+      });
+    });
+  });
+}
+
+function showAlarm(id) {
+  document.getElementById(id).style.display = 'inline-flex';
+}
+
+function updateProg() {
+  const hasProfile = state.profile && state.profile.age;
+  let total = hasProfile ? 6 : 9;
+  let done = 0;
+  if (!hasProfile) {
+    if (v('p-age')) done++;
+    if (v('p-loc')) done++;
+    if (v('p-work')) done++;
+  }
+  if (v('b-workhours')) done++;
+  if (v('b-work-start')) done++;
+  if (v('b-sleephours')) done++;
+  if (v('b-bedtime')) done++;
+  if (v('b-phone')) done++;
+  done += Object.keys(lAnswers).length;
+  total = (!hasProfile ? 3 : 0) + 5 + 5;
+  document.getElementById('log-progress').style.width = Math.round((done/total)*100)+'%';
+  const allLikert = Object.keys(lAnswers).length === 5;
+  const allB = v('b-workhours') && v('b-sleephours') && v('b-phone');
+  const profileOk = hasProfile || (v('p-age') && v('p-loc') && v('p-work'));
+  document.getElementById('save-btn').disabled = !(allLikert && allB && profileOk);
+}
+
+function v(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+
+// ─── SAVE DAY ─────────────────────────────────────────────
+function saveDay() {
+  const hasProfile = state.profile && state.profile.age;
+  if (!hasProfile) {
+    state.profile = { age: v('p-age'), location: v('p-loc'), worktype: v('p-work') };
+  }
+  const log = {
+    date: todayStr(),
+    workhours: v('b-workhours'),
+    workStart: v('b-work-start'),
+    workEnd: v('b-work-end'),
+    sleephours: v('b-sleephours'),
+    bedtime: v('b-bedtime'),
+    waketime: v('b-waketime'),
+    phone: v('b-phone'),
+    likert: {...lAnswers}
+  };
+  state.logs.push(log);
+  save();
+
+  document.getElementById('log-form').style.display = 'none';
+  document.getElementById('today-result').style.display = 'block';
+  renderResult(log);
+}
+
+// ─── RESULT ───────────────────────────────────────────────
+function sleepQuality(likert) {
+  const l = likert;
+  const pos = ((l.l1||3)+(l.l2||3)+(l.l3||3)+(l.l5||3)) / 4;
+  const alert = 6 - (l.l4||3);
+  return Math.round(((pos+alert)/2)*10);
+}
+
+function phoneLabel(v) {
+  return {none:'no phone before bed','<30min':'less than 30 min','30min-1h':'30 min–1 hour','1-2h':'1–2 hours','2-3h':'2–3 hours','>3h':'more than 3 hours'}[v]||v;
+}
+
+function renderResult(log) {
+  const sq = sleepQuality(log.likert);
+  const consistent = state.logs.length >= 2 ? checkConsistency() : null;
+
+  let intro = `You planned to work ${log.workhours} and sleep ${log.sleephours} tonight. `;
+  if (log.bedtime) intro += `Your bedtime alarm is set for ${fmt12(log.bedtime)}. `;
+  intro += `You use your phone ${phoneLabel(log.phone)} before sleeping. `;
+  if (consistent !== null) intro += consistent ? 'Your alarm times have been consistent — great habit building! ' : 'Your alarm times have varied — try to keep them consistent for better results. ';
+
+  document.getElementById('result-text').textContent = intro;
+
+  document.getElementById('result-stats').innerHTML = `
+    <div class="stat"><div class="stat-val">${log.workhours}</div><div class="stat-lbl">Work target</div></div>
+    <div class="stat"><div class="stat-val">${log.sleephours}</div><div class="stat-lbl">Sleep target</div></div>
+    <div class="stat"><div class="stat-val">${sq}<span style="font-size:12px;font-weight:400">/50</span></div><div class="stat-lbl">Quality score</div></div>
+    <div class="stat"><div class="stat-val" style="font-size:13px">${log.bedtime?fmt12(log.bedtime):'—'}</div><div class="stat-lbl">Bedtime alarm</div></div>
+  `;
+
+  const recs = buildRecs(log, state.logs.length);
+  document.getElementById('result-recs').innerHTML = recs.map(r => `<div class="rec ${r.cls}"><h4>${r.title}</h4><p>${r.body}</p></div>`).join('');
+}
+
+function fmt12(t) {
+  if (!t) return '—';
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+function buildRecs(log, dayCount) {
+  const recs = [];
+  if (log.sleephours === '0–4' || log.sleephours === '5–6') {
+    recs.push({cls:'warn',title:'Low sleep target',body:`You've set a sleep goal of ${log.sleephours} hours. Adults typically need 7–8 hours for optimal recovery. Consider gradually moving your bedtime earlier by 15 minutes each week.`});
+  }
+  if (log.phone === '1-2h' || log.phone === '2-3h' || log.phone === '>3h') {
+    recs.push({cls:'warn',title:'High phone use before bed',body:`Using your phone ${phoneLabel(log.phone)} before sleeping suppresses melatonin and delays sleep onset. Try setting your phone cutoff alarm 30–60 minutes before your bedtime alarm.`});
+  }
+  if (log.workhours === '9+') {
+    recs.push({cls:'bad',title:'Long work hours',body:`A target of 9+ work hours daily can build fatigue. Your nervous system needs wind-down time. Even a 10-minute walk between work and sleep helps your body transition.`});
+  }
+  if (!log.bedtime) {
+    recs.push({cls:'',title:'Set a bedtime alarm',body:'Tracking your actual bedtime is one of the most powerful habits you can build. Try setting a PM alarm to remind yourself to start winding down.'});
+  }
+  if (dayCount > 1 && !checkConsistency()) {
+    recs.push({cls:'warn',title:'Inconsistent alarm times',body:'Your work or sleep alarm times have varied day to day. Consistent timing trains your circadian rhythm — try keeping your wake time within 30 minutes of the same time each day.'});
+  }
+  if (recs.length === 0) {
+    recs.push({cls:'',title:'Solid habits today',body:'Your targets look balanced. Keep logging daily — trends across 5+ days reveal patterns that single days miss.'});
+  }
+  return recs;
+}
+
+function checkConsistency() {
+  if (state.logs.length < 2) return null;
+  const last3 = state.logs.slice(-3);
+  const bedtimes = last3.map(l=>l.bedtime).filter(Boolean);
+  if (bedtimes.length < 2) return null;
+  const toMin = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
+  const mins = bedtimes.map(toMin);
+  const max = Math.max(...mins), min2 = Math.min(...mins);
+  return (max - min2) <= 45;
+}
+
+// ─── TRENDS PAGE ──────────────────────────────────────────
+function renderTrends() {
+  const logs = state.logs;
+  if (logs.length === 0) { document.getElementById('trends-empty').style.display='block'; document.getElementById('trends-content').style.display='none'; return; }
+  document.getElementById('trends-empty').style.display='none';
+  document.getElementById('trends-content').style.display='block';
+
+  const labels = logs.map((l,i) => `Day ${i+1}`);
+  const sleepMap = {'0–4':2,'5–6':5.5,'7–8':7.5,'9+':9.5};
+  const workMap = {'0–4':2,'5–6':5.5,'7–8':7.5,'9+':9.5};
+  const phoneMap = {none:0,'<30min':0.25,'30min-1h':0.75,'1-2h':1.5,'2-3h':2.5,'>3h':3.5};
+  const sleepVals = logs.map(l => sleepMap[l.sleephours]||0);
+  const workVals = logs.map(l => workMap[l.workhours]||0);
+  const phoneVals = logs.map(l => phoneMap[l.phone]||0);
+  const scores = logs.map(l => sleepQuality(l.likert));
+
+  // Avg chips
+  const avgSleep = (sleepVals.reduce((a,b)=>a+b,0)/sleepVals.length).toFixed(1);
+  const avgWork = (workVals.reduce((a,b)=>a+b,0)/workVals.length).toFixed(1);
+  const avgPhone = (phoneVals.reduce((a,b)=>a+b,0)/phoneVals.length).toFixed(1);
+  document.getElementById('avg-chips').innerHTML = `
+    <span class="trend-chip ${parseFloat(avgSleep)>=7?'pos':'neg'}">😴 Avg sleep ${avgSleep} hrs</span>
+    <span class="trend-chip ${parseFloat(avgWork)<=8?'pos':'neg'}">💼 Avg work ${avgWork} hrs</span>
+    <span class="trend-chip ${parseFloat(avgPhone)<=0.75?'pos':'neg'}">📱 Avg phone ${avgPhone} hrs</span>
+  `;
+
+  // Hours chart (bar for day 1, line for day 2+)
+  if (hoursChart) hoursChart.destroy();
+  const hCtx = document.getElementById('hours-chart').getContext('2d');
+  const hType = logs.length === 1 ? 'bar' : 'line';
+  hoursChart = new Chart(hCtx, {
+    type: hType,
+    data: {
+      labels,
+      datasets: [
+        { label: 'Sleep (hrs)', data: sleepVals, borderColor:'#1D9E75', backgroundColor: hType==='bar'?'#9FE1CB':'transparent', tension:.35, pointRadius:4, borderWidth:2 },
+        { label: 'Work (hrs)', data: workVals, borderColor:'#185FA5', backgroundColor: hType==='bar'?'#B5D4F4':'transparent', tension:.35, pointRadius:4, borderWidth:2 },
+        { label: 'Phone (hrs)', data: phoneVals, borderColor:'#BA7517', backgroundColor: hType==='bar'?'#FAC775':'transparent', tension:.35, pointRadius:4, borderWidth:2 }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{font:{family:'Sora',size:11}}}}, scales:{ y:{beginAtZero:true, ticks:{font:{family:'Sora',size:10}}}, x:{ticks:{font:{family:'Sora',size:10}}} } }
+  });
+
+  // Outcome chips
+  const lastScore = scores[scores.length-1];
+  const prevScore = scores.length>1 ? scores[scores.length-2] : null;
+  const trend = prevScore !== null ? (lastScore > prevScore ? 'pos' : lastScore < prevScore ? 'neg' : 'neu') : 'neu';
+  const trendLabel = {pos:'↑ Improving','neg':'↓ Declining','neu':'→ Stable'}[trend];
+  document.getElementById('outcome-chips').innerHTML = `
+    <span class="trend-chip ${trend}">${trendLabel}</span>
+    <span class="trend-chip ${lastScore>=35?'pos':lastScore>=20?'neu':'neg'}">Score today: ${lastScore}/50</span>
+  `;
+
+  // Outcome chart
+  if (outcomeChart) outcomeChart.destroy();
+  const oCtx = document.getElementById('outcome-chart').getContext('2d');
+  const oType = logs.length === 1 ? 'bar' : 'line';
+  outcomeChart = new Chart(oCtx, {
+    type: oType,
+    data: { labels, datasets:[{ label:'Quality score', data:scores, borderColor:'#1D9E75', backgroundColor: oType==='bar'?'#9FE1CB':'transparent', tension:.35, pointRadius:4, borderWidth:2, fill: oType!=='bar' }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{font:{family:'Sora',size:11}}}}, scales:{ y:{min:0,max:50,ticks:{font:{family:'Sora',size:10}}}, x:{ticks:{font:{family:'Sora',size:10}}} } }
+  });
+
+  // Consistency
+  const consistent = checkConsistency();
+  const cc = document.getElementById('consistency-content');
+  if (logs.length < 2) {
+    cc.innerHTML = '<p style="font-size:12px;color:var(--muted)">Log at least 2 days to see alarm consistency.</p>';
+  } else {
+    const cls = consistent===true?'good':consistent===false?'warn':'neu';
+    const msg = consistent===true ? '✅ Your alarm times are consistent — great habit!' : '⚠️ Your alarm times vary. Try to keep bedtime within 30 min of the same time.';
+    cc.innerHTML = `<div class="consist ${cls}">${msg}</div>`;
+  }
+
+  // Trend recs
+  const tRecs = buildTrendRecs(logs, avgSleep, avgWork, avgPhone, scores);
+  document.getElementById('trend-recs').innerHTML = tRecs.map(r=>`<div class="rec ${r.cls}"><h4>${r.title}</h4><p>${r.body}</p></div>`).join('');
+}
+
+function buildTrendRecs(logs, avgSleep, avgWork, avgPhone, scores) {
+  const recs = [];
+  if (parseFloat(avgSleep) < 7) recs.push({cls:'warn',title:`Average sleep: ${avgSleep} hrs`,body:`Your average sleep target of ${avgSleep} hrs is below the recommended 7–8. These hours may be your daily baseline — try shifting your bedtime alarm 15 minutes earlier each week.`});
+  if (parseFloat(avgPhone) > 1) recs.push({cls:'warn',title:`Average phone time: ${avgPhone} hrs before bed`,body:`Over your logged days you average ${avgPhone} hrs of screen time before sleeping. This is likely disrupting your sleep onset. A consistent phone cutoff alarm at least 45 minutes before bed is recommended.`});
+  if (parseFloat(avgWork) > 8) recs.push({cls:'bad',title:`Average work: ${avgWork} hrs daily`,body:`Working an average of ${avgWork} hrs daily over multiple days is a strong predictor of burnout. Consider if your work alarm end time is realistic and build in recovery time.`});
+  const declining = scores.length >= 3 && scores[scores.length-1] < scores[scores.length-3];
+  if (declining) recs.push({cls:'bad',title:'Declining quality score',body:'Your wellbeing score has dropped over the last few days. This often signals accumulated sleep debt or overwork. Prioritise one night of 7–8 hrs sleep and see if it improves.'});
+  if (recs.length === 0) recs.push({cls:'',title:'Trends look healthy',body:`Based on your ${logs.length} logged days, your habits appear balanced. Keep logging — patterns become clearer after 7+ days.`});
+  return recs;
+}
+
+// ─── HISTORY PAGE ─────────────────────────────────────────
+function renderHistory() {
+  const logs = state.logs;
+  if (logs.length === 0) { document.getElementById('history-empty').style.display='block'; document.getElementById('history-list').style.display='none'; document.getElementById('clear-btn').style.display='none'; return; }
+  document.getElementById('history-empty').style.display='none';
+  document.getElementById('history-list').style.display='block';
+  document.getElementById('clear-btn').style.display='block';
+  const sl = [...logs].reverse();
+  document.getElementById('history-list').innerHTML = sl.map((l,i)=>{
+    const sq = sleepQuality(l.likert);
+    const cls = sq>=35?'good':sq>=20?'ok':'low';
+    return `<div class="hist-item">
+      <div><div class="hist-day">Day ${logs.length-i} · ${fmtDate(l.date)}</div><div class="hist-meta">Sleep: ${l.sleephours} · Work: ${l.workhours} · Phone: ${phoneLabel(l.phone)}</div></div>
+      <div class="hist-score ${cls}">${sq}/50</div>
+    </div>`;
+  }).join('');
+  document.getElementById('total-days').textContent = logs.length;
+}
+
+// ─── PROFILE PAGE ─────────────────────────────────────────
+function renderProfile() {
+  if (!state.profile) return;
+  const p = state.profile;
+  if (p.age) { const s = document.getElementById('prof-age'); for(let o of s.options) if(o.value===p.age) o.selected=true; }
+  if (p.location) { const s = document.getElementById('prof-loc'); for(let o of s.options) if(o.value===p.location) o.selected=true; }
+  if (p.worktype) { const s = document.getElementById('prof-work'); for(let o of s.options) if(o.value===p.worktype) o.selected=true; }
+  document.getElementById('total-days').textContent = state.logs.length;
+}
+
+function saveProfile() {
+  state.profile = { age: v('prof-age'), location: v('prof-loc'), worktype: v('prof-work') };
+  save();
+  alert('Profile saved!');
+}
+
+// ─── NAV ──────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  event.target.classList.add('active');
+  if (tab==='trends') renderTrends();
+  if (tab==='history') renderHistory();
+  if (tab==='profile') renderProfile();
+}
+
+function viewTrends() {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelector('[onclick="switchTab(\'trends\')"]').classList.add('active');
+  document.getElementById('page-trends').classList.add('active');
+  renderTrends();
+  window.scrollTo(0,0);
+}
+
+function clearData() {
+  if (confirm('Clear all tracking data? This cannot be undone.')) {
+    state = { profile: {}, logs: [] };
+    save();
+    location.reload();
+  }
+}
+
+// ─── BOOT ─────────────────────────────────────────────────
+load();
+</script>
 </body>
 </html>
