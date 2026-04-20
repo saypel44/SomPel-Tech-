@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Tracker · SomPel Tech</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px; }
+    .tracker-card {
+      background:#fff; border-radius:16px; padding:40px 36px;
+      max-width:460px; width:100%;
+      box-shadow:0 4px 32px rgba(0,0,0,0.10);
+      border:1.5px solid rgba(107,163,104,0.25);
+    }
+    .tracker-card::before {
+      content:''; display:block; height:4px; border-radius:4px 4px 0 0;
+      background:linear-gradient(90deg,#6BA368,#7AABC8);
+      margin:-40px -36px 32px;
+      border-radius:14px 14px 0 0;
+    }
+    .tracker-eyebrow { font-size:0.72rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#6BA368; margin-bottom:8px; }
+    .tracker-title   { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; margin-bottom:6px; }
+    .tracker-sub     { font-size:0.84rem; color:#8A8884; margin-bottom:28px; line-height:1.6; }
+    .field           { margin-bottom:18px; }
+    .field label     { display:block; font-size:0.78rem; font-weight:600; color:#4A4848; margin-bottom:6px; }
+    .field select    { width:100%; padding:11px 14px; border:1.5px solid #DEDDD8; border-radius:8px; font-size:0.9rem; font-family:'Outfit',sans-serif; background:#F2F2EF; color:#1C1C1E; outline:none; transition:border-color 0.2s; }
+    .field select:focus { border-color:#6BA368; box-shadow:0 0 0 3px rgba(107,163,104,0.14); }
+    .submit-btn { width:100%; padding:13px; background:linear-gradient(90deg,#6BA368,#7AABC8); border:none; border-radius:8px; color:#fff; font-size:0.92rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; margin-top:4px; transition:opacity 0.2s,transform 0.2s; }
+    .submit-btn:hover { opacity:0.88; transform:translateY(-1px); }
+    .result { margin-top:20px; padding:16px 18px; border-radius:8px; font-size:0.88rem; line-height:1.7; display:none; }
+    .result.visible  { display:block; }
+    .result.good  { background:rgba(107,163,104,0.10); border:1px solid rgba(107,163,104,0.25); color:#2E5E2C; }
+    .result.warn  { background:rgba(244,208,111,0.15); border:1px solid rgba(244,208,111,0.40); color:#7A5C00; }
+    .result.bad   { background:rgba(192,57,43,0.08);  border:1px solid rgba(192,57,43,0.22);  color:#8B2011; }
+    .back-link { display:inline-block; margin-top:20px; font-size:0.8rem; color:#6BA368; text-decoration:none; font-weight:600; }
+    .back-link:hover { text-decoration:underline; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="tracker-card">
+    <div class="tracker-eyebrow">Tool 1</div>
+    <div class="tracker-title">😴 Quick Tracker</div>
+    <div class="tracker-sub">Rate your sleep and energy to get a personalised recommendation.</div>
+
+    <div class="field">
+      <label>Sleep Quality (last night)</label>
+      <select id="qt-sleep">
+        <option value="">— Select —</option>
+        <option value="1">1 – Very poor</option>
+        <option value="2">2 – Poor</option>
+        <option value="3">3 – Fair</option>
+        <option value="4">4 – Good</option>
+        <option value="5">5 – Excellent</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Day Energy Level (today)</label>
+      <select id="qt-energy">
+        <option value="">— Select —</option>
+        <option value="1">1 – Exhausted</option>
+        <option value="2">2 – Low</option>
+        <option value="3">3 – Moderate</option>
+        <option value="4">4 – High</option>
+        <option value="5">5 – Peak</option>
+      </select>
+    </div>
+
+    <button class="submit-btn" onclick="submitQuickTracker()">Get Recommendation →</button>
+
+    <div class="result" id="qt-result"></div>
+    <a class="back-link" href="javascript:window.close()">← Close this tab</a>
+  </div>
+
+  <script>
+    function submitQuickTracker() {
+      const sleep  = parseInt(document.getElementById('qt-sleep').value)  || 0;
+      const energy = parseInt(document.getElementById('qt-energy').value) || 0;
+      if (!sleep || !energy) { alert('Please select both fields.'); return; }
+
+      const avg = (sleep + energy) / 2;
+      let rec = '', cls = '';
+
+      if      (avg <= 1.5) { rec = '🔴 Critical — prioritise 8+ hrs sleep tonight, no screens 1hr before bed, consider a short 20min nap today.'; cls = 'bad'; }
+      else if (avg <= 2.5) { rec = '🟠 Below average — set a consistent bedtime, limit caffeine after 2PM, take short walks during the day.'; cls = 'warn'; }
+      else if (avg <= 3.5) { rec = '🟡 Fair — try a short evening walk, a fixed wake-up time, and reduce late-night screen time.'; cls = 'warn'; }
+      else if (avg <= 4.5) { rec = '🟢 Good — add 10 minutes of morning light exposure to maintain energy throughout the day.'; cls = 'good'; }
+      else                 { rec = '✅ Excellent — great sleep and energy! Stay hydrated and keep your current habits.'; cls = 'good'; }
+
+      const el = document.getElementById('qt-result');
+      el.textContent = rec;
+      el.className = 'result visible ' + cls;
+    }
+  </script>
+</body>
+</html>
