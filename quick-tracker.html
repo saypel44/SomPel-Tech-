@@ -13,6 +13,8 @@
       --accent-dark: #0F6E56;
       --warn: #BA7517;
       --warn-light: #FAEEDA;
+      --danger: #C0392B;
+      --danger-light: #FDEEEC;
       --bg: #f9f9f7;
       --surface: #ffffff;
       --text: #1a1a1a;
@@ -176,6 +178,10 @@
     .rec-card.warn {
       border-left-color: var(--warn);
       background: var(--warn-light);
+    }
+    .rec-card.bad {
+      border-left-color: var(--danger);
+      background: var(--danger-light);
     }
     .rec-card h4 { font-size: 14px; font-weight: 500; margin-bottom: .3rem; }
     .rec-card p { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
@@ -391,48 +397,149 @@
     const sc = sleepScore();
     const pr = phoneRisk();
     const late = isLateNight();
-    const overwork = answers.workhours === '9 or more hours';
+    const overwork  = answers.workhours === '9 or more hours';
     const sedentary = answers.worktype === 'Sitting';
 
-    document.getElementById('result-intro').textContent =
-      `You work ${answers.workhours} and sleep ${answers.sleep} each night, going to bed ${answers.bedtime}. ` +
-      `You use your phone ${answers.phonetime} before sleeping. These may be shaping your daily energy and rest quality — let's look at what your habits reveal.`;
+    // ── Outcome signals from likert (how they actually feel) ──
+    const feelRested    = lAnswers.l3 === 'Strongly agree' || lAnswers.l3 === 'Agree';
+    const poorRested    = lAnswers.l3 === 'Disagree'       || lAnswers.l3 === 'Strongly disagree';
+    const feelEnergetic = lAnswers.l5 === 'Strongly agree' || lAnswers.l5 === 'Agree';
+    const lowEnergy     = lAnswers.l5 === 'Disagree'       || lAnswers.l5 === 'Strongly disagree';
+    const daySleepy     = lAnswers.l4 === 'Strongly agree' || lAnswers.l4 === 'Agree';
+    const hardToSleep   = lAnswers.l1 === 'Disagree'       || lAnswers.l1 === 'Strongly disagree';
+    const shortSleep    = answers.sleep === '0–4 hours'    || answers.sleep === '5–6 hours';
+    const goodHours     = answers.sleep === '7–8 hours'    || answers.sleep === '9 or more hours';
+    const outcomeGood   = feelRested && feelEnergetic && !daySleepy;
+    const outcomePoor   = poorRested || lowEnergy || daySleepy;
+
+    // ── Intro — based on how they feel, not hours ──
+    let introText = '';
+    if (outcomeGood) {
+      introText = `Your body is responding well — you feel rested and have good energy. Your current habits are working for you.`;
+    } else if (outcomePoor && goodHours) {
+      introText = `You're getting ${answers.sleep} but still not feeling your best. Hours alone don't tell the full story — quality, timing, and consistency matter just as much.`;
+    } else if (outcomePoor && shortSleep) {
+      introText = `You're sleeping ${answers.sleep} and your energy and rest levels reflect that. Small changes to your routine can make a real difference.`;
+    } else {
+      introText = `Your habits are mixed — some things are working, others have room to improve. Your recommendations below are based on how you actually feel.`;
+    }
+    document.getElementById('result-intro').textContent = introText;
 
     document.getElementById('stat-grid').innerHTML = `
-      <div class="stat"><div class="stat-val">${answers.workhours.replace(' hours', '')}</div><div class="stat-lbl">Work / day</div></div>
-      <div class="stat"><div class="stat-val">${answers.sleep.replace(' hours', '')}</div><div class="stat-lbl">Sleep / night</div></div>
+      <div class="stat"><div class="stat-val">${answers.workhours.replace(' hours','')}</div><div class="stat-lbl">Work / day</div></div>
+      <div class="stat"><div class="stat-val">${answers.sleep.replace(' hours','')}</div><div class="stat-lbl">Sleep / night</div></div>
       <div class="stat"><div class="stat-val">${sc}<span style="font-size:14px;font-weight:400">/50</span></div><div class="stat-lbl">Sleep quality score</div></div>
       <div class="stat"><div class="stat-val" style="font-size:14px">${answers.bedtime}</div><div class="stat-lbl">Usual bedtime</div></div>
     `;
 
+    // level: '' = green  |  'warn' = amber  |  'bad' = red
     const recs = [];
 
-    if (answers.sleep === '0–4 hours' || answers.sleep === '5–6 hours') {
-      recs.push({ warn: true, title: 'Sleep duration', text: `You're sleeping ${answers.sleep} — well below the recommended 7–8 hours for most adults. Chronic short sleep is linked to fatigue, poor focus, and long-term health risks. Gradually shifting your bedtime 15 minutes earlier each week can help.` });
+    // ── Feeling good + late but consistent ──
+    if (outcomeGood && late) {
+      recs.push({ level: '', title: '✅ You feel good — your consistency is helping', bullets: [
+        `<strong>What's happening:</strong> You go to bed ${answers.bedtime} consistently, and your body has adapted — your energy and rest feel fine.`,
+        `<strong>Why it works:</strong> A regular late bedtime is better than an irregular early one. Consistency trains your body clock.`,
+        `<strong>What to keep doing:</strong> Maintain the same bedtime and wake-up time daily. If you want to shift earlier, move it by 15 min per week only.`
+      ]});
+    } else if (outcomeGood) {
+      recs.push({ level: '', title: '✅ Your habits are working — keep it up', bullets: [
+        `<strong>What's happening:</strong> You wake up rested and have good daytime energy — that's the real measure of healthy sleep.`,
+        `<strong>Why it works:</strong> Your sleep duration, timing, and daily habits are well aligned with what your body needs.`,
+        `<strong>What to keep doing:</strong> Protect your consistent bedtime, especially on weekends. Log again in a few weeks to catch any early changes.`
+      ]});
     }
-    if (late) {
-      recs.push({ warn: true, title: 'Late bedtime habit', text: `Going to bed ${answers.bedtime} delays your body's natural circadian rhythm. Even if you sleep enough total hours, late sleep timing can reduce deep sleep quality. Try winding down by 10:30 PM and keeping a consistent schedule.` });
+
+    // ── Good hours, poor outcome — quality issue ──
+    if (outcomePoor && goodHours) {
+      recs.push({ level: 'warn', title: '⚠️ You are sleeping enough hours but still feeling tired', bullets: [
+        `<strong>What's happening:</strong> You're getting ${answers.sleep}, but still waking up unrefreshed and low on energy — duration is not the problem.`,
+        `<strong>Why it might be happening:</strong> Late phone use, irregular sleep timing, stress, or light and noise are likely disrupting your deep sleep cycles.`,
+        `<strong>What you should change:</strong> Stop screen use 30–60 min before bed · Keep the same sleep and wake time every day · Make your room darker and quieter · Try reading or light stretching before bed.`
+      ]});
     }
-    if (pr >= 2) {
-      recs.push({ warn: pr >= 3, title: 'Phone use before bed', text: `You use your phone ${answers.phonetime} before sleeping. Screen light suppresses melatonin and keeps your brain alert. Consider switching to a book or light stretching in the last 30 minutes before bed.` });
+
+    // ── Short sleep + poor outcome — red ──
+    if (outcomePoor && shortSleep) {
+      recs.push({ level: 'bad', title: '🔴 You are not sleeping enough and your body is showing it', bullets: [
+        `<strong>What's happening:</strong> You're sleeping ${answers.sleep} and feeling low energy and poor rest — these two are directly connected.`,
+        `<strong>Why it's happening:</strong> Your body needs 7–8 hours to complete full sleep cycles. Cutting this short reduces deep and REM sleep, which are essential for recovery.`,
+        `<strong>What you should change:</strong> Move your bedtime 15–20 minutes earlier this week, then again next week · Avoid caffeine after 2 PM · Don't use your phone in bed.`
+      ]});
     }
-    if (overwork) {
-      recs.push({ warn: true, title: 'Long work hours', text: `Working ${answers.workhours} daily can accumulate stress and leave little recovery time. Your nervous system needs downtime. Even a 10-minute walk after work can signal your brain to shift out of "task mode."` });
+
+    // ── Hard to fall asleep — amber ──
+    if (hardToSleep) {
+      recs.push({ level: 'warn', title: '⚠️ You have difficulty falling asleep', bullets: [
+        `<strong>What's happening:</strong> You struggle to fall asleep, which means your brain is still active and alert when it should be winding down.`,
+        `<strong>Why it might be happening:</strong> Screen use before bed, irregular sleep timing, or stress keeps your brain in "on" mode longer than needed.`,
+        `<strong>What you should change:</strong> Start a 30-min wind-down routine before bed · Put your phone away and dim the lights · Wake up at the same time every morning — this resets your sleep drive faster than any other habit.`
+      ]});
     }
-    if (sedentary) {
-      recs.push({ warn: false, title: 'Movement for desk workers', text: `Sitting work reduces blood flow and can stiffen muscles over time. Try the 20-20-2 rule: every 20 minutes, look 20 feet away for 20 seconds, and aim for at least 2 minutes of standing or light movement each hour.` });
+
+    // ── Daytime sleepy — red if also poor rest, amber if alone ──
+    if (daySleepy) {
+      recs.push({ level: (daySleepy && poorRested) ? 'bad' : 'warn',
+        title: (daySleepy && poorRested) ? '🔴 You feel exhausted during the day' : '⚠️ You feel sleepy during the day',
+        bullets: [
+          `<strong>What's happening:</strong> You feel sleepy or drained during the day, which signals your sleep at night isn't fully restoring you.`,
+          `<strong>Why it might be happening:</strong> Your deep sleep is likely being cut short by inconsistent timing, phone use, or not enough total hours.`,
+          `<strong>What you should change:</strong> Fix your wake-up time first — same time every day, even weekends · If needed, take a 10–20 min nap before 3 PM only · Avoid screens for the last 30 min before bed.`
+        ]
+      });
     }
-    if (lAnswers.l4 === 'Strongly agree' || lAnswers.l4 === 'Agree') {
-      recs.push({ warn: false, title: 'Daytime sleepiness', text: `You feel sleepy during the day. This often points to insufficient deep sleep or disrupted cycles. Keep your wake-up time consistent — even on weekends — as irregularity is one of the biggest drivers of daytime fatigue.` });
+
+    // ── High phone use + poor outcome — amber ──
+    if (pr >= 2 && outcomePoor) {
+      recs.push({ level: 'warn', title: '⚠️ Your phone use before bed is affecting your sleep quality', bullets: [
+        `<strong>What's happening:</strong> You use your phone ${answers.phonetime} before sleeping, and you're not waking up rested — these are connected.`,
+        `<strong>Why it's happening:</strong> Screen light suppresses melatonin (your sleep hormone), delaying when your brain is ready to sleep and reducing deep sleep time.`,
+        `<strong>What you should change:</strong> Set a "phone away" alarm 30 min before your bedtime · Replace it with reading, stretching, or quiet time · Even 3–4 nights a week of this will make a noticeable difference.`
+      ]});
     }
+
+    // ── Overwork + poor outcome — red ──
+    if (overwork && outcomePoor) {
+      recs.push({ level: 'bad', title: '🔴 Your long work hours are affecting your rest and energy', bullets: [
+        `<strong>What's happening:</strong> You're working ${answers.workhours} daily and feeling drained — your body doesn't have enough recovery time between days.`,
+        `<strong>Why it's happening:</strong> Long work hours raise stress hormones that make it harder to fall into deep sleep, even when you do go to bed on time.`,
+        `<strong>What you should change:</strong> Take a 10-min walk after work to help your brain exit "work mode" · Stop work tasks at least 1 hour before bed · Don't let work cut into your sleep time.`
+      ]});
+    }
+
+    // ── Sedentary + low energy — green tip ──
+    if (sedentary && lowEnergy) {
+      recs.push({ level: '', title: '🪑 Your sitting work is contributing to low daytime energy', bullets: [
+        `<strong>What's happening:</strong> You do mostly sitting work and feel low energy — physical inactivity reduces circulation and alertness over time.`,
+        `<strong>Why it's happening:</strong> Prolonged sitting lowers blood flow and signals your body to conserve energy, making you feel sluggish even without exertion.`,
+        `<strong>What you should change:</strong> Stand up and move for 2 minutes every hour · Take a short walk after lunch · Even light stretching at your desk improves circulation and focus.`
+      ]});
+    }
+
+    // ── Late bedtime + poor outcome — red ──
+    if (late && outcomePoor) {
+      recs.push({ level: 'bad', title: '🔴 Your late bedtime is reducing your sleep quality', bullets: [
+        `<strong>What's happening:</strong> You go to bed ${answers.bedtime} and you're not feeling rested — late sleep timing is likely a contributing factor.`,
+        `<strong>Why it's happening:</strong> Your body's best deep sleep happens earlier in the night. Going to bed late shifts this window, reducing restorative sleep even if total hours feel the same.`,
+        `<strong>What you should change:</strong> Shift your bedtime 15 minutes earlier each week — small steps work better than sudden changes · Set a wind-down reminder · Aim for lights out by 11 PM as a first target.`
+      ]});
+    }
+
+    // ── Fallback ──
     if (recs.length === 0) {
-      recs.push({ warn: false, title: 'You\'re doing well', text: `Your habits reflect a fairly balanced lifestyle. Keep maintaining consistent sleep times and monitor your energy levels over the coming days to spot any patterns worth adjusting.` });
+      recs.push({ level: '', title: '✅ Everything looks balanced', bullets: [
+        `<strong>What's happening:</strong> Your habits and how you feel are both in good shape — no major issues detected.`,
+        `<strong>Why it's working:</strong> Your sleep duration, timing, and daily routine appear to be well aligned with what your body needs.`,
+        `<strong>What to keep doing:</strong> Maintain a consistent sleep and wake time · Log again in a few weeks to catch any changes before they become patterns.`
+      ]});
     }
 
     document.getElementById('recs').innerHTML = recs.map(r => `
-      <div class="rec-card ${r.warn ? 'warn' : ''}">
+      <div class="rec-card ${r.level}">
         <h4>${r.title}</h4>
-        <p>${r.text}</p>
+        <ul style="margin:.5rem 0 0 1rem;padding:0;display:flex;flex-direction:column;gap:7px">
+          ${r.bullets.map(b => `<li style="font-size:13px;color:var(--text-muted);line-height:1.6">${b}</li>`).join('')}
+        </ul>
       </div>
     `).join('');
   }
