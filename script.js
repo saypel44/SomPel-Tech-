@@ -104,6 +104,9 @@ function submitName() {
     requestAnimationFrame(() => { appScreen.style.opacity = '1'; });
   });
 
+  // Navigate to products page on login
+  navigateTo('products', document.querySelector('.nav-item[data-page="products"]'));
+
   // Animate market bars after a short delay (they'll be visible on market page)
   setTimeout(animateMarketBars, 600);
 
@@ -142,7 +145,7 @@ function setGreetingCards(name, greet) {
 
 // ── Pages that are live (others show "Coming Soon") ───────────────────────
 
-const LIVE_PAGES = [ 'products', 'home', 'about', 'findings', 'market', 'tableau', 'report'];
+const LIVE_PAGES = ['home', 'about', 'findings', 'market', 'tableau', 'report', 'products'];
 
 
 // ── Navigation ─────────────────────────────────────────────────────────────
@@ -186,13 +189,12 @@ function navigateTo(pageId, btn) {
 }
 
 const PAGE_LABELS = {
-  products: { label: 'Products',                    icon: '📦' },
   about:    { label: 'About This Project',          icon: 'ℹ️' },
   findings: { label: 'Key Findings',                icon: '📊' },
   market:   { label: 'Market Readiness',            icon: '📱' },
   tableau:  { label: 'Tableau Story',               icon: '📐' },
   report:   { label: 'Report',                      icon: '📄' },
-  
+  products: { label: 'Products',                    icon: '📦' },
 };
 
 function doSignOut() {
@@ -324,4 +326,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
