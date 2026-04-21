@@ -157,10 +157,6 @@ function navigateTo(pageId, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-  // added here 
-  
-
-
   // Activate target page
   const target = document.getElementById('page-' + pageId);
   if (target) {
@@ -173,8 +169,16 @@ function navigateTo(pageId, btn) {
   // Activate nav button
   if (btn) btn.classList.add('active');
 
+  // Sync bottom nav active state
+  document.querySelectorAll('.bottom-nav-item').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-page') === pageId);
+  });
+
+  // Close mobile sidebar if open
+  closeMobileSidebar();
+
   // Animate bars if navigating to market page
-  if (pageId === 'product') {
+  if (pageId === 'market') {
     setTimeout(animateMarketBars, 200);
   }
 
@@ -261,4 +265,62 @@ function scrollToFinding(id) {
   const top = el.getBoundingClientRect().top + window.scrollY - offset;
   window.scrollTo({ top, behavior: 'smooth' });
 }
+
+
+
+// ── Mobile sidebar toggle ──────────────────────────────────────────────────
+
+function toggleMobileSidebar() {
+  const sidebar  = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  const isOpen   = sidebar.classList.contains('open');
+  if (isOpen) {
+    closeMobileSidebar();
+  } else {
+    sidebar.classList.add('open');
+    backdrop.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeMobileSidebar() {
+  const sidebar  = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  sidebar.classList.remove('open');
+  backdrop.classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+
+// ── Sync bottom nav active state ──────────────────────────────────────────
+
+function syncBottomNav(btn) {
+  const pageId = btn.getAttribute('data-page');
+  document.querySelectorAll('.bottom-nav-item').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-page') === pageId);
+  });
+  // Also close drawer if open
+  closeMobileSidebar();
+}
+
+
+// ── DOMContentLoaded: sidebar close + Enter key on name input ─────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Close sidebar drawer when a sidebar nav item is clicked on mobile
+  document.querySelectorAll('.sidebar .nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      if (window.innerWidth <= 768) closeMobileSidebar();
+    });
+  });
+
+  // Allow pressing Enter to submit the name screen
+  const nameInput = document.getElementById('inp-name');
+  if (nameInput) {
+    nameInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitName();
+    });
+  }
+});
 

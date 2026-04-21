@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --accent: #1D9E75;
+      --accent-light: #E1F5EE;
+      --accent-dark: #0F6E56;
+      --warn: #BA7517;
+      --warn-light: #FAEEDA;
+      --bg: #f9f9f7;
+      --surface: #ffffff;
+      --text: #1a1a1a;
+      --text-muted: #6b6b6b;
+      --border: rgba(0,0,0,0.12);
+      --border-hover: rgba(0,0,0,0.25);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+    #app {
+      max-width: 660px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin: 0 0 1.2rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .q-title {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: .9rem;
+      color: var(--text);
+    }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .opt {
+      border: 0.5px solid var(--border-hover);
+      border-radius: var(--radius-md);
+      padding: 7px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      background: #f4f4f2;
+      color: var(--text-muted);
+      transition: all .15s;
+      font-family: inherit;
+    }
+    .opt:hover { border-color: var(--accent); color: var(--accent); }
+    .opt.sel {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      font-weight: 500;
+    }
+    .likert-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .likert-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+    .likert-item span { flex: 1; min-width: 140px; }
+    .likert-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+    .lbtn {
+      border: 0.5px solid var(--border-hover);
+      border-radius: 20px;
+      padding: 4px 9px;
+      font-size: 11px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      white-space: nowrap;
+      transition: all .15s;
+    }
+    .lbtn:hover { border-color: var(--accent); color: var(--accent); }
+    .lbtn.sel {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      font-weight: 500;
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 1.8rem 0 1rem;
+    }
+    .sec-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; flex-shrink: 0;
+    }
+    .sec-name { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+    #submit-btn {
+      width: 100%; padding: 13px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: var(--radius-md);
+      font-size: 15px; font-weight: 500;
+      cursor: pointer; font-family: inherit;
+      margin-top: 1.5rem; transition: background .15s;
+    }
+    #submit-btn:hover { background: var(--accent-dark); }
+    #submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+    #results { display: none; }
+    .result-hero {
+      background: var(--accent-light);
+      border: 0.5px solid var(--accent);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem; margin-bottom: 1rem;
+    }
+    .result-hero h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px; font-weight: 600;
+      color: #0F6E56; margin-bottom: .5rem;
+    }
+    .result-hero p { font-size: 14px; color: #1D9E75; }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px; margin-bottom: 1rem;
+    }
+    .stat {
+      background: #f4f4f2;
+      border-radius: var(--radius-md);
+      padding: 1rem; text-align: center;
+    }
+    .stat-val { font-size: 20px; font-weight: 600; color: var(--text); }
+    .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+    .rec-card {
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      background: var(--surface);
+      border-top: 0.5px solid var(--border);
+      border-right: 0.5px solid var(--border);
+      border-bottom: 0.5px solid var(--border);
+      padding: 1rem 1.2rem; margin-bottom: .75rem;
+    }
+    .rec-card.warn {
+      border-left-color: var(--warn);
+      background: var(--warn-light);
+    }
+    .rec-card h4 { font-size: 14px; font-weight: 500; margin-bottom: .3rem; }
+    .rec-card p { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+    .progress-bar {
+      height: 4px; background: #e0e0e0;
+      border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--accent);
+      border-radius: 2px; transition: width .3s;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--accent-light); color: var(--accent-dark);
+      border-radius: 20px; padding: 3px 10px;
+      font-size: 11px; font-weight: 500; margin-bottom: .5rem;
+    }
+    #restart-btn {
+      margin-top: 1.5rem; width: 100%; padding: 11px;
+      background: transparent;
+      border: 0.5px solid var(--border-hover);
+      border-radius: var(--radius-md);
+      font-size: 14px; cursor: pointer;
+      font-family: inherit; color: var(--text-muted);
+    }
+    #restart-btn:hover { background: #f0f0ee; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div style="margin-bottom:1.5rem">
+    <p class="section-label">Daily habit tracker</p>
+    <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:600;line-height:1.2;margin-bottom:.4rem">Quick Tracker</div>
+    <p style="font-size:13px;color:var(--text-muted)">Answer a few questions to get your personalised daily habits summary.</p>
+    <div class="progress-bar" style="margin-top:1rem">
+      <div class="progress-fill" id="progress" style="width:0%"></div>
+    </div>
+  </div>
+
+  <form id="tracker-form">
+    <div class="section-head"><div class="sec-num">A</div><span class="sec-name">About you</span></div>
+
+    <div class="card">
+      <p class="q-title">What is your age group?</p>
+      <div class="options" data-q="age">
+        <button type="button" class="opt" data-v="Under 18">Under 18</button>
+        <button type="button" class="opt" data-v="18–25">18–25</button>
+        <button type="button" class="opt" data-v="26–35">26–35</button>
+        <button type="button" class="opt" data-v="36–50">36–50</button>
+        <button type="button" class="opt" data-v="50+">50+</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="q-title">Where do you live?</p>
+      <div class="options" data-q="location">
+        <button type="button" class="opt" data-v="Urban">Urban</button>
+        <button type="button" class="opt" data-v="Semi-urban">Semi-urban</button>
+        <button type="button" class="opt" data-v="Rural">Rural</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="q-title">What type of work do you mostly do?</p>
+      <div class="options" data-q="worktype">
+        <button type="button" class="opt" data-v="Sitting">Mostly sitting work</button>
+        <button type="button" class="opt" data-v="Physical">Mostly physical work</button>
+        <button type="button" class="opt" data-v="Both">Both sitting and physical</button>
+      </div>
+    </div>
+
+    <div class="section-head"><div class="sec-num">B</div><span class="sec-name">Daily lifestyle inputs</span></div>
+
+    <div class="card">
+      <p class="q-title">On average, how many hours do you work per day?</p>
+      <div class="options" data-q="workhours">
+        <button type="button" class="opt" data-v="0–4 hours">0–4 hrs</button>
+        <button type="button" class="opt" data-v="5–6 hours">5–6 hrs</button>
+        <button type="button" class="opt" data-v="7–8 hours">7–8 hrs</button>
+        <button type="button" class="opt" data-v="9 or more hours">9+ hrs</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="q-title">On average, how many hours do you sleep per night?</p>
+      <div class="options" data-q="sleep">
+        <button type="button" class="opt" data-v="0–4 hours">0–4 hrs</button>
+        <button type="button" class="opt" data-v="5–6 hours">5–6 hrs</button>
+        <button type="button" class="opt" data-v="7–8 hours">7–8 hrs</button>
+        <button type="button" class="opt" data-v="9 or more hours">9+ hrs</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="q-title">How long do you use your phone before sleeping?</p>
+      <div class="options" data-q="phonetime">
+        <button type="button" class="opt" data-v="no phone before bed">No phone before bed</button>
+        <button type="button" class="opt" data-v="less than 30 minutes">Less than 30 min</button>
+        <button type="button" class="opt" data-v="30 min–1 hour">30 min–1 hr</button>
+        <button type="button" class="opt" data-v="1–2 hours">1–2 hrs</button>
+        <button type="button" class="opt" data-v="2–3 hours">2–3 hrs</button>
+        <button type="button" class="opt" data-v="more than 3 hours">More than 3 hrs</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="q-title">What time do you usually go to sleep?</p>
+      <div class="options" data-q="bedtime">
+        <button type="button" class="opt" data-v="before 9 PM">Before 9 PM</button>
+        <button type="button" class="opt" data-v="9–10 PM">9–10 PM</button>
+        <button type="button" class="opt" data-v="10–11 PM">10–11 PM</button>
+        <button type="button" class="opt" data-v="11 PM–12 AM">11 PM–12 AM</button>
+        <button type="button" class="opt" data-v="after 12 AM">After 12 AM</button>
+      </div>
+    </div>
+
+    <div class="section-head"><div class="sec-num">C</div><span class="sec-name">Sleep quality & energy</span></div>
+
+    <div class="card">
+      <p class="q-title" style="margin-bottom:1rem">Rate how much you agree with each statement.</p>
+      <div class="likert-row" id="likert-container"></div>
+    </div>
+
+    <button type="button" id="submit-btn" disabled onclick="showResults()">See my results</button>
+  </form>
+
+  <div id="results">
+    <div class="result-hero">
+      <div class="badge">Your summary</div>
+      <h2>Based on your answers…</h2>
+      <p id="result-intro"></p>
+    </div>
+    <div class="stat-grid" id="stat-grid"></div>
+    <div style="margin-top:1rem">
+      <p class="section-label" style="margin-bottom:.75rem">Personalised recommendations</p>
+      <div id="recs"></div>
+    </div>
+    <button type="button" id="restart-btn" onclick="restartForm()">Start over</button>
+  </div>
+</div>
+
+<script>
+  const likertQs = [
+    { id: 'l1', text: 'I fall asleep easily.' },
+    { id: 'l2', text: 'I sleep well most nights.' },
+    { id: 'l3', text: 'I wake up feeling rested.' },
+    { id: 'l4', text: 'I feel sleepy during the day.' },
+    { id: 'l5', text: 'I have enough energy during the day.' }
+  ];
+  const likertOpts = ['Strongly agree', 'Agree', 'Neutral', 'Disagree', 'Strongly disagree'];
+  const answers = {};
+  const lAnswers = {};
+
+  const lc = document.getElementById('likert-container');
+  likertQs.forEach(q => {
+    const row = document.createElement('div');
+    row.className = 'likert-item';
+    row.innerHTML = `<span>${q.text}</span><div class="likert-btns">${likertOpts.map(o => `<button type="button" class="lbtn" data-lq="${q.id}" data-v="${o}">${o}</button>`).join('')}</div>`;
+    lc.appendChild(row);
+  });
+
+  document.querySelectorAll('.options').forEach(grp => {
+    grp.querySelectorAll('.opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        grp.querySelectorAll('.opt').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+        answers[grp.dataset.q] = btn.dataset.v;
+        updateProgress();
+      });
+    });
+  });
+
+  document.querySelectorAll('.lbtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll(`.lbtn[data-lq="${btn.dataset.lq}"]`).forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+      lAnswers[btn.dataset.lq] = btn.dataset.v;
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = 7 + 5;
+    const done = Object.keys(answers).length + Object.keys(lAnswers).length;
+    document.getElementById('progress').style.width = Math.round((done / total) * 100) + '%';
+    document.getElementById('submit-btn').disabled = (done < total);
+  }
+
+  function sleepScore() {
+    const scores = {};
+    likertQs.forEach(q => {
+      const v = lAnswers[q.id];
+      scores[q.id] = { 'Strongly agree': 5, 'Agree': 4, 'Neutral': 3, 'Disagree': 2, 'Strongly disagree': 1 }[v] || 3;
+    });
+    const positive = (scores.l1 + scores.l2 + scores.l3 + scores.l5) / 4;
+    const alertness = 6 - scores.l4;
+    return Math.round(((positive + alertness) / 2) * 10);
+  }
+
+  function phoneRisk() {
+    return { 'no phone before bed': 0, 'less than 30 minutes': 1, '30 min–1 hour': 2, '1–2 hours': 3, '2–3 hours': 4, 'more than 3 hours': 5 }[answers.phonetime] || 0;
+  }
+
+  function isLateNight() {
+    return answers.bedtime === 'after 12 AM' || answers.bedtime === '11 PM–12 AM';
+  }
+
+  function showResults() {
+    document.getElementById('tracker-form').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    window.scrollTo(0, 0);
+
+    const sc = sleepScore();
+    const pr = phoneRisk();
+    const late = isLateNight();
+    const overwork = answers.workhours === '9 or more hours';
+    const sedentary = answers.worktype === 'Sitting';
+
+    document.getElementById('result-intro').textContent =
+      `You work ${answers.workhours} and sleep ${answers.sleep} each night, going to bed ${answers.bedtime}. ` +
+      `You use your phone ${answers.phonetime} before sleeping. These may be shaping your daily energy and rest quality — let's look at what your habits reveal.`;
+
+    document.getElementById('stat-grid').innerHTML = `
+      <div class="stat"><div class="stat-val">${answers.workhours.replace(' hours', '')}</div><div class="stat-lbl">Work / day</div></div>
+      <div class="stat"><div class="stat-val">${answers.sleep.replace(' hours', '')}</div><div class="stat-lbl">Sleep / night</div></div>
+      <div class="stat"><div class="stat-val">${sc}<span style="font-size:14px;font-weight:400">/50</span></div><div class="stat-lbl">Sleep quality score</div></div>
+      <div class="stat"><div class="stat-val" style="font-size:14px">${answers.bedtime}</div><div class="stat-lbl">Usual bedtime</div></div>
+    `;
+
+    const recs = [];
+
+    if (answers.sleep === '0–4 hours' || answers.sleep === '5–6 hours') {
+      recs.push({ warn: true, title: 'Sleep duration', text: `You're sleeping ${answers.sleep} — well below the recommended 7–8 hours for most adults. Chronic short sleep is linked to fatigue, poor focus, and long-term health risks. Gradually shifting your bedtime 15 minutes earlier each week can help.` });
+    }
+    if (late) {
+      recs.push({ warn: true, title: 'Late bedtime habit', text: `Going to bed ${answers.bedtime} delays your body's natural circadian rhythm. Even if you sleep enough total hours, late sleep timing can reduce deep sleep quality. Try winding down by 10:30 PM and keeping a consistent schedule.` });
+    }
+    if (pr >= 2) {
+      recs.push({ warn: pr >= 3, title: 'Phone use before bed', text: `You use your phone ${answers.phonetime} before sleeping. Screen light suppresses melatonin and keeps your brain alert. Consider switching to a book or light stretching in the last 30 minutes before bed.` });
+    }
+    if (overwork) {
+      recs.push({ warn: true, title: 'Long work hours', text: `Working ${answers.workhours} daily can accumulate stress and leave little recovery time. Your nervous system needs downtime. Even a 10-minute walk after work can signal your brain to shift out of "task mode."` });
+    }
+    if (sedentary) {
+      recs.push({ warn: false, title: 'Movement for desk workers', text: `Sitting work reduces blood flow and can stiffen muscles over time. Try the 20-20-2 rule: every 20 minutes, look 20 feet away for 20 seconds, and aim for at least 2 minutes of standing or light movement each hour.` });
+    }
+    if (lAnswers.l4 === 'Strongly agree' || lAnswers.l4 === 'Agree') {
+      recs.push({ warn: false, title: 'Daytime sleepiness', text: `You feel sleepy during the day. This often points to insufficient deep sleep or disrupted cycles. Keep your wake-up time consistent — even on weekends — as irregularity is one of the biggest drivers of daytime fatigue.` });
+    }
+    if (recs.length === 0) {
+      recs.push({ warn: false, title: 'You\'re doing well', text: `Your habits reflect a fairly balanced lifestyle. Keep maintaining consistent sleep times and monitor your energy levels over the coming days to spot any patterns worth adjusting.` });
+    }
+
+    document.getElementById('recs').innerHTML = recs.map(r => `
+      <div class="rec-card ${r.warn ? 'warn' : ''}">
+        <h4>${r.title}</h4>
+        <p>${r.text}</p>
+      </div>
+    `).join('');
+  }
+
+  function restartForm() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('tracker-form').style.display = 'block';
+    document.querySelectorAll('.opt, .lbtn').forEach(b => b.classList.remove('sel'));
+    Object.keys(answers).forEach(k => delete answers[k]);
+    Object.keys(lAnswers).forEach(k => delete lAnswers[k]);
+    document.getElementById('progress').style.width = '0%';
+    document.getElementById('submit-btn').disabled = true;
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>

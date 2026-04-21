@@ -1903,3 +1903,315 @@ body::before {
   .mkt-big-stat { flex-direction: column; align-items: flex-start; gap: 8px; }
   .mkt-big-num { font-size: 2.2rem; }
 }
+
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVE — ≤ 768px
+   Strategy:
+   • Sidebar hides off-screen (slide-in drawer)
+   • Bottom nav bar appears
+   • App screen loses margin-left
+   • Hamburger toggle in greeting bar
+   • Overlay backdrop for drawer
+══════════════════════════════════════ */
+
+/* ── Hamburger button (only visible on mobile) ── */
+.mobile-menu-btn {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+  color: var(--text2);
+}
+.mobile-menu-btn:hover {
+  background: var(--surface2);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* ── Sidebar backdrop overlay ── */
+.sidebar-backdrop {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 99;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.sidebar-backdrop.visible { display: block; }
+
+/* ── Bottom nav bar (mobile only) ── */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: var(--sidebar-bg);
+  border-top: 1.5px solid var(--sidebar-bord);
+  z-index: 110;
+  padding: 0 4px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 0;
+}
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 500;
+  color: var(--sidebar-muted);
+  letter-spacing: 0.02em;
+  transition: color 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.bottom-nav-item svg {
+  stroke: currentColor;
+  transition: stroke 0.18s;
+}
+.bottom-nav-item.active {
+  color: var(--green);
+  font-weight: 700;
+}
+.bottom-nav-item span.bnav-label {
+  font-size: 0.58rem;
+  line-height: 1;
+}
+
+/* ── Products grid: 2 cards side by side ── */
+.prod-overview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 28px;
+}
+
+/* ── Base card ── */
+.prod-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.prod-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Tool 1: green tint ── */
+.prod-card-primary {
+  background: linear-gradient(135deg, rgba(107,163,104,0.07), rgba(167,199,231,0.05));
+  border-color: rgba(107,163,104,0.30);
+}
+.prod-card-primary:hover { border-color: var(--green); }
+
+/* ── Tool 2: sky tint ── */
+.prod-card--secondary {
+  background: linear-gradient(135deg, rgba(122,171,200,0.07), rgba(176,141,87,0.04));
+  border-color: rgba(122,171,200,0.30);
+}
+.prod-card--secondary:hover { border-color: var(--sky); }
+
+/* ── Badge (Tool 1 / Tool 2 label) ── */
+.prod-card-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+.prod-card-primary   .prod-card-badge { background: rgba(107,163,104,0.12); color: var(--green); }
+.prod-card--secondary .prod-card-badge { background: rgba(122,171,200,0.14); color: var(--sky); }
+
+/* ── Card title ── */
+.prod-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  margin: 0;
+}
+
+/* ── Card description ── */
+.prod-card-description {
+  font-size: 0.86rem;
+  color: var(--text2);
+  line-height: 1.7;
+  flex: 1;
+}
+
+/* ── Button ── */
+.prod-card-button {
+  margin-top: 4px;
+  padding: 11px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--green) 0%, var(--sky) 100%);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.prod-card-button:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(107,163,104,0.28);
+}
+.prod-card-button:active { transform: translateY(0); }
+
+/* ── Mobile: stack to 1 column ── */
+@media (max-width: 768px) {
+  .prod-overview-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 380px) {
+  .prod-card { padding: 20px 14px 18px; }
+}
+
+
+@media (max-width: 768px) {
+
+  /* Show hamburger, show bottom nav */
+  .mobile-menu-btn { display: flex; }
+  .bottom-nav      { display: flex; }
+
+  /* Sidebar becomes a slide-in drawer */
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.3s;
+    z-index: 200;
+    top: 0;
+    height: 100vh;
+    box-shadow: none;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0,0,0,0.16);
+  }
+
+  /* App screen takes full width */
+  #app-screen.visible {
+    margin-left: 0;
+  }
+
+  /* Greeting bar: tighter padding, show hamburger */
+  .greeting-bar {
+    padding: 8px 14px;
+    gap: 10px;
+  }
+
+  /* Page inner: tighter padding */
+  .page-inner {
+    padding: 24px 18px 80px; /* bottom padding for bottom nav */
+    max-width: 100%;
+  }
+
+  /* Name card: tighter on small screens */
+  .name-card {
+    padding: 40px 24px 36px;
+    border-radius: 14px;
+  }
+  .name-card h1 { font-size: 1.45rem; }
+
+  /* Greeting bar text truncates nicely */
+  #greeting-text {
+    font-size: 0.78rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Stats row: 2-col grid on small screens */
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Info cards: 2-col */
+  .info-cards-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Market bar labels: shorter */
+  .fc-bar-label { min-width: 110px; font-size: 0.72rem; }
+
+  /* Tables: horizontal scroll */
+  .fc-compare-wrap, .fc-heatmap-wrap { overflow-x: auto; }
+  .fc-heatmap { min-width: 420px; }
+
+  /* Hero title: smaller */
+  .hero-title { font-size: clamp(1.5rem, 6vw, 2rem); }
+
+  /* Page title: smaller */
+  .page-title { font-size: clamp(1.4rem, 5vw, 2rem); }
+
+  /* Home tab buttons wrap */
+  .home-tabs { flex-wrap: wrap; gap: 6px; }
+  .home-tab  { flex: 1; min-width: 100px; font-size: 0.78rem; padding: 8px 10px; }
+
+  /* Market visual row: stack */
+  .mw-visual-row { flex-direction: column; }
+
+  /* Findings grid: 1 col */
+  .findings-grid { grid-template-columns: 1fr !important; }
+
+  /* iframes: reasonable height on mobile */
+  iframe { height: 400px !important; }
+
+  /* Report viewer embed */
+  .prc-viewer iframe { height: 480px !important; }
+
+  /* Sign out button: compact */
+  .greeting-bar-signout {
+    padding: 5px 8px;
+    font-size: 0.7rem;
+  }
+  .greeting-bar-signout span { display: none; } /* hide label, keep icon */
+
+  /* mkt-big-stat stack */
+  .mkt-big-stat { flex-direction: column; align-items: flex-start; gap: 6px; padding: 16px 18px; }
+  .mkt-big-num { font-size: 2rem; }
+
+  /* Product cards, finding cards */
+  .mw-tools-row { flex-direction: column; }
+  .mw-challenges-row { flex-direction: column; }
+}
+
+/* Extra-small: ≤ 380px */
+@media (max-width: 380px) {
+  .page-inner { padding: 18px 12px 80px; }
+  .name-card  { padding: 32px 16px 28px; }
+  .stats-row  { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .fc-bar-label { min-width: 90px; font-size: 0.68rem; }
+}
+
