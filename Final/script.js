@@ -104,6 +104,9 @@ function submitName() {
     requestAnimationFrame(() => { appScreen.style.opacity = '1'; });
   });
 
+  // Navigate to products page on login
+  navigateTo('products', document.querySelector('.nav-item[data-page="products"]'));
+
   // Animate market bars after a short delay (they'll be visible on market page)
   setTimeout(animateMarketBars, 600);
 
@@ -323,4 +326,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-

@@ -2088,6 +2088,39 @@ body::before {
 @media (max-width: 768px) {
   .prod-overview-grid { grid-template-columns: 1fr; }
 }
+
+/* ══════════════════════════════════════
+   HOME CTA BUTTON — "Explore Our Products"
+══════════════════════════════════════ */
+.home-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1rem;
+  margin-bottom: 1.75rem;
+  padding: 13px 32px;
+  background: linear-gradient(90deg, var(--green) 0%, var(--sky) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0,60,30,0.18);
+  box-shadow: 0 4px 18px rgba(107,163,104,0.28);
+  transition: opacity 0.2s, transform 0.18s, box-shadow 0.18s;
+}
+.home-cta-btn:hover {
+  opacity: 0.90;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(107,163,104,0.36);
+}
+.home-cta-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(107,163,104,0.20);
+}
 @media (max-width: 380px) {
   .prod-card { padding: 20px 14px 18px; }
 }
@@ -2170,7 +2203,7 @@ body::before {
   .fc-heatmap { min-width: 420px; }
 
   /* Hero title: smaller */
-  .hero-title { font-size: clamp(1.5rem, 6vw, 2rem); }
+  .hero-title { font-size: clamp(1.2rem, 6vw, 2rem); }
 
   /* Page title: smaller */
   .page-title { font-size: clamp(1.4rem, 5vw, 2rem); }
@@ -2214,4 +2247,3 @@ body::before {
   .stats-row  { grid-template-columns: 1fr 1fr; gap: 8px; }
   .fc-bar-label { min-width: 90px; font-size: 0.68rem; }
 }
-
