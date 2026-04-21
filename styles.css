@@ -2203,7 +2203,7 @@ body::before {
   .fc-heatmap { min-width: 420px; }
 
   /* Hero title: smaller */
-  .hero-title { font-size: clamp(1.5rem, 6vw, 2rem); }
+  .hero-title { font-size: clamp(1.2rem, 6vw, 2rem); }
 
   /* Page title: smaller */
   .page-title { font-size: clamp(1.4rem, 5vw, 2rem); }
