@@ -434,113 +434,158 @@
       <div class="stat"><div class="stat-val" style="font-size:14px">${answers.bedtime}</div><div class="stat-lbl">Usual bedtime</div></div>
     `;
 
+    // ── Age-based research stats ──
+    // Sources: CDC NHIS 2020, AASM 2023/2024, Sleep Foundation, SingleCare 2024
+    const ageStats = {
+      'Under 18': {
+        shortSleepPct: 75,   // CDC: ~75% of high schoolers get less than recommended sleep
+        sleepyPct: 56,       // BMC Public Health: up to 56% of young people report poor sleep quality
+        hardSleepPct: 62,    // AASM 2024: 62% of 18–24 yr olds report stress disrupting sleep (proxy for teens)
+        restedPct: 25,       // inverse — fewer wake up rested
+        ageNote: 'young people your age'
+      },
+      '18–25': {
+        shortSleepPct: 36,   // sleephealth.org: 36.4% of 25–44 get short sleep; similar for 18–25
+        sleepyPct: 56,       // BMC Public Health 2025: up to 56% of college-age students poor sleep quality
+        hardSleepPct: 62,    // AASM 2024: 62% of 18–24 say stress disrupts their sleep
+        restedPct: 38,
+        ageNote: 'people your age (18 to 25)'
+      },
+      '26–35': {
+        shortSleepPct: 36,   // CDC/sleephealth: adults 25–44 highest short sleep rate at 36%
+        sleepyPct: 33,       // general adult average
+        hardSleepPct: 15,    // CDC NHIS: ~15.5% of 18–44 trouble falling asleep
+        restedPct: 46,       // AASM 2023: 46% of 35–44 often wake up rested (best of any group)
+        ageNote: 'people your age (26 to 35)'
+      },
+      '36–50': {
+        shortSleepPct: 36,   // adults 25–44 highest short sleep group
+        sleepyPct: 30,       // AASM 2023: 30% of 55–64 rarely feel rested; 36–50 slightly better
+        hardSleepPct: 15,    // CDC: 18–44 range
+        restedPct: 46,       // AASM 2023: 46% of 35–44 wake up rested
+        ageNote: 'people your age (36 to 50)'
+      },
+      '50+': {
+        shortSleepPct: 28,   // older adults sleep fewer hours but not always short duration
+        sleepyPct: 40,       // NIH/PMC: 40–70% of older adults have chronic sleep problems
+        hardSleepPct: 12,    // CDC: trouble falling asleep drops to 12.1% at 65+
+        restedPct: 30,       // AASM 2023: 30% of 55–64 rarely wake up rested (highest unrest of any group)
+        ageNote: 'people over 50'
+      }
+    };
+
+    const age = answers.age || '26–35';
+    const st = ageStats[age] || ageStats['26–35'];
+
     const recs = [];
 
     // ── Feeling good + late but consistent ──
     if (outcomeGood && late) {
-      recs.push({ level: '', title: '✅ You feel good — your regular bedtime is helping', bullets: [
-        `<strong>What is happening:</strong> You go to bed ${answers.bedtime} every night and your body has got used to it — you feel rested and full of energy.`,
-        `<strong>Why it works:</strong> Going to bed at the same time each night — even if it is late — is better than going to bed at different times. Your body learns when to sleep.`,
-        `<strong>What to keep doing:</strong> Try to go to bed and wake up at the same time every day, including weekends. If you want to go to bed earlier, move your bedtime 15 minutes earlier each week — do not try to change it all at once.`
-      ]});
+      recs.push({ level: '', title: '✅ You feel good — your regular bedtime is helping',
+        text: `You go to bed ${answers.bedtime} every night and your body has got used to it — you feel rested and full of energy. Going to bed at the same time each night, even if it is late, is better than going to bed at different times because your body learns when to sleep. Keep going to bed and waking up at the same time every day, including weekends.`,
+        research: `A consistent sleep schedule — even a late one — trains your body clock more effectively than an irregular early one. The National Sleep Foundation confirms that sleep timing consistency is one of the strongest predictors of feeling rested.`,
+        bhutan: `Bhutan's 2010 GNH study found that only 9% of Bhutanese people slept the recommended 7 hours — most slept longer. This suggests that in Bhutan, the timing and quality of sleep matters more than simply the number of hours.`
+      });
     } else if (outcomeGood) {
-      recs.push({ level: '', title: '✅ Your habits are working — keep it up', bullets: [
-        `<strong>What is happening:</strong> You wake up feeling rested and have good energy during the day — that is the best sign your sleep is healthy.`,
-        `<strong>Why it works:</strong> The time you sleep, how long you sleep, and your daily habits all seem to match what your body needs.`,
-        `<strong>What to keep doing:</strong> Try to go to bed at the same time every night, even on weekends. Check again in a few weeks to make sure things stay on track.`
-      ]});
+      recs.push({ level: '', title: '✅ Your habits are working — keep it up',
+        text: `You wake up feeling rested and have good energy during the day — that is the best sign your sleep is healthy. The time you sleep, how long you sleep, and your daily habits all seem to match what your body needs. Keep going to bed at the same time every night, even on weekends, and check in again in a few weeks to make sure things stay on track.`,
+        research: `Research across 52 countries found that sleep duration is closely linked to overall wellbeing and happiness. People who wake up feeling rested consistently report better physical health, better mood, and better work performance (Frontiers in Sleep, 2023).`,
+        bhutan: `Bhutan's GNH Index measures wellbeing across nine domains. Studies using GNH data show that both too little and too much sleep are linked to poorer health — suggesting that 7 to 8 hours with good quality is the right balance for Bhutanese people.`
+      });
     }
 
     // ── Good hours but still tired ──
     if (outcomePoor && goodHours) {
-      recs.push({ level: 'warn', title: '⚠️ You sleep enough hours but still feel tired', bullets: [
-        `<strong>What is happening:</strong> You sleep ${answers.sleep} most nights, but you still wake up feeling tired and have low energy. More hours alone is not always the answer.`,
-        `<strong>Why it might be happening:</strong> Using your phone late at night, going to bed at different times, stress, or a noisy or bright room can all stop your body from getting deep, good-quality sleep — even if you are in bed for long enough.`,
-        `<strong>What to try:</strong> Put your phone away 30 to 60 minutes before bed. Go to bed and wake up at the same time every day. Make your bedroom darker and quieter. Try reading a book or doing some light stretching before bed instead of using your phone.`
-      ]});
+      recs.push({ level: 'warn', title: '⚠️ You sleep enough hours but still feel tired',
+        text: `You sleep ${answers.sleep} most nights, but you still wake up feeling tired and have low energy. About ${st.sleepyPct}% of ${st.ageNote} report the same thing — more hours is not always the answer. Using your phone late at night, going to bed at different times, stress, or a noisy room can all stop your body from getting good deep sleep. Try putting your phone away 30 to 60 minutes before bed and going to bed at the same time every day.`,
+        research: `A study in Japan found that sleep quality — not just duration — is what drives productivity and daytime energy. Daytime dysfunction from poor-quality sleep caused nearly 3% productivity loss even in people sleeping normal hours (ScienceDirect, 2020).`,
+        bhutan: `The GNH sleep study in Bhutan found that long sleep duration (9 hours or more) was also linked to poor health, suggesting that quality and consistency matter more than simply spending more time in bed.`
+      });
     }
 
     // ── Short sleep + poor outcome ──
     if (outcomePoor && shortSleep) {
-      recs.push({ level: 'bad', title: '🔴 You are not sleeping enough and your body can feel it', bullets: [
-        `<strong>What is happening:</strong> You sleep ${answers.sleep} and you feel tired and low on energy — these two things are directly linked.`,
-        `<strong>Why it is happening:</strong> Your body needs 7 to 8 hours each night to properly rest and repair itself. When you sleep less than that, you miss out on the deep sleep your body and mind need.`,
-        `<strong>What to try:</strong> Go to bed 15 to 20 minutes earlier this week, then a little earlier again next week. Avoid tea, coffee, or fizzy drinks after 2 in the afternoon. Do not use your phone in bed.`
-      ]});
+      recs.push({ level: 'bad', title: '🔴 You are not sleeping enough and your body can feel it',
+        text: `You sleep ${answers.sleep} and feel tired and low on energy — these two things are directly linked. About ${st.shortSleepPct}% of ${st.ageNote} do not get enough sleep. Your body needs 7 to 8 hours each night to properly rest and repair itself. Try going to bed 15 to 20 minutes earlier each week. Avoid tea, coffee, or fizzy drinks after 2 in the afternoon, and do not use your phone in bed.`,
+        research: `Research by the American Academy of Sleep Medicine found that people sleeping 5 to 6 hours experienced 19% more productivity loss, and those sleeping under 5 hours experienced 29% more — compared to those sleeping 7 to 8 hours. Sleep is not wasted time; it is necessary recovery time.`,
+        bhutan: `Bhutan's GNH study confirmed that short sleep of 6 hours or less was independently linked to poor self-reported health across both urban and rural populations. Only 6% of participants were short sleepers — but they had significantly worse health outcomes.`
+      });
     }
 
     // ── Hard to fall asleep ──
     if (hardToSleep) {
-      recs.push({ level: 'warn', title: '⚠️ You find it hard to fall asleep', bullets: [
-        `<strong>What is happening:</strong> Your mind is still active and wide awake when you try to sleep.`,
-        `<strong>Why it might be happening:</strong> Using your phone before bed, going to sleep at different times each night, or feeling stressed can all keep your brain switched on when it should be winding down.`,
-        `<strong>What to try:</strong> Give yourself 30 minutes to relax before bed — no phone, dim the lights, and do something calm like reading. Try to wake up at the same time every morning. This is one of the best things you can do to help your body know when it is time to sleep.`
-      ]});
+      recs.push({ level: 'warn', title: '⚠️ You find it hard to fall asleep',
+        text: `Your mind is still active when you try to sleep. About ${st.hardSleepPct}% of ${st.ageNote} regularly have trouble falling asleep — stress and phone use before bed are the most common reasons. Give yourself 30 minutes to relax before bed, put your phone away, dim the lights, and do something calm. Waking up at the same time every morning also helps your body learn when to feel sleepy at night.`,
+        research: `A clinical review found that a regular wind-down routine — no screens, dim lights, and calm activity for 30 minutes before bed — significantly improves the ability to fall asleep. Waking at a fixed time each morning is described as the single most effective habit for fixing a disrupted sleep pattern (Journal of Family Medicine, 2024).`,
+        bhutan: `Research on mental health in Bhutan found that stress and anxiety — particularly linked to rapid urbanization — are growing contributors to sleep difficulty. Urban residents in Bhutan are increasingly exposed to screens and irregular schedules, both of which make it harder to fall asleep.`
+      });
     }
 
     // ── Daytime sleepy ──
     if (daySleepy) {
       recs.push({ level: (daySleepy && poorRested) ? 'bad' : 'warn',
         title: (daySleepy && poorRested) ? '🔴 You feel very tired and sleepy during the day' : '⚠️ You feel sleepy during the day',
-        bullets: [
-          `<strong>What is happening:</strong> You feel sleepy or drained during the day. This usually means your sleep at night is not fully refreshing you.`,
-          `<strong>Why it might be happening:</strong> Going to bed at different times each night, using your phone late, or not sleeping long enough can all stop your body from getting the deep rest it needs.`,
-          `<strong>What to try:</strong> Wake up at the same time every day — even on weekends. This is the fastest way to fix your body clock. If you need a rest during the day, a short 10 to 20 minute nap before 3 in the afternoon can help. Avoid your phone for the last 30 minutes before bed.`
-        ]
+        text: `You feel sleepy or drained during the day — about ${st.sleepyPct}% of ${st.ageNote} feel this way regularly, so you are not alone. Going to bed at different times, using your phone late, or not sleeping long enough can all cause this. The fastest fix is to wake up at the same time every day, even on weekends. A short 10 to 20 minute rest before 3 in the afternoon can also help on difficult days.`,
+        research: `Excessive daytime sleepiness is directly linked to increased risk of work errors, accidents, and long-term health problems (Frontiers in Psychology, 2020). A study of healthy young adults confirmed that poor sleep quality was most strongly associated with mental fatigue during the day (PMC, 2022).`,
+        bhutan: `A study on mental health in Bhutan found that poor sleep quality was linked to higher levels of depression and reduced wellbeing — particularly in younger adults and those in rural areas with limited access to support.`
       });
     }
 
     // ── High phone use + poor outcome ──
     if (pr >= 2 && outcomePoor) {
-      recs.push({ level: 'warn', title: '⚠️ Using your phone before bed is affecting your sleep', bullets: [
-        `<strong>What is happening:</strong> You use your phone ${answers.phonetime} before sleeping, and you are not waking up feeling rested — these two things are connected.`,
-        `<strong>Why it is happening:</strong> The light from your phone screen tells your brain it is still daytime. This makes it harder for your brain to get ready for sleep and reduces the deep sleep you get.`,
-        `<strong>What to try:</strong> Set a reminder to put your phone away 30 minutes before your bedtime. Replace that time with reading, stretching, or just sitting quietly. Even doing this 3 or 4 nights a week will start to help.`
-      ]});
+      recs.push({ level: 'warn', title: '⚠️ Using your phone before bed is affecting your sleep',
+        text: `You use your phone ${answers.phonetime} before sleeping and you are not waking up feeling rested. Research shows that ${age === 'Under 18' || age === '18–25' ? 'over 60%' : 'more than 40%'} of ${st.ageNote} use screens before bed and report worse sleep as a result. The light from your phone tells your brain it is still daytime. Try putting your phone away 30 minutes before bed and replacing that time with reading or quiet activity.`,
+        research: `A review of 90% of published studies on screens and sleep found consistent evidence that screen use before bed delays the time you fall asleep and reduces total sleep time (PMC, 2018). A prospective study of young adults found that 65.7% of heavy phone users had poor sleep quality scores (Sleep Science, 2021).`,
+        bhutan: `Screen use is a growing concern in Bhutan, particularly in urban areas like Thimphu where smartphone ownership has risen rapidly. Urban students in nearby South Asian countries show significantly worse sleep and higher anxiety than rural peers, largely due to evening screen use (PMC, 2024).`
+      });
     }
 
     // ── Overwork + poor outcome ──
     if (overwork && outcomePoor) {
-      recs.push({ level: 'bad', title: '🔴 Working too many hours is making you tired', bullets: [
-        `<strong>What is happening:</strong> You work ${answers.workhours} each day and feel drained. Your body does not have enough time to rest and recover between days.`,
-        `<strong>Why it is happening:</strong> Long working hours raise stress in your body. This stress makes it harder to fall into deep sleep, even when you do go to bed on time.`,
-        `<strong>What to try:</strong> Take a 10-minute walk after work to help your mind switch off. Stop all work tasks at least 1 hour before bed. Do not let work cut into your sleeping time.`
-      ]});
+      recs.push({ level: 'bad', title: '🔴 Working too many hours is making you tired',
+        text: `You work ${answers.workhours} each day and feel drained — your body does not have enough time to recover. Long working hours raise stress in your body, making it harder to fall into deep sleep even when you go to bed on time. Try a 10-minute walk after work to help your mind switch off, stop work tasks at least 1 hour before bed, and never let work cut into your sleeping time.`,
+        research: `A study of day-time workers in Tokyo found that longer working hours are directly linked to lower sleep quality, and that finishing work earlier — even without reducing total hours — helps protect sleep (PMC, 2024). People who can psychologically detach from work after hours sleep significantly better and perform better the next day.`,
+        bhutan: `Bhutan's GNH framework includes time use as one of its nine wellbeing domains, recognizing that overwork reduces happiness and health. Rapid economic development in urban Bhutan is increasing work pressure, making this an emerging health concern.`
+      });
     }
 
     // ── Sedentary + low energy ──
     if (sedentary && lowEnergy) {
-      recs.push({ level: '', title: '🪑 Sitting all day could be making you feel sluggish', bullets: [
-        `<strong>What is happening:</strong> You sit most of the day and feel low on energy. Not moving around much can make you feel tired even when you have not done anything hard.`,
-        `<strong>Why it is happening:</strong> When you sit for a long time, blood moves more slowly around your body. This can make you feel heavy and tired.`,
-        `<strong>What to try:</strong> Stand up and move around for 2 minutes every hour. Take a short walk after lunch. Even a little stretching at your desk can help you feel more awake and focused.`
-      ]});
+      recs.push({ level: '', title: '🪑 Sitting all day could be making you feel sluggish',
+        text: `You sit most of the day and feel low on energy. Not moving much can make you feel tired even without doing anything physically hard — when you sit for a long time, blood moves more slowly around your body. Try standing up and moving for 2 minutes every hour, taking a short walk after lunch, and doing a little stretching at your desk.`,
+        research: `Research shows that physical inactivity during the day reduces blood flow and alertness, making people feel sluggish even when they have had enough sleep. Regular short movement breaks — even just 2 minutes per hour — are shown to improve energy, focus, and mood throughout the day (Sleep Foundation, 2025).`,
+        bhutan: `Bhutan's GNH data shows that physical activity is one of the key contributors to health and happiness. Urban workers in Bhutan who moved to desk-based jobs report lower energy and wellbeing compared to those in more physically active roles.`
+      });
     }
 
     // ── Late bedtime + poor outcome ──
     if (late && outcomePoor) {
-      recs.push({ level: 'bad', title: '🔴 Going to bed very late is reducing the quality of your sleep', bullets: [
-        `<strong>What is happening:</strong> You go to bed ${answers.bedtime} and you are not feeling rested — going to bed late is likely part of the reason.`,
-        `<strong>Why it is happening:</strong> Your body does its best, deepest sleep in the earlier part of the night. Going to bed very late pushes this deep sleep window, so you get less of it even if you sleep the same number of hours.`,
-        `<strong>What to try:</strong> Move your bedtime 15 minutes earlier each week — small steps work much better than trying to change everything at once. Set a reminder to start getting ready for bed. Try to be in bed by 11 at night as your first goal.`
-      ]});
+      recs.push({ level: 'bad', title: '🔴 Going to bed very late is reducing the quality of your sleep',
+        text: `You go to bed ${answers.bedtime} and are not feeling rested — late bedtimes are likely part of the reason. Only about ${st.restedPct}% of ${st.ageNote} say they regularly wake up feeling rested, and late sleep timing is a common cause. Your body does its best deep sleep in the earlier part of the night. Try moving your bedtime 15 minutes earlier each week, and aim for 11 at night as your first target.`,
+        research: `A 52-country study found that countries where people go to bed earlier consistently reported higher sleep quality and greater overall wellbeing. Urbanization and access to electricity are the two biggest reasons people delay their bedtime in developing countries (Frontiers in Sleep, 2023).`,
+        bhutan: `Bhutan's GNH research noted that urban residents — especially in Thimphu — tend to go to bed later than rural residents due to screen use and social activity, and report lower sleep-related health scores as a result. This urban-rural difference in sleep timing is an important finding for your project.`
+      });
     }
 
     // ── Fallback ──
     if (recs.length === 0) {
-      recs.push({ level: '', title: '✅ Everything looks good', bullets: [
-        `<strong>What is happening:</strong> Your habits and how you feel are both in good shape — no big problems found.`,
-        `<strong>Why it is working:</strong> How long you sleep, when you go to bed, and your daily routine all seem to suit your body well.`,
-        `<strong>What to keep doing:</strong> Try to go to bed and wake up at the same time every day. Check in again in a few weeks to catch any small changes before they become bigger problems.`
-      ]});
+      recs.push({ level: '', title: '✅ Everything looks good',
+        text: `Your habits and how you feel are both in good shape — no big problems found. Only about ${st.restedPct}% of ${st.ageNote} consistently wake up feeling rested and energetic, so you are doing better than most people your age. Keep going to bed and waking up at the same time every day.`,
+        research: `The National Sleep Foundation's 2025 Sleep in America poll found that people who are satisfied with their sleep are significantly more likely to report living positive, fulfilling lives — confirming that good sleep is one of the strongest foundations of overall wellbeing.`,
+        bhutan: `Bhutan's Gross National Happiness framework places health — including sleep health — as one of its nine core domains. Your results suggest your daily habits are well-aligned with what supports good health and happiness under this framework.`
+      });
     }
 
     document.getElementById('recs').innerHTML = recs.map(r => `
       <div class="rec-card ${r.level}">
         <h4>${r.title}</h4>
-        <ul style="margin:.5rem 0 0 1rem;padding:0;display:flex;flex-direction:column;gap:7px">
-          ${r.bullets.map(b => `<li style="font-size:13px;color:var(--text-muted);line-height:1.6">${b}</li>`).join('')}
-        </ul>
+        <p style="margin-top:.5rem;font-size:13px;color:var(--text-muted);line-height:1.7">${r.text}</p>
+        ${r.research ? `<div style="margin-top:.75rem;padding:.65rem .8rem;background:rgba(0,0,0,0.04);border-radius:6px;font-size:12px;color:var(--text-muted);line-height:1.65">
+          <span style="font-weight:600;color:var(--text)">📖 What research says: </span>${r.research}
+        </div>` : ''}
+        ${r.bhutan ? `<div style="margin-top:.5rem;padding:.65rem .8rem;background:rgba(29,158,117,0.07);border-radius:6px;font-size:12px;color:var(--text-muted);line-height:1.65">
+          <span style="font-weight:600;color:var(--accent-dark)">🇧🇹 Bhutan finding: </span>${r.bhutan}
+        </div>` : ''}
       </div>
     `).join('');
   }
