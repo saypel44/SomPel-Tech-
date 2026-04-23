@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
       --accent: #1D9E75;
       --accent-light: #E1F5EE;
@@ -17,13 +18,38 @@
       --danger-light: #FDEEEC;
       --bg: #f9f9f7;
       --surface: #ffffff;
+      --surface-2: #f4f4f2;
       --text: #1a1a1a;
       --text-muted: #6b6b6b;
       --border: rgba(0,0,0,0.12);
       --border-hover: rgba(0,0,0,0.25);
       --radius-md: 8px;
       --radius-lg: 12px;
+      --toggle-bg: #e8e8e6;
+      --toggle-knob: #ffffff;
+      --toggle-icon-color: #6b6b6b;
     }
+
+    [data-theme="dark"] {
+      --accent: #2EBF8E;
+      --accent-light: #0a3326;
+      --accent-dark: #4DD4A5;
+      --warn: #E8942A;
+      --warn-light: #2e1f06;
+      --danger: #E05C50;
+      --danger-light: #2e0d0a;
+      --bg: #111110;
+      --surface: #1c1c1a;
+      --surface-2: #252523;
+      --text: #f0f0ec;
+      --text-muted: #9a9a94;
+      --border: rgba(255,255,255,0.10);
+      --border-hover: rgba(255,255,255,0.22);
+      --toggle-bg: #2e2e2c;
+      --toggle-knob: #f0f0ec;
+      --toggle-icon-color: #f0f0ec;
+    }
+
     body {
       font-family: 'DM Sans', sans-serif;
       font-size: 15px;
@@ -31,11 +57,49 @@
       background: var(--bg);
       min-height: 100vh;
       padding: 2rem 1rem 4rem;
+      transition: background 0.2s, color 0.2s;
     }
+
     #app {
       max-width: 660px;
       margin: 0 auto;
     }
+
+    /* ── Theme toggle ── */
+    #theme-toggle {
+      position: fixed;
+      top: 1rem; right: 1rem;
+      z-index: 100;
+      background: var(--toggle-bg);
+      border: 0.5px solid var(--border-hover);
+      border-radius: 20px;
+      padding: 6px 12px 6px 9px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; color: var(--text-muted);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    #theme-toggle:hover { border-color: var(--accent); }
+    #theme-toggle:hover .bulb-label { color: var(--accent); }
+    .bulb-label { font-size: 12px; color: var(--text-muted); transition: color 0.2s; }
+
+    /* ── Bulb SVG ── */
+    .bulb-svg { width: 18px; height: 18px; flex-shrink: 0; overflow: visible; }
+
+    /* OFF state (light mode) — grey, no fill, no rays */
+    .b-globe { fill: none; stroke: #aaa; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: fill 0.2s, stroke 0.2s; }
+    .b-cap   { fill: none; stroke: #aaa; stroke-width: 1.8; stroke-linecap: round; transition: stroke 0.2s; }
+    .b-tip   { fill: none; stroke: #aaa; stroke-width: 1.6; stroke-linecap: round; transition: stroke 0.2s; }
+    .b-ray   { stroke: #aaa; stroke-width: 1.5; stroke-linecap: round; opacity: 0; transition: opacity 0.2s, stroke 0.2s; }
+
+    /* ON state (dark mode) — white globe, visible rays */
+    [data-theme="dark"] .b-globe { fill: #ffffff; stroke: #cccccc; }
+    [data-theme="dark"] .b-cap   { stroke: #aaaaaa; }
+    [data-theme="dark"] .b-tip   { stroke: #aaaaaa; }
+    [data-theme="dark"] .b-ray   { stroke: #ffffff; opacity: 1; }
+
+    /* ── Form elements ── */
     .section-label {
       font-size: 11px;
       letter-spacing: .1em;
@@ -50,6 +114,7 @@
       border-radius: var(--radius-lg);
       padding: 1.5rem;
       margin-bottom: 1rem;
+      transition: background 0.2s, border-color 0.2s;
     }
     .q-title {
       font-size: 15px;
@@ -68,7 +133,7 @@
       padding: 7px 14px;
       font-size: 13px;
       cursor: pointer;
-      background: #f4f4f2;
+      background: var(--surface-2);
       color: var(--text-muted);
       transition: all .15s;
       font-family: inherit;
@@ -140,32 +205,37 @@
       margin-top: 1.5rem; transition: background .15s;
     }
     #submit-btn:hover { background: var(--accent-dark); }
-    #submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+    #submit-btn:disabled { background: var(--border-hover); cursor: not-allowed; color: var(--text-muted); }
+
+    /* ── Results ── */
     #results { display: none; }
     .result-hero {
       background: var(--accent-light);
       border: 0.5px solid var(--accent);
       border-radius: var(--radius-lg);
       padding: 1.5rem; margin-bottom: 1rem;
+      transition: background 0.2s;
     }
     .result-hero h2 {
       font-family: 'Playfair Display', serif;
       font-size: 22px; font-weight: 600;
-      color: #0F6E56; margin-bottom: .5rem;
+      color: var(--accent-dark); margin-bottom: .5rem;
     }
-    .result-hero p { font-size: 14px; color: #1D9E75; }
+    .result-hero p { font-size: 14px; color: var(--accent); }
     .stat-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
       gap: 10px; margin-bottom: 1rem;
     }
     .stat {
-      background: #f4f4f2;
+      background: var(--surface-2);
       border-radius: var(--radius-md);
       padding: 1rem; text-align: center;
+      transition: background 0.2s;
     }
     .stat-val { font-size: 20px; font-weight: 600; color: var(--text); }
     .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
     .rec-card {
       border-left: 3px solid var(--accent);
       border-radius: 0 var(--radius-md) var(--radius-md) 0;
@@ -174,6 +244,7 @@
       border-right: 0.5px solid var(--border);
       border-bottom: 0.5px solid var(--border);
       padding: 1rem 1.2rem; margin-bottom: .75rem;
+      transition: background 0.2s, border-color 0.2s;
     }
     .rec-card.warn {
       border-left-color: var(--warn);
@@ -183,10 +254,11 @@
       border-left-color: var(--danger);
       background: var(--danger-light);
     }
-    .rec-card h4 { font-size: 14px; font-weight: 500; margin-bottom: .3rem; }
+    .rec-card h4 { font-size: 14px; font-weight: 500; margin-bottom: .3rem; color: var(--text); }
     .rec-card p { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+
     .progress-bar {
-      height: 4px; background: #e0e0e0;
+      height: 4px; background: var(--border-hover);
       border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden;
     }
     .progress-fill {
@@ -198,6 +270,7 @@
       background: var(--accent-light); color: var(--accent-dark);
       border-radius: 20px; padding: 3px 10px;
       font-size: 11px; font-weight: 500; margin-bottom: .5rem;
+      border: 0.5px solid var(--accent);
     }
     #restart-btn {
       margin-top: 1.5rem; width: 100%; padding: 11px;
@@ -206,15 +279,45 @@
       border-radius: var(--radius-md);
       font-size: 14px; cursor: pointer;
       font-family: inherit; color: var(--text-muted);
+      transition: background 0.2s;
     }
-    #restart-btn:hover { background: #f0f0ee; }
+    #restart-btn:hover { background: var(--surface-2); }
+
+    /* ── Page title ── */
+    .page-title {
+      font-family:'Playfair Display',serif;
+      font-size:28px;font-weight:600;line-height:1.2;margin-bottom:.4rem;
+      color: var(--text);
+    }
   </style>
 </head>
 <body>
+
+<!-- Theme toggle -->
+<button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+  <!-- SVG light bulb: off (grey) in light mode, on (yellow + rays) in dark mode -->
+  <svg class="bulb-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <!-- 4 short rays, only visible when ON -->
+    <line class="b-ray" x1="12" y1="1"   x2="12" y2="3"/>
+    <line class="b-ray" x1="19" y1="5"   x2="17.5" y2="6.5"/>
+    <line class="b-ray" x1="5"  y1="5"   x2="6.5"  y2="6.5"/>
+    <line class="b-ray" x1="22" y1="12"  x2="20"   y2="12"/>
+    <line class="b-ray" x1="2"  y1="12"  x2="4"    y2="12"/>
+    <!-- globe: round top, straight sides taper to base -->
+    <path class="b-globe" d="M9 17c0-1-.5-1.8-1.2-2.6A5 5 0 1 1 16.2 14.4C15.5 15.2 15 16 15 17v1H9v-1z"/>
+    <!-- base bands -->
+    <line class="b-cap" x1="9"   y1="18" x2="15"  y2="18"/>
+    <line class="b-cap" x1="9.5" y1="20" x2="14.5" y2="20"/>
+    <!-- tip -->
+    <line class="b-tip" x1="10.5" y1="22" x2="13.5" y2="22"/>
+  </svg>
+  <span class="bulb-label" id="toggle-label">Light</span>
+</button>
+
 <div id="app">
   <div style="margin-bottom:1.5rem">
     <p class="section-label">Daily habit tracker</p>
-    <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:600;line-height:1.2;margin-bottom:.4rem">Quick Tracker</div>
+    <div class="page-title">Quick Tracker</div>
     <p style="font-size:13px;color:var(--text-muted)">Answer a few simple questions and we will give you tips to help you feel better each day.</p>
     <div class="progress-bar" style="margin-top:1rem">
       <div class="progress-fill" id="progress" style="width:0%"></div>
@@ -324,6 +427,24 @@
 </div>
 
 <script>
+  // ── Theme toggle ──
+  const html = document.documentElement;
+  let isDark = false;
+
+  // Respect system preference on first load
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    isDark = true;
+    html.setAttribute('data-theme', 'dark');
+    document.getElementById('toggle-label').textContent = 'Dark';
+  }
+
+  function toggleTheme() {
+    isDark = !isDark;
+    html.setAttribute('data-theme', isDark ? 'dark' : '');
+    document.getElementById('toggle-label').textContent = isDark ? 'Dark' : 'Light';
+  }
+
+  // ── Tracker logic ──
   const likertQs = [
     { id: 'l1', text: 'I can fall asleep easily.' },
     { id: 'l2', text: 'I sleep well most nights.' },
@@ -370,7 +491,6 @@
     document.getElementById('submit-btn').disabled = (done < total);
   }
 
-  // Map new simple labels to scores (same 1–5 scale as before)
   function lScore(val) {
     return { 'Yes, always': 5, 'Most of the time': 4, 'Sometimes': 3, 'Not really': 2, 'No, never': 1 }[val] || 3;
   }
@@ -402,19 +522,17 @@
     const overwork  = answers.workhours === '9 or more hours';
     const sedentary = answers.worktype === 'Sitting';
 
-    // Outcome signals — using simple labels
-    const feelRested    = lAnswers.l3 === 'Yes, always'       || lAnswers.l3 === 'Most of the time';
-    const poorRested    = lAnswers.l3 === 'Not really'         || lAnswers.l3 === 'No, never';
-    const feelEnergetic = lAnswers.l5 === 'Yes, always'       || lAnswers.l5 === 'Most of the time';
-    const lowEnergy     = lAnswers.l5 === 'Not really'         || lAnswers.l5 === 'No, never';
-    const daySleepy     = lAnswers.l4 === 'Yes, always'       || lAnswers.l4 === 'Most of the time';
-    const hardToSleep   = lAnswers.l1 === 'Not really'         || lAnswers.l1 === 'No, never';
-    const shortSleep    = answers.sleep === '0–4 hours'        || answers.sleep === '5–6 hours';
-    const goodHours     = answers.sleep === '7–8 hours'        || answers.sleep === '9 or more hours';
+    const feelRested    = lAnswers.l3 === 'Yes, always'   || lAnswers.l3 === 'Most of the time';
+    const poorRested    = lAnswers.l3 === 'Not really'     || lAnswers.l3 === 'No, never';
+    const feelEnergetic = lAnswers.l5 === 'Yes, always'   || lAnswers.l5 === 'Most of the time';
+    const lowEnergy     = lAnswers.l5 === 'Not really'     || lAnswers.l5 === 'No, never';
+    const daySleepy     = lAnswers.l4 === 'Yes, always'   || lAnswers.l4 === 'Most of the time';
+    const hardToSleep   = lAnswers.l1 === 'Not really'     || lAnswers.l1 === 'No, never';
+    const shortSleep    = answers.sleep === '0–4 hours'    || answers.sleep === '5–6 hours';
+    const goodHours     = answers.sleep === '7–8 hours'    || answers.sleep === '9 or more hours';
     const outcomeGood   = feelRested && feelEnergetic && !daySleepy;
     const outcomePoor   = poorRested || lowEnergy || daySleepy;
 
-    // Intro text — plain and friendly
     let introText = '';
     if (outcomeGood) {
       introText = `Your body is doing well — you feel rested and have good energy. Keep up what you are doing!`;
@@ -436,7 +554,6 @@
 
     const recs = [];
 
-    // ── Feeling good + late but consistent ──
     if (outcomeGood && late) {
       recs.push({ level: '', title: '✅ You feel good — your regular bedtime is helping', bullets: [
         `<strong>What is happening:</strong> You go to bed ${answers.bedtime} every night and your body has got used to it — you feel rested and full of energy.`,
@@ -451,7 +568,6 @@
       ]});
     }
 
-    // ── Good hours but still tired ──
     if (outcomePoor && goodHours) {
       recs.push({ level: 'warn', title: '⚠️ You sleep enough hours but still feel tired', bullets: [
         `<strong>What is happening:</strong> You sleep ${answers.sleep} most nights, but you still wake up feeling tired and have low energy. More hours alone is not always the answer.`,
@@ -460,7 +576,6 @@
       ]});
     }
 
-    // ── Short sleep + poor outcome ──
     if (outcomePoor && shortSleep) {
       recs.push({ level: 'bad', title: '🔴 You are not sleeping enough and your body can feel it', bullets: [
         `<strong>What is happening:</strong> You sleep ${answers.sleep} and you feel tired and low on energy — these two things are directly linked.`,
@@ -469,7 +584,6 @@
       ]});
     }
 
-    // ── Hard to fall asleep ──
     if (hardToSleep) {
       recs.push({ level: 'warn', title: '⚠️ You find it hard to fall asleep', bullets: [
         `<strong>What is happening:</strong> Your mind is still active and wide awake when you try to sleep.`,
@@ -478,7 +592,6 @@
       ]});
     }
 
-    // ── Daytime sleepy ──
     if (daySleepy) {
       recs.push({ level: (daySleepy && poorRested) ? 'bad' : 'warn',
         title: (daySleepy && poorRested) ? '🔴 You feel very tired and sleepy during the day' : '⚠️ You feel sleepy during the day',
@@ -490,7 +603,6 @@
       });
     }
 
-    // ── High phone use + poor outcome ──
     if (pr >= 2 && outcomePoor) {
       recs.push({ level: 'warn', title: '⚠️ Using your phone before bed is affecting your sleep', bullets: [
         `<strong>What is happening:</strong> You use your phone ${answers.phonetime} before sleeping, and you are not waking up feeling rested — these two things are connected.`,
@@ -499,7 +611,6 @@
       ]});
     }
 
-    // ── Overwork + poor outcome ──
     if (overwork && outcomePoor) {
       recs.push({ level: 'bad', title: '🔴 Working too many hours is making you tired', bullets: [
         `<strong>What is happening:</strong> You work ${answers.workhours} each day and feel drained. Your body does not have enough time to rest and recover between days.`,
@@ -508,7 +619,6 @@
       ]});
     }
 
-    // ── Sedentary + low energy ──
     if (sedentary && lowEnergy) {
       recs.push({ level: '', title: '🪑 Sitting all day could be making you feel sluggish', bullets: [
         `<strong>What is happening:</strong> You sit most of the day and feel low on energy. Not moving around much can make you feel tired even when you have not done anything hard.`,
@@ -517,7 +627,6 @@
       ]});
     }
 
-    // ── Late bedtime + poor outcome ──
     if (late && outcomePoor) {
       recs.push({ level: 'bad', title: '🔴 Going to bed very late is reducing the quality of your sleep', bullets: [
         `<strong>What is happening:</strong> You go to bed ${answers.bedtime} and you are not feeling rested — going to bed late is likely part of the reason.`,
@@ -526,7 +635,6 @@
       ]});
     }
 
-    // ── Fallback ──
     if (recs.length === 0) {
       recs.push({ level: '', title: '✅ Everything looks good', bullets: [
         `<strong>What is happening:</strong> Your habits and how you feel are both in good shape — no big problems found.`,
