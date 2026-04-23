@@ -7,320 +7,494 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --accent: #1D9E75;
-      --accent-light: #E1F5EE;
-      --accent-dark: #0F6E56;
-      --warn: #BA7517;
-      --warn-light: #FAEEDA;
-      --danger: #C0392B;
-      --danger-light: #FDEEEC;
-      --bg: #f9f9f7;
-      --surface: #ffffff;
-      --text: #1a1a1a;
-      --text-muted: #6b6b6b;
-      --border: rgba(0,0,0,0.12);
-      --border-hover: rgba(0,0,0,0.25);
-      --radius-md: 8px;
-      --radius-lg: 12px;
+      --accent:        #1D9E75;
+      --accent-light:  #E1F5EE;
+      --accent-mid:    #9FE1CB;
+      --accent-dark:   #0F6E56;
+      --warn:          #BA7517;
+      --warn-light:    #FAEEDA;
+      --danger:        #C0392B;
+      --danger-light:  #FDEEEC;
+      --bg:            #faf8f5;
+      --surface:       #ffffff;
+      --surface-2:     #f4f1ec;
+      --surface-3:     #ede9e2;
+      --text:          #1e1c18;
+      --text-muted:    #6b6660;
+      --text-hint:     #a09c96;
+      --border:        rgba(0,0,0,0.09);
+      --border-hover:  rgba(0,0,0,0.20);
+      --radius-sm:     6px;
+      --radius-md:     10px;
+      --radius-lg:     16px;
+      --radius-xl:     22px;
+      --toggle-bg:     #ede9e2;
+      --tint-a:        #fdf6ee;
+      --tint-b:        #f0faf5;
+      --tint-c:        #f5f0fa;
+      --tint-a-border: #f0d9b8;
+      --tint-b-border: #b8e8d4;
+      --tint-c-border: #d8c8ef;
+      --tint-a-num:    #c47d2a;
+      --tint-b-num:    #1D9E75;
+      --tint-c-num:    #7c5cbf;
     }
+
+    [data-theme="dark"] {
+      --accent:        #2EBF8E;
+      --accent-light:  #0a3326;
+      --accent-mid:    #085041;
+      --accent-dark:   #4DD4A5;
+      --warn:          #E8942A;
+      --warn-light:    #2e1f06;
+      --danger:        #E05C50;
+      --danger-light:  #2e0d0a;
+      --bg:            #110f0c;
+      --surface:       #1c1a17;
+      --surface-2:     #252220;
+      --surface-3:     #2e2b27;
+      --text:          #f0ece5;
+      --text-muted:    #9a9590;
+      --text-hint:     #6b6660;
+      --border:        rgba(255,255,255,0.09);
+      --border-hover:  rgba(255,255,255,0.20);
+      --toggle-bg:     #2e2b27;
+      --tint-a:        #1f1608;
+      --tint-b:        #061a12;
+      --tint-c:        #120a1e;
+      --tint-a-border: #4a2e0a;
+      --tint-b-border: #0a3326;
+      --tint-c-border: #2e1a4a;
+      --tint-a-num:    #e8a84a;
+      --tint-b-num:    #2EBF8E;
+      --tint-c-num:    #a080e0;
+    }
+
     body {
       font-family: 'DM Sans', sans-serif;
       font-size: 15px;
       color: var(--text);
       background: var(--bg);
       min-height: 100vh;
-      padding: 2rem 1rem 4rem;
+      padding: 2rem 1rem 5rem;
+      transition: background 0.25s, color 0.25s;
     }
-    #app {
-      max-width: 660px;
-      margin: 0 auto;
+
+    #app { max-width: 620px; margin: 0 auto; }
+
+    #theme-toggle {
+      position: fixed;
+      top: 1rem; right: 1rem;
+      z-index: 100;
+      background: var(--toggle-bg);
+      border: 0.5px solid var(--border-hover);
+      border-radius: 20px;
+      padding: 6px 12px 6px 9px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; color: var(--text-muted);
+      transition: background 0.2s, border-color 0.2s;
     }
-    .section-label {
-      font-size: 11px;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 500;
-      margin: 0 0 1.2rem;
+    #theme-toggle:hover { border-color: var(--accent); }
+    #theme-toggle:hover .bulb-label { color: var(--accent); }
+    .bulb-label { font-size: 12px; color: var(--text-muted); transition: color 0.2s; }
+    .bulb-svg { width: 18px; height: 18px; flex-shrink: 0; overflow: visible; }
+    .b-globe { fill: none; stroke: #aaa; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: fill 0.2s, stroke 0.2s; }
+    .b-cap   { fill: none; stroke: #aaa; stroke-width: 1.8; stroke-linecap: round; transition: stroke 0.2s; }
+    .b-tip   { fill: none; stroke: #aaa; stroke-width: 1.6; stroke-linecap: round; transition: stroke 0.2s; }
+    .b-ray   { stroke: #aaa; stroke-width: 1.5; stroke-linecap: round; opacity: 0; transition: opacity 0.2s, stroke 0.2s; }
+    [data-theme="dark"] .b-globe { fill: #ffffff; stroke: #cccccc; }
+    [data-theme="dark"] .b-cap   { stroke: #aaaaaa; }
+    [data-theme="dark"] .b-tip   { stroke: #aaaaaa; }
+    [data-theme="dark"] .b-ray   { stroke: #ffffff; opacity: 1; }
+
+    .hero {
+      text-align: center;
+      padding: 2.5rem 1rem 2rem;
+      margin-bottom: 0.5rem;
     }
-    .card {
+    .hero-icon {
+      width: 64px; height: 64px;
+      background: var(--accent-light);
+      border: 1.5px solid var(--accent-mid);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.2rem;
+      font-size: 28px;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px; font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+    .hero p {
+      font-size: 14px; color: var(--text-muted);
+      max-width: 380px; margin: 0 auto 1.5rem;
+      line-height: 1.6;
+    }
+
+    .progress-wrap { margin-bottom: 2rem; }
+    .progress-meta {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: var(--text-hint);
+      margin-bottom: 6px;
+    }
+    .progress-bar {
+      height: 5px; background: var(--surface-3);
+      border-radius: 3px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.35s cubic-bezier(.4,0,.2,1);
+    }
+
+    .section-block {
+      display: flex; align-items: center; gap: 12px;
+      margin: 2rem 0 1rem;
+    }
+    .sec-pill {
+      display: flex; align-items: center; gap: 7px;
+      padding: 5px 14px 5px 10px;
+      border-radius: 20px;
+      font-size: 12px; font-weight: 500;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    .sec-pill.a { background: var(--tint-a); border-color: var(--tint-a-border); color: var(--tint-a-num); }
+    .sec-pill.b { background: var(--tint-b); border-color: var(--tint-b-border); color: var(--tint-b-num); }
+    .sec-pill.c { background: var(--tint-c); border-color: var(--tint-c-border); color: var(--tint-c-num); }
+    .sec-letter {
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600;
+      background: currentColor;
+    }
+    .sec-letter span { color: var(--surface); }
+    .sec-divider { flex: 1; height: 0.5px; background: var(--border); }
+
+    .q-card {
       background: var(--surface);
       border: 0.5px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      margin-bottom: 1rem;
+      padding: 1.4rem 1.5rem 1.5rem;
+      margin-bottom: 0.9rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .q-card:hover { border-color: var(--border-hover); }
+    .q-num {
+      font-size: 11px; font-weight: 500;
+      color: var(--text-hint); letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
     }
     .q-title {
-      font-size: 15px;
-      font-weight: 500;
-      margin-bottom: .9rem;
-      color: var(--text);
+      font-size: 15px; font-weight: 500;
+      color: var(--text); margin-bottom: 1.1rem;
+      line-height: 1.45;
     }
-    .options {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+
+    .options { display: flex; flex-wrap: wrap; gap: 8px; }
     .opt {
-      border: 0.5px solid var(--border-hover);
-      border-radius: var(--radius-md);
-      padding: 7px 14px;
-      font-size: 13px;
+      display: flex; align-items: center; gap: 7px;
+      border: 1px solid var(--border-hover);
+      border-radius: var(--radius-xl);
+      padding: 9px 16px;
+      font-size: 13.5px;
       cursor: pointer;
-      background: #f4f4f2;
+      background: var(--surface-2);
       color: var(--text-muted);
-      transition: all .15s;
+      transition: all 0.15s ease;
       font-family: inherit;
+      line-height: 1.3;
     }
-    .opt:hover { border-color: var(--accent); color: var(--accent); }
+    .opt:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: var(--accent-light);
+      transform: translateY(-1px);
+    }
     .opt.sel {
       background: var(--accent-light);
       border-color: var(--accent);
+      border-width: 1.5px;
       color: var(--accent-dark);
       font-weight: 500;
     }
-    .likert-row {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 4px;
-    }
-    .likert-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 13px;
-      color: var(--text-muted);
-      flex-wrap: wrap;
-    }
-    .likert-item span { flex: 1; min-width: 140px; }
-    .likert-btns { display: flex; gap: 5px; flex-wrap: wrap; }
-    .lbtn {
-      border: 0.5px solid var(--border-hover);
-      border-radius: 20px;
-      padding: 4px 9px;
-      font-size: 11px;
-      cursor: pointer;
-      background: transparent;
-      color: var(--text-muted);
-      font-family: inherit;
-      white-space: nowrap;
-      transition: all .15s;
-    }
-    .lbtn:hover { border-color: var(--accent); color: var(--accent); }
-    .lbtn.sel {
-      background: var(--accent-light);
-      border-color: var(--accent);
-      color: var(--accent-dark);
-      font-weight: 500;
-    }
-    .section-head {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 1.8rem 0 1rem;
-    }
-    .sec-num {
-      width: 28px; height: 28px;
+    .opt-icon { font-size: 15px; line-height: 1; flex-shrink: 0; }
+    .opt.sel::after {
+      content: '';
+      width: 6px; height: 6px;
       border-radius: 50%;
       background: var(--accent);
-      color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 600; flex-shrink: 0;
+      margin-left: 3px;
+      flex-shrink: 0;
     }
-    .sec-name { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+
+    .likert-row { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+    .likert-item {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .likert-item > span {
+      flex: 1; min-width: 150px;
+      font-size: 13.5px; color: var(--text);
+      line-height: 1.45; padding-top: 5px;
+    }
+    .likert-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .lbtn {
+      border: 1px solid var(--border-hover);
+      border-radius: 20px; padding: 5px 11px;
+      font-size: 12px; cursor: pointer;
+      background: var(--surface-2); color: var(--text-muted);
+      font-family: inherit; white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .lbtn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .lbtn.sel {
+      background: var(--accent-light);
+      border-color: var(--accent); border-width: 1.5px;
+      color: var(--accent-dark); font-weight: 500;
+    }
+
     #submit-btn {
-      width: 100%; padding: 13px;
+      width: 100%; padding: 15px;
       background: var(--accent); color: #fff;
-      border: none; border-radius: var(--radius-md);
+      border: none; border-radius: var(--radius-lg);
       font-size: 15px; font-weight: 500;
       cursor: pointer; font-family: inherit;
-      margin-top: 1.5rem; transition: background .15s;
+      margin-top: 1.5rem;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.01em;
     }
-    #submit-btn:hover { background: var(--accent-dark); }
-    #submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+    #submit-btn:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-1px); }
+    #submit-btn:active:not(:disabled) { transform: translateY(0); }
+    #submit-btn:disabled { background: var(--surface-3); color: var(--text-hint); cursor: not-allowed; }
+
     #results { display: none; }
     .result-hero {
-      background: var(--accent-light);
-      border: 0.5px solid var(--accent);
+      background: var(--tint-b);
+      border: 1px solid var(--tint-b-border);
       border-radius: var(--radius-lg);
-      padding: 1.5rem; margin-bottom: 1rem;
+      padding: 1.8rem 1.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
     }
+    .result-hero-icon { font-size: 36px; margin-bottom: 0.75rem; line-height: 1; }
     .result-hero h2 {
       font-family: 'Playfair Display', serif;
       font-size: 22px; font-weight: 600;
-      color: #0F6E56; margin-bottom: .5rem;
+      color: var(--accent-dark); margin-bottom: 0.6rem;
     }
-    .result-hero p { font-size: 14px; color: #1D9E75; }
+    .result-hero p { font-size: 14px; color: var(--text-muted); line-height: 1.6; max-width: 440px; margin: 0 auto; }
+
     .stat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 10px; margin-bottom: 1rem;
     }
     .stat {
-      background: #f4f4f2;
+      background: var(--surface);
+      border: 0.5px solid var(--border);
       border-radius: var(--radius-md);
       padding: 1rem; text-align: center;
     }
     .stat-val { font-size: 20px; font-weight: 600; color: var(--text); }
-    .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+    .stat-lbl { font-size: 11px; color: var(--text-hint); margin-top: 3px; }
+
     .rec-card {
-      border-left: 3px solid var(--accent);
-      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      border-radius: var(--radius-md);
       background: var(--surface);
-      border-top: 0.5px solid var(--border);
-      border-right: 0.5px solid var(--border);
-      border-bottom: 0.5px solid var(--border);
-      padding: 1rem 1.2rem; margin-bottom: .75rem;
+      border: 0.5px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 1rem 1.2rem; margin-bottom: 0.75rem;
     }
-    .rec-card.warn {
-      border-left-color: var(--warn);
-      background: var(--warn-light);
-    }
-    .rec-card.bad {
-      border-left-color: var(--danger);
-      background: var(--danger-light);
-    }
-    .rec-card h4 { font-size: 14px; font-weight: 500; margin-bottom: .3rem; }
-    .rec-card p { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
-    .progress-bar {
-      height: 4px; background: #e0e0e0;
-      border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%; background: var(--accent);
-      border-radius: 2px; transition: width .3s;
-    }
+    .rec-card.warn { border-left-color: var(--warn); background: var(--warn-light); }
+    .rec-card.bad  { border-left-color: var(--danger); background: var(--danger-light); }
+    .rec-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 0.35rem; color: var(--text); }
+
     .badge {
       display: inline-block;
       background: var(--accent-light); color: var(--accent-dark);
-      border-radius: 20px; padding: 3px 10px;
-      font-size: 11px; font-weight: 500; margin-bottom: .5rem;
+      border: 0.5px solid var(--accent-mid);
+      border-radius: 20px; padding: 3px 12px;
+      font-size: 11px; font-weight: 500; margin-bottom: 0.6rem;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--text-hint);
+      font-weight: 500; margin: 0 0 0.75rem;
     }
     #restart-btn {
-      margin-top: 1.5rem; width: 100%; padding: 11px;
+      margin-top: 1.5rem; width: 100%; padding: 12px;
       background: transparent;
       border: 0.5px solid var(--border-hover);
       border-radius: var(--radius-md);
       font-size: 14px; cursor: pointer;
       font-family: inherit; color: var(--text-muted);
+      transition: background 0.15s;
     }
-    #restart-btn:hover { background: #f0f0ee; }
+    #restart-btn:hover { background: var(--surface-2); }
   </style>
 </head>
 <body>
+
+<button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+  <svg class="bulb-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <line class="b-ray" x1="12" y1="1" x2="12" y2="3"/>
+    <line class="b-ray" x1="19" y1="5" x2="17.5" y2="6.5"/>
+    <line class="b-ray" x1="5" y1="5" x2="6.5" y2="6.5"/>
+    <line class="b-ray" x1="22" y1="12" x2="20" y2="12"/>
+    <line class="b-ray" x1="2" y1="12" x2="4" y2="12"/>
+    <path class="b-globe" d="M9 17c0-1-.5-1.8-1.2-2.6A5 5 0 1 1 16.2 14.4C15.5 15.2 15 16 15 17v1H9v-1z"/>
+    <line class="b-cap" x1="9" y1="18" x2="15" y2="18"/>
+    <line class="b-cap" x1="9.5" y1="20" x2="14.5" y2="20"/>
+    <line class="b-tip" x1="10.5" y1="22" x2="13.5" y2="22"/>
+  </svg>
+  <span class="bulb-label" id="toggle-label">Light</span>
+</button>
+
 <div id="app">
-  <div style="margin-bottom:1.5rem">
-    <p class="section-label">Daily habit tracker</p>
-    <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:600;line-height:1.2;margin-bottom:.4rem">Quick Tracker</div>
-    <p style="font-size:13px;color:var(--text-muted)">Answer a few simple questions and we will give you tips to help you feel better each day.</p>
-    <div class="progress-bar" style="margin-top:1rem">
-      <div class="progress-fill" id="progress" style="width:0%"></div>
+
+  <div class="hero">
+    <div class="hero-icon">🌿</div>
+    <h1>Quick Tracker</h1>
+    <p>A few gentle questions about your day — and we'll share honest, personalised tips to help you feel better.</p>
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span>Your progress</span>
+        <span id="progress-pct">0 of 12</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress" style="width:0%"></div>
+      </div>
     </div>
   </div>
 
   <form id="tracker-form">
-    <div class="section-head"><div class="sec-num">A</div><span class="sec-name">About you</span></div>
 
-    <div class="card">
+    <div class="section-block">
+      <div class="sec-pill a"><div class="sec-letter"><span>A</span></div> About you</div>
+      <div class="sec-divider"></div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-num">Question 1</div>
       <p class="q-title">How old are you?</p>
       <div class="options" data-q="age">
-        <button type="button" class="opt" data-v="Under 18">Under 18</button>
-        <button type="button" class="opt" data-v="18–25">18 to 25</button>
-        <button type="button" class="opt" data-v="26–35">26 to 35</button>
-        <button type="button" class="opt" data-v="36–50">36 to 50</button>
-        <button type="button" class="opt" data-v="50+">Over 50</button>
+        <button type="button" class="opt" data-v="Under 18"><span class="opt-icon">🌱</span> Under 18</button>
+        <button type="button" class="opt" data-v="18–25"><span class="opt-icon">☀️</span> 18 to 25</button>
+        <button type="button" class="opt" data-v="26–35"><span class="opt-icon">🌤</span> 26 to 35</button>
+        <button type="button" class="opt" data-v="36–50"><span class="opt-icon">🍂</span> 36 to 50</button>
+        <button type="button" class="opt" data-v="50+"><span class="opt-icon">🌾</span> Over 50</button>
       </div>
     </div>
 
-    <div class="card">
+    <div class="q-card">
+      <div class="q-num">Question 2</div>
       <p class="q-title">Where do you live?</p>
       <div class="options" data-q="location">
-        <button type="button" class="opt" data-v="Urban">In a city</button>
-        <button type="button" class="opt" data-v="Semi-urban">In a town</button>
-        <button type="button" class="opt" data-v="Rural">In a village or the countryside</button>
+        <button type="button" class="opt" data-v="Urban"><span class="opt-icon">🏙️</span> In a city</button>
+        <button type="button" class="opt" data-v="Semi-urban"><span class="opt-icon">🏘️</span> In a town</button>
+        <button type="button" class="opt" data-v="Rural"><span class="opt-icon">🌳</span> In a village or countryside</button>
       </div>
     </div>
 
-    <div class="card">
+    <div class="q-card">
+      <div class="q-num">Question 3</div>
       <p class="q-title">What kind of work do you do most of the time?</p>
       <div class="options" data-q="worktype">
-        <button type="button" class="opt" data-v="Sitting">I sit most of the day (desk, computer, phone)</button>
-        <button type="button" class="opt" data-v="Physical">I move around a lot (standing, lifting, walking)</button>
-        <button type="button" class="opt" data-v="Both">A mix of both</button>
+        <button type="button" class="opt" data-v="Sitting"><span class="opt-icon">💻</span> I sit most of the day</button>
+        <button type="button" class="opt" data-v="Physical"><span class="opt-icon">🚶</span> I move around a lot</button>
+        <button type="button" class="opt" data-v="Both"><span class="opt-icon">🔄</span> A mix of both</button>
       </div>
     </div>
 
-    <div class="section-head"><div class="sec-num">B</div><span class="sec-name">Your daily habits</span></div>
+    <div class="section-block">
+      <div class="sec-pill b"><div class="sec-letter"><span>B</span></div> Daily habits</div>
+      <div class="sec-divider"></div>
+    </div>
 
-    <div class="card">
+    <div class="q-card">
+      <div class="q-num">Question 4</div>
       <p class="q-title">How many hours do you work on a normal day?</p>
       <div class="options" data-q="workhours">
-        <button type="button" class="opt" data-v="0–4 hours">0 to 4 hours</button>
-        <button type="button" class="opt" data-v="5–6 hours">5 to 6 hours</button>
-        <button type="button" class="opt" data-v="7–8 hours">7 to 8 hours</button>
-        <button type="button" class="opt" data-v="9 or more hours">9 hours or more</button>
+        <button type="button" class="opt" data-v="0–4 hours"><span class="opt-icon">🌙</span> 0 – 4 hrs</button>
+        <button type="button" class="opt" data-v="5–6 hours"><span class="opt-icon">🌤</span> 5 – 6 hrs</button>
+        <button type="button" class="opt" data-v="7–8 hours"><span class="opt-icon">☀️</span> 7 – 8 hrs</button>
+        <button type="button" class="opt" data-v="9 or more hours"><span class="opt-icon">🔥</span> 9 hrs or more</button>
       </div>
     </div>
 
-    <div class="card">
-      <p class="q-title">How many hours do you sleep at night, most nights?</p>
+    <div class="q-card">
+      <div class="q-num">Question 5</div>
+      <p class="q-title">How many hours do you sleep most nights?</p>
       <div class="options" data-q="sleep">
-        <button type="button" class="opt" data-v="0–4 hours">0 to 4 hours</button>
-        <button type="button" class="opt" data-v="5–6 hours">5 to 6 hours</button>
-        <button type="button" class="opt" data-v="7–8 hours">7 to 8 hours</button>
-        <button type="button" class="opt" data-v="9 or more hours">9 hours or more</button>
+        <button type="button" class="opt" data-v="0–4 hours"><span class="opt-icon">😴</span> 0 – 4 hrs</button>
+        <button type="button" class="opt" data-v="5–6 hours"><span class="opt-icon">🌛</span> 5 – 6 hrs</button>
+        <button type="button" class="opt" data-v="7–8 hours"><span class="opt-icon">🌟</span> 7 – 8 hrs</button>
+        <button type="button" class="opt" data-v="9 or more hours"><span class="opt-icon">💤</span> 9 hrs or more</button>
       </div>
     </div>
 
-    <div class="card">
+    <div class="q-card">
+      <div class="q-num">Question 6</div>
       <p class="q-title">How long do you use your phone before going to sleep?</p>
       <div class="options" data-q="phonetime">
-        <button type="button" class="opt" data-v="no phone before bed">I do not use my phone before bed</button>
-        <button type="button" class="opt" data-v="less than 30 minutes">Less than 30 minutes</button>
-        <button type="button" class="opt" data-v="30 min–1 hour">30 minutes to 1 hour</button>
-        <button type="button" class="opt" data-v="1–2 hours">1 to 2 hours</button>
-        <button type="button" class="opt" data-v="2–3 hours">2 to 3 hours</button>
-        <button type="button" class="opt" data-v="more than 3 hours">More than 3 hours</button>
+        <button type="button" class="opt" data-v="no phone before bed"><span class="opt-icon">🚫</span> No phone at all</button>
+        <button type="button" class="opt" data-v="less than 30 minutes"><span class="opt-icon">⏱️</span> Under 30 min</button>
+        <button type="button" class="opt" data-v="30 min–1 hour"><span class="opt-icon">📱</span> 30 min – 1 hr</button>
+        <button type="button" class="opt" data-v="1–2 hours"><span class="opt-icon">📲</span> 1 – 2 hrs</button>
+        <button type="button" class="opt" data-v="2–3 hours"><span class="opt-icon">😬</span> 2 – 3 hrs</button>
+        <button type="button" class="opt" data-v="more than 3 hours"><span class="opt-icon">😵</span> More than 3 hrs</button>
       </div>
     </div>
 
-    <div class="card">
+    <div class="q-card">
+      <div class="q-num">Question 7</div>
       <p class="q-title">What time do you usually go to sleep?</p>
       <div class="options" data-q="bedtime">
-        <button type="button" class="opt" data-v="before 9 PM">Before 9 at night</button>
-        <button type="button" class="opt" data-v="9–10 PM">9 to 10 at night</button>
-        <button type="button" class="opt" data-v="10–11 PM">10 to 11 at night</button>
-        <button type="button" class="opt" data-v="11 PM–12 AM">11 at night to midnight</button>
-        <button type="button" class="opt" data-v="after 12 AM">After midnight</button>
+        <button type="button" class="opt" data-v="before 9 PM"><span class="opt-icon">🌅</span> Before 9 pm</button>
+        <button type="button" class="opt" data-v="9–10 PM"><span class="opt-icon">🌆</span> 9 – 10 pm</button>
+        <button type="button" class="opt" data-v="10–11 PM"><span class="opt-icon">🌃</span> 10 – 11 pm</button>
+        <button type="button" class="opt" data-v="11 PM–12 AM"><span class="opt-icon">🌉</span> 11 pm – midnight</button>
+        <button type="button" class="opt" data-v="after 12 AM"><span class="opt-icon">🌑</span> After midnight</button>
       </div>
     </div>
 
-    <div class="section-head"><div class="sec-num">C</div><span class="sec-name">How you feel</span></div>
+    <div class="section-block">
+      <div class="sec-pill c"><div class="sec-letter"><span>C</span></div> How you feel</div>
+      <div class="sec-divider"></div>
+    </div>
 
-    <div class="card">
-      <p class="q-title" style="margin-bottom:1rem">Do you agree or disagree with each sentence below?</p>
+    <div class="q-card">
+      <div class="q-num">Questions 8 – 12</div>
+      <p class="q-title" style="margin-bottom:1.2rem">Do you agree with each of these?</p>
       <div class="likert-row" id="likert-container"></div>
     </div>
 
-    <button type="button" id="submit-btn" disabled onclick="showResults()">Show my results</button>
+    <button type="button" id="submit-btn" disabled onclick="showResults()">Show my results →</button>
   </form>
 
   <div id="results">
     <div class="result-hero">
+      <div class="result-hero-icon">✨</div>
       <div class="badge">Your results</div>
       <h2>Here is what we found…</h2>
       <p id="result-intro"></p>
     </div>
     <div class="stat-grid" id="stat-grid"></div>
-    <div style="margin-top:1rem">
-      <p class="section-label" style="margin-bottom:.75rem">Tips just for you</p>
+    <div style="margin-top:1.2rem">
+      <p class="section-label">Tips just for you</p>
       <div id="recs"></div>
     </div>
-    <button type="button" id="restart-btn" onclick="restartForm()">Start again</button>
+    <button type="button" id="restart-btn" onclick="restartForm()">↩ Start again</button>
   </div>
+
 </div>
 
 <script>
@@ -332,14 +506,13 @@
     { id: 'l5', text: 'I have good energy during the day.' }
   ];
   const likertOpts = ['Yes, always', 'Most of the time', 'Sometimes', 'Not really', 'No, never'];
-  const answers = {};
-  const lAnswers = {};
+  const answers = {}, lAnswers = {};
 
   const lc = document.getElementById('likert-container');
-  likertQs.forEach(q => {
+  likertQs.forEach((q, i) => {
     const row = document.createElement('div');
     row.className = 'likert-item';
-    row.innerHTML = `<span>${q.text}</span><div class="likert-btns">${likertOpts.map(o => `<button type="button" class="lbtn" data-lq="${q.id}" data-v="${o}">${o}</button>`).join('')}</div>`;
+    row.innerHTML = `<span>Q${i+8}. ${q.text}</span><div class="likert-btns">${likertOpts.map(o=>`<button type="button" class="lbtn" data-lq="${q.id}" data-v="${o}">${o}</button>`).join('')}</div>`;
     lc.appendChild(row);
   });
 
@@ -364,196 +537,99 @@
   });
 
   function updateProgress() {
-    const total = 7 + 5;
-    const done = Object.keys(answers).length + Object.keys(lAnswers).length;
-    document.getElementById('progress').style.width = Math.round((done / total) * 100) + '%';
+    const total = 12, done = Object.keys(answers).length + Object.keys(lAnswers).length;
+    document.getElementById('progress').style.width = Math.round((done/total)*100)+'%';
+    document.getElementById('progress-pct').textContent = `${done} of ${total}`;
     document.getElementById('submit-btn').disabled = (done < total);
   }
 
-  // Map new simple labels to scores (same 1–5 scale as before)
   function lScore(val) {
-    return { 'Yes, always': 5, 'Most of the time': 4, 'Sometimes': 3, 'Not really': 2, 'No, never': 1 }[val] || 3;
+    return {'Yes, always':5,'Most of the time':4,'Sometimes':3,'Not really':2,'No, never':1}[val]||3;
   }
-
   function sleepScore() {
-    const s = {};
-    likertQs.forEach(q => { s[q.id] = lScore(lAnswers[q.id]); });
-    const positive = (s.l1 + s.l2 + s.l3 + s.l5) / 4;
-    const alertness = 6 - s.l4;
-    return Math.round(((positive + alertness) / 2) * 10);
+    const s = {}; likertQs.forEach(q=>{s[q.id]=lScore(lAnswers[q.id]);});
+    return Math.round((((s.l1+s.l2+s.l3+s.l5)/4)+(6-s.l4))/2*10);
   }
-
   function phoneRisk() {
-    return { 'no phone before bed': 0, 'less than 30 minutes': 1, '30 min–1 hour': 2, '1–2 hours': 3, '2–3 hours': 4, 'more than 3 hours': 5 }[answers.phonetime] || 0;
+    return {'no phone before bed':0,'less than 30 minutes':1,'30 min–1 hour':2,'1–2 hours':3,'2–3 hours':4,'more than 3 hours':5}[answers.phonetime]||0;
   }
-
-  function isLateNight() {
-    return answers.bedtime === 'after 12 AM' || answers.bedtime === '11 PM–12 AM';
-  }
+  function isLateNight() { return answers.bedtime==='after 12 AM'||answers.bedtime==='11 PM–12 AM'; }
 
   function showResults() {
-    document.getElementById('tracker-form').style.display = 'none';
-    document.getElementById('results').style.display = 'block';
-    window.scrollTo(0, 0);
+    document.getElementById('tracker-form').style.display='none';
+    document.getElementById('results').style.display='block';
+    window.scrollTo(0,0);
+    const sc=sleepScore(),pr=phoneRisk(),late=isLateNight();
+    const overwork=answers.workhours==='9 or more hours';
+    const sedentary=answers.worktype==='Sitting';
+    const feelRested=lAnswers.l3==='Yes, always'||lAnswers.l3==='Most of the time';
+    const poorRested=lAnswers.l3==='Not really'||lAnswers.l3==='No, never';
+    const feelEnergetic=lAnswers.l5==='Yes, always'||lAnswers.l5==='Most of the time';
+    const lowEnergy=lAnswers.l5==='Not really'||lAnswers.l5==='No, never';
+    const daySleepy=lAnswers.l4==='Yes, always'||lAnswers.l4==='Most of the time';
+    const hardToSleep=lAnswers.l1==='Not really'||lAnswers.l1==='No, never';
+    const shortSleep=answers.sleep==='0–4 hours'||answers.sleep==='5–6 hours';
+    const goodHours=answers.sleep==='7–8 hours'||answers.sleep==='9 or more hours';
+    const outcomeGood=feelRested&&feelEnergetic&&!daySleepy;
+    const outcomePoor=poorRested||lowEnergy||daySleepy;
 
-    const sc = sleepScore();
-    const pr = phoneRisk();
-    const late = isLateNight();
-    const overwork  = answers.workhours === '9 or more hours';
-    const sedentary = answers.worktype === 'Sitting';
+    let intro='';
+    if(outcomeGood) intro=`Your body is doing well — you feel rested and have good energy. Keep up what you are doing!`;
+    else if(outcomePoor&&goodHours) intro=`You sleep ${answers.sleep} but still don't feel your best. Duration isn't everything — a consistent bedtime and less phone time before bed can help a lot.`;
+    else if(outcomePoor&&shortSleep) intro=`You sleep ${answers.sleep} and your energy shows it. Small changes to your bedtime routine can make a big difference very quickly.`;
+    else intro=`Some things are going well and some could improve. The tips below are based on how you actually feel.`;
+    document.getElementById('result-intro').textContent=intro;
 
-    // Outcome signals — using simple labels
-    const feelRested    = lAnswers.l3 === 'Yes, always'       || lAnswers.l3 === 'Most of the time';
-    const poorRested    = lAnswers.l3 === 'Not really'         || lAnswers.l3 === 'No, never';
-    const feelEnergetic = lAnswers.l5 === 'Yes, always'       || lAnswers.l5 === 'Most of the time';
-    const lowEnergy     = lAnswers.l5 === 'Not really'         || lAnswers.l5 === 'No, never';
-    const daySleepy     = lAnswers.l4 === 'Yes, always'       || lAnswers.l4 === 'Most of the time';
-    const hardToSleep   = lAnswers.l1 === 'Not really'         || lAnswers.l1 === 'No, never';
-    const shortSleep    = answers.sleep === '0–4 hours'        || answers.sleep === '5–6 hours';
-    const goodHours     = answers.sleep === '7–8 hours'        || answers.sleep === '9 or more hours';
-    const outcomeGood   = feelRested && feelEnergetic && !daySleepy;
-    const outcomePoor   = poorRested || lowEnergy || daySleepy;
+    document.getElementById('stat-grid').innerHTML=`
+      <div class="stat"><div class="stat-val">${answers.workhours.replace(' hours','')}</div><div class="stat-lbl">Work / day</div></div>
+      <div class="stat"><div class="stat-val">${answers.sleep.replace(' hours','')}</div><div class="stat-lbl">Sleep / night</div></div>
+      <div class="stat"><div class="stat-val">${sc}<span style="font-size:13px;font-weight:400">/50</span></div><div class="stat-lbl">Sleep score</div></div>
+      <div class="stat"><div class="stat-val" style="font-size:13px">${answers.bedtime}</div><div class="stat-lbl">Bedtime</div></div>`;
 
-    // Intro text — plain and friendly
-    let introText = '';
-    if (outcomeGood) {
-      introText = `Your body is doing well — you feel rested and have good energy. Keep up what you are doing!`;
-    } else if (outcomePoor && goodHours) {
-      introText = `You sleep ${answers.sleep} but still do not feel your best. How long you sleep is not the only thing that matters — going to bed at the same time each night and putting your phone down before bed can help a lot.`;
-    } else if (outcomePoor && shortSleep) {
-      introText = `You sleep ${answers.sleep} and your energy shows it. Small changes to your bedtime routine can make a big difference very quickly.`;
-    } else {
-      introText = `Some things are going well for you and some things could be better. Read the tips below — they are based on how you actually feel.`;
-    }
-    document.getElementById('result-intro').textContent = introText;
+    const recs=[];
+    if(outcomeGood&&late) recs.push({level:'',title:'✅ You feel good — your routine is working',bullets:[`<strong>What is happening:</strong> You go to bed ${answers.bedtime} every night and your body has adapted — you feel rested and energised.`,`<strong>Why it works:</strong> A consistent bedtime, even a late one, beats an irregular schedule. Your body learns when to sleep.`,`<strong>Keep doing:</strong> Same bedtime every day including weekends. To shift earlier, move 15 min per week.`]});
+    else if(outcomeGood) recs.push({level:'',title:'✅ Your habits are working — keep it up',bullets:[`<strong>What is happening:</strong> You wake up rested and have good energy — the best sign of healthy sleep.`,`<strong>Why it works:</strong> Your sleep timing, length, and daily habits all match what your body needs.`,`<strong>Keep doing:</strong> Consistent bedtime every night, even weekends. Check in again in a few weeks.`]});
+    if(outcomePoor&&goodHours) recs.push({level:'warn',title:'⚠️ Enough hours but still tired',bullets:[`<strong>What is happening:</strong> You sleep ${answers.sleep} but still wake up drained. More hours alone isn't always the fix.`,`<strong>Why:</strong> Phone use, irregular timing, stress, or a bright/noisy room reduce sleep quality even with enough hours in bed.`,`<strong>Try:</strong> Phone away 30–60 min before bed. Same wake time every day. Make your room darker and quieter.`]});
+    if(outcomePoor&&shortSleep) recs.push({level:'bad',title:'🔴 Not enough sleep — your body feels it',bullets:[`<strong>What is happening:</strong> You sleep ${answers.sleep} and feel tired and low on energy — these are directly linked.`,`<strong>Why:</strong> Your body needs 7–8 hours to rest and repair. Less than that cuts into deep sleep.`,`<strong>Try:</strong> Go to bed 15–20 min earlier this week, a little earlier again next week. No caffeine after 2 pm. No phone in bed.`]});
+    if(hardToSleep) recs.push({level:'warn',title:'⚠️ Hard to fall asleep',bullets:[`<strong>What is happening:</strong> Your mind stays active when you try to sleep.`,`<strong>Why:</strong> Phone use before bed, irregular sleep times, or stress can keep your brain switched on.`,`<strong>Try:</strong> 30 minutes of calm before bed — no phone, dim lights, light reading. Same wake time every morning.`]});
+    if(daySleepy) recs.push({level:(daySleepy&&poorRested)?'bad':'warn',title:(daySleepy&&poorRested)?'🔴 Very tired during the day':'⚠️ Sleepy during the day',bullets:[`<strong>What is happening:</strong> You feel sleepy through the day — your night sleep isn't fully refreshing you.`,`<strong>Why:</strong> Irregular bedtimes, late phone use, or too little sleep all prevent deep rest.`,`<strong>Try:</strong> Same wake time every day, even weekends. A 10–20 min nap before 3 pm can help. Avoid phone for the last 30 min before bed.`]});
+    if(pr>=2&&outcomePoor) recs.push({level:'warn',title:'⚠️ Phone use before bed is hurting your sleep',bullets:[`<strong>What is happening:</strong> You use your phone ${answers.phonetime} before sleeping and don't wake up rested — these are connected.`,`<strong>Why:</strong> Your screen signals to your brain it is still daytime, reducing the deep sleep you get.`,`<strong>Try:</strong> Put your phone away 30 min before bed. Replace it with reading or gentle stretching.`]});
+    if(overwork&&outcomePoor) recs.push({level:'bad',title:'🔴 Too many work hours is draining you',bullets:[`<strong>What is happening:</strong> You work ${answers.workhours} a day and feel drained — your body has no recovery window.`,`<strong>Why:</strong> Long hours raise cortisol, making deep sleep harder even when you go to bed on time.`,`<strong>Try:</strong> A short walk after work to decompress. Stop all work at least 1 hour before bed.`]});
+    if(sedentary&&lowEnergy) recs.push({level:'',title:'🪑 Sitting all day could be making you sluggish',bullets:[`<strong>What is happening:</strong> You sit most of the day and feel low on energy — inactivity creates tiredness even without effort.`,`<strong>Why:</strong> Long sitting slows circulation, making you feel heavy and unfocused.`,`<strong>Try:</strong> 2-minute movement break every hour. A short walk after lunch. Simple desk stretches help too.`]});
+    if(late&&outcomePoor) recs.push({level:'bad',title:'🔴 Very late bedtime is reducing sleep quality',bullets:[`<strong>What is happening:</strong> You go to bed ${answers.bedtime} and don't feel rested — late bedtimes reduce your deep sleep window.`,`<strong>Why:</strong> Your deepest sleep happens earlier in the night. Going late shifts this window, so you get less even with the same total hours.`,`<strong>Try:</strong> Move your bedtime 15 min earlier each week. Aim for 11 pm as a first goal.`]});
+    if(recs.length===0) recs.push({level:'',title:'✅ Everything looks good',bullets:[`<strong>What is happening:</strong> Your habits and how you feel are both in good shape.`,`<strong>Why it is working:</strong> Sleep length, timing, and daily routine all suit your body well.`,`<strong>Keep doing:</strong> Same bedtime every day. Check in again in a few weeks.`]});
 
-    document.getElementById('stat-grid').innerHTML = `
-      <div class="stat"><div class="stat-val">${answers.workhours.replace(' hours','')}</div><div class="stat-lbl">Work per day</div></div>
-      <div class="stat"><div class="stat-val">${answers.sleep.replace(' hours','')}</div><div class="stat-lbl">Sleep per night</div></div>
-      <div class="stat"><div class="stat-val">${sc}<span style="font-size:14px;font-weight:400">/50</span></div><div class="stat-lbl">Sleep score</div></div>
-      <div class="stat"><div class="stat-val" style="font-size:14px">${answers.bedtime}</div><div class="stat-lbl">Usual bedtime</div></div>
-    `;
-
-    const recs = [];
-
-    // ── Feeling good + late but consistent ──
-    if (outcomeGood && late) {
-      recs.push({ level: '', title: '✅ You feel good — your regular bedtime is helping', bullets: [
-        `<strong>What is happening:</strong> You go to bed ${answers.bedtime} every night and your body has got used to it — you feel rested and full of energy.`,
-        `<strong>Why it works:</strong> Going to bed at the same time each night — even if it is late — is better than going to bed at different times. Your body learns when to sleep.`,
-        `<strong>What to keep doing:</strong> Try to go to bed and wake up at the same time every day, including weekends. If you want to go to bed earlier, move your bedtime 15 minutes earlier each week — do not try to change it all at once.`
-      ]});
-    } else if (outcomeGood) {
-      recs.push({ level: '', title: '✅ Your habits are working — keep it up', bullets: [
-        `<strong>What is happening:</strong> You wake up feeling rested and have good energy during the day — that is the best sign your sleep is healthy.`,
-        `<strong>Why it works:</strong> The time you sleep, how long you sleep, and your daily habits all seem to match what your body needs.`,
-        `<strong>What to keep doing:</strong> Try to go to bed at the same time every night, even on weekends. Check again in a few weeks to make sure things stay on track.`
-      ]});
-    }
-
-    // ── Good hours but still tired ──
-    if (outcomePoor && goodHours) {
-      recs.push({ level: 'warn', title: '⚠️ You sleep enough hours but still feel tired', bullets: [
-        `<strong>What is happening:</strong> You sleep ${answers.sleep} most nights, but you still wake up feeling tired and have low energy. More hours alone is not always the answer.`,
-        `<strong>Why it might be happening:</strong> Using your phone late at night, going to bed at different times, stress, or a noisy or bright room can all stop your body from getting deep, good-quality sleep — even if you are in bed for long enough.`,
-        `<strong>What to try:</strong> Put your phone away 30 to 60 minutes before bed. Go to bed and wake up at the same time every day. Make your bedroom darker and quieter. Try reading a book or doing some light stretching before bed instead of using your phone.`
-      ]});
-    }
-
-    // ── Short sleep + poor outcome ──
-    if (outcomePoor && shortSleep) {
-      recs.push({ level: 'bad', title: '🔴 You are not sleeping enough and your body can feel it', bullets: [
-        `<strong>What is happening:</strong> You sleep ${answers.sleep} and you feel tired and low on energy — these two things are directly linked.`,
-        `<strong>Why it is happening:</strong> Your body needs 7 to 8 hours each night to properly rest and repair itself. When you sleep less than that, you miss out on the deep sleep your body and mind need.`,
-        `<strong>What to try:</strong> Go to bed 15 to 20 minutes earlier this week, then a little earlier again next week. Avoid tea, coffee, or fizzy drinks after 2 in the afternoon. Do not use your phone in bed.`
-      ]});
-    }
-
-    // ── Hard to fall asleep ──
-    if (hardToSleep) {
-      recs.push({ level: 'warn', title: '⚠️ You find it hard to fall asleep', bullets: [
-        `<strong>What is happening:</strong> Your mind is still active and wide awake when you try to sleep.`,
-        `<strong>Why it might be happening:</strong> Using your phone before bed, going to sleep at different times each night, or feeling stressed can all keep your brain switched on when it should be winding down.`,
-        `<strong>What to try:</strong> Give yourself 30 minutes to relax before bed — no phone, dim the lights, and do something calm like reading. Try to wake up at the same time every morning. This is one of the best things you can do to help your body know when it is time to sleep.`
-      ]});
-    }
-
-    // ── Daytime sleepy ──
-    if (daySleepy) {
-      recs.push({ level: (daySleepy && poorRested) ? 'bad' : 'warn',
-        title: (daySleepy && poorRested) ? '🔴 You feel very tired and sleepy during the day' : '⚠️ You feel sleepy during the day',
-        bullets: [
-          `<strong>What is happening:</strong> You feel sleepy or drained during the day. This usually means your sleep at night is not fully refreshing you.`,
-          `<strong>Why it might be happening:</strong> Going to bed at different times each night, using your phone late, or not sleeping long enough can all stop your body from getting the deep rest it needs.`,
-          `<strong>What to try:</strong> Wake up at the same time every day — even on weekends. This is the fastest way to fix your body clock. If you need a rest during the day, a short 10 to 20 minute nap before 3 in the afternoon can help. Avoid your phone for the last 30 minutes before bed.`
-        ]
-      });
-    }
-
-    // ── High phone use + poor outcome ──
-    if (pr >= 2 && outcomePoor) {
-      recs.push({ level: 'warn', title: '⚠️ Using your phone before bed is affecting your sleep', bullets: [
-        `<strong>What is happening:</strong> You use your phone ${answers.phonetime} before sleeping, and you are not waking up feeling rested — these two things are connected.`,
-        `<strong>Why it is happening:</strong> The light from your phone screen tells your brain it is still daytime. This makes it harder for your brain to get ready for sleep and reduces the deep sleep you get.`,
-        `<strong>What to try:</strong> Set a reminder to put your phone away 30 minutes before your bedtime. Replace that time with reading, stretching, or just sitting quietly. Even doing this 3 or 4 nights a week will start to help.`
-      ]});
-    }
-
-    // ── Overwork + poor outcome ──
-    if (overwork && outcomePoor) {
-      recs.push({ level: 'bad', title: '🔴 Working too many hours is making you tired', bullets: [
-        `<strong>What is happening:</strong> You work ${answers.workhours} each day and feel drained. Your body does not have enough time to rest and recover between days.`,
-        `<strong>Why it is happening:</strong> Long working hours raise stress in your body. This stress makes it harder to fall into deep sleep, even when you do go to bed on time.`,
-        `<strong>What to try:</strong> Take a 10-minute walk after work to help your mind switch off. Stop all work tasks at least 1 hour before bed. Do not let work cut into your sleeping time.`
-      ]});
-    }
-
-    // ── Sedentary + low energy ──
-    if (sedentary && lowEnergy) {
-      recs.push({ level: '', title: '🪑 Sitting all day could be making you feel sluggish', bullets: [
-        `<strong>What is happening:</strong> You sit most of the day and feel low on energy. Not moving around much can make you feel tired even when you have not done anything hard.`,
-        `<strong>Why it is happening:</strong> When you sit for a long time, blood moves more slowly around your body. This can make you feel heavy and tired.`,
-        `<strong>What to try:</strong> Stand up and move around for 2 minutes every hour. Take a short walk after lunch. Even a little stretching at your desk can help you feel more awake and focused.`
-      ]});
-    }
-
-    // ── Late bedtime + poor outcome ──
-    if (late && outcomePoor) {
-      recs.push({ level: 'bad', title: '🔴 Going to bed very late is reducing the quality of your sleep', bullets: [
-        `<strong>What is happening:</strong> You go to bed ${answers.bedtime} and you are not feeling rested — going to bed late is likely part of the reason.`,
-        `<strong>Why it is happening:</strong> Your body does its best, deepest sleep in the earlier part of the night. Going to bed very late pushes this deep sleep window, so you get less of it even if you sleep the same number of hours.`,
-        `<strong>What to try:</strong> Move your bedtime 15 minutes earlier each week — small steps work much better than trying to change everything at once. Set a reminder to start getting ready for bed. Try to be in bed by 11 at night as your first goal.`
-      ]});
-    }
-
-    // ── Fallback ──
-    if (recs.length === 0) {
-      recs.push({ level: '', title: '✅ Everything looks good', bullets: [
-        `<strong>What is happening:</strong> Your habits and how you feel are both in good shape — no big problems found.`,
-        `<strong>Why it is working:</strong> How long you sleep, when you go to bed, and your daily routine all seem to suit your body well.`,
-        `<strong>What to keep doing:</strong> Try to go to bed and wake up at the same time every day. Check in again in a few weeks to catch any small changes before they become bigger problems.`
-      ]});
-    }
-
-    document.getElementById('recs').innerHTML = recs.map(r => `
+    document.getElementById('recs').innerHTML=recs.map(r=>`
       <div class="rec-card ${r.level}">
         <h4>${r.title}</h4>
         <ul style="margin:.5rem 0 0 1rem;padding:0;display:flex;flex-direction:column;gap:7px">
-          ${r.bullets.map(b => `<li style="font-size:13px;color:var(--text-muted);line-height:1.6">${b}</li>`).join('')}
+          ${r.bullets.map(b=>`<li style="font-size:13px;color:var(--text-muted);line-height:1.6">${b}</li>`).join('')}
         </ul>
-      </div>
-    `).join('');
+      </div>`).join('');
   }
 
   function restartForm() {
-    document.getElementById('results').style.display = 'none';
-    document.getElementById('tracker-form').style.display = 'block';
-    document.querySelectorAll('.opt, .lbtn').forEach(b => b.classList.remove('sel'));
-    Object.keys(answers).forEach(k => delete answers[k]);
-    Object.keys(lAnswers).forEach(k => delete lAnswers[k]);
-    document.getElementById('progress').style.width = '0%';
-    document.getElementById('submit-btn').disabled = true;
-    window.scrollTo(0, 0);
+    document.getElementById('results').style.display='none';
+    document.getElementById('tracker-form').style.display='block';
+    document.querySelectorAll('.opt,.lbtn').forEach(b=>b.classList.remove('sel'));
+    Object.keys(answers).forEach(k=>delete answers[k]);
+    Object.keys(lAnswers).forEach(k=>delete lAnswers[k]);
+    document.getElementById('progress').style.width='0%';
+    document.getElementById('progress-pct').textContent='0 of 12';
+    document.getElementById('submit-btn').disabled=true;
+    window.scrollTo(0,0);
+  }
+
+  const html=document.documentElement;
+  let isDark=false;
+  if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){
+    isDark=true; html.setAttribute('data-theme','dark');
+    document.getElementById('toggle-label').textContent='Dark';
+  }
+  function toggleTheme(){
+    isDark=!isDark;
+    html.setAttribute('data-theme',isDark?'dark':'');
+    document.getElementById('toggle-label').textContent=isDark?'Dark':'Light';
   }
 </script>
 </body>
