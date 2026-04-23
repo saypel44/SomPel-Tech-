@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Full Tracker – Daily Habit Log</title>
+<title>Full Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -20,34 +20,28 @@
 body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 h1,h2,h3{font-family:'Playfair Display',serif}
 
-/* NAV */
 nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem}
 .nav-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--green-dark)}
 .nav-tabs{display:flex;gap:4px}
 .nav-tab{padding:6px 14px;border-radius:20px;border:none;background:transparent;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;color:var(--muted);transition:all .15s}
 .nav-tab.active{background:var(--green-light);color:var(--green-dark);font-weight:500}
 
-/* LAYOUT */
 .page{display:none;max-width:720px;margin:0 auto;padding:1.5rem 1rem 4rem}
 .page.active{display:block}
 
-/* CARDS */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.4rem;margin-bottom:1rem}
 .card-title{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:1rem}
 
-/* SECTION HEADER */
 .sec-head{display:flex;align-items:center;gap:10px;margin:1.5rem 0 .75rem}
 .sec-dot{width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
 .sec-label{font-size:12px;font-weight:500;color:var(--muted)}
 
-/* FORM ELEMENTS */
 select,input[type=time]{font-family:'Sora',sans-serif;font-size:13px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);width:100%;outline:none;transition:border .15s}
 select:focus,input[type=time]:focus{border-color:var(--green)}
 .field{margin-bottom:.9rem}
 .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:500}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-/* LIKERT */
 .likert-q{margin-bottom:.9rem}
 .likert-q p{font-size:13px;color:var(--text);margin-bottom:6px}
 .likert-opts{display:flex;gap:5px;flex-wrap:wrap}
@@ -55,40 +49,52 @@ select:focus,input[type=time]:focus{border-color:var(--green)}
 .lopt:hover{border-color:var(--green);color:var(--green)}
 .lopt.sel{background:var(--green-light);border-color:var(--green);color:var(--green-dark);font-weight:500}
 
-/* PROGRESS */
 .prog-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:1.5rem}
 .prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
 
-/* SUBMIT */
 .btn-primary{width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;transition:background .15s;margin-top:.5rem}
 .btn-primary:hover{background:var(--green-dark)}
 .btn-primary:disabled{background:#ccc;cursor:not-allowed}
 .btn-ghost{width:100%;padding:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;cursor:pointer;font-family:'Sora',sans-serif;margin-top:.5rem}
 .btn-ghost:hover{background:var(--surface2)}
 
-/* DAY BADGE */
 .day-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green-dark);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;margin-bottom:1rem}
 
-/* STAT GRID */
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:1rem}
 .stat{background:var(--surface2);border-radius:var(--radius);padding:.9rem;text-align:center}
 .stat-val{font-size:20px;font-weight:600;color:var(--text)}
 .stat-lbl{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.04em;text-transform:uppercase}
 
-/* TREND CHIP */
 .trend-chip{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:500}
 .trend-chip.pos{background:var(--green-light);color:var(--green-dark)}
 .trend-chip.neg{background:var(--red-light);color:var(--red)}
 .trend-chip.neu{background:var(--surface2);color:var(--muted)}
 
-/* REC CARD */
-.rec{border-left:3px solid var(--green);background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:.9rem 1.1rem;margin-bottom:.65rem}
-.rec.warn{border-left-color:var(--amber);background:var(--amber-light)}
-.rec.bad{border-left-color:var(--red);background:var(--red-light)}
-.rec h4{font-size:13px;font-weight:600;margin-bottom:.25rem}
-.rec p{font-size:12px;color:var(--muted);line-height:1.55}
+/* DEEP REC CARD */
+.rec{border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--surface);padding:1.1rem 1.2rem;margin-bottom:.8rem}
+.rec.warn{border-color:#d4a820;background:var(--amber-light)}
+.rec.bad{border-color:#c0392b;background:var(--red-light)}
+.rec.good{border-color:#1D9E75;background:var(--green-light)}
+.rec-header{display:flex;align-items:center;gap:8px;margin-bottom:.75rem}
+.rec-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.rec-icon.green{background:var(--green);color:#fff}
+.rec-icon.amber{background:var(--amber);color:#fff}
+.rec-icon.red{background:var(--red);color:#fff}
+.rec-icon.blue{background:var(--blue);color:#fff}
+.rec h4{font-size:13px;font-weight:600;color:var(--text);line-height:1.3}
+.rec-blocks{display:flex;flex-direction:column;gap:6px}
+.rec-block{border-radius:8px;padding:.65rem .85rem}
+.rec-block.what{background:rgba(0,0,0,0.04)}
+.rec-block.why{background:rgba(0,0,0,0.04)}
+.rec-block.try{background:rgba(29,158,117,0.1)}
+.rec.warn .rec-block.try{background:rgba(186,117,23,0.12)}
+.rec.bad .rec-block.try{background:rgba(192,57,43,0.1)}
+.rec-block-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.rec.warn .rec-block-label{color:#8a5a10}
+.rec.bad .rec-block-label{color:#922d22}
+.rec.good .rec-block-label{color:var(--green-dark)}
+.rec-block p{font-size:12px;color:var(--text);line-height:1.6}
 
-/* HISTORY */
 .hist-item{display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid var(--border);font-size:12px}
 .hist-item:last-child{border-bottom:none}
 .hist-day{font-weight:500;color:var(--text)}
@@ -98,26 +104,25 @@ select:focus,input[type=time]:focus{border-color:var(--green)}
 .hist-score.ok{color:var(--amber)}
 .hist-score.low{color:var(--red)}
 
-/* ALARM INDICATOR */
 .alarm-set{display:inline-flex;align-items:center;gap:4px;background:var(--blue-light);color:var(--blue);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:500;margin-top:4px}
 
-/* CHART WRAPPER */
 .chart-wrap{position:relative;height:220px;margin-top:.5rem}
 
-/* EMPTY STATE */
 .empty{text-align:center;padding:2rem 1rem;color:var(--muted)}
 .empty-icon{font-size:36px;margin-bottom:.5rem}
 .empty p{font-size:13px}
 
-/* PROFILE PILL */
-.profile-pill{display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:var(--radius);padding:.6rem 1rem;margin-bottom:1rem;font-size:12px;color:var(--muted)}
-.profile-pill strong{color:var(--text);font-size:13px}
-
-/* CONSISTENCY BADGE */
 .consist{display:flex;align-items:center;gap:8px;padding:.6rem 1rem;border-radius:var(--radius);font-size:12px;font-weight:500;margin-bottom:.75rem}
 .consist.good{background:var(--green-light);color:var(--green-dark)}
 .consist.warn{background:var(--amber-light);color:var(--amber)}
 .consist.bad{background:var(--red-light);color:var(--red)}
+
+/* TREND INSIGHT SECTION */
+.insight-header{display:flex;align-items:center;gap:8px;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.insight-tag{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:20px}
+.insight-tag.trend{background:var(--blue-light);color:var(--blue)}
+.insight-tag.pattern{background:var(--green-light);color:var(--green-dark)}
+.insight-tag.alert{background:var(--red-light);color:var(--red)}
 </style>
 </head>
 <body>
@@ -125,17 +130,17 @@ select:focus,input[type=time]:focus{border-color:var(--green)}
 <nav>
   <div class="nav-logo">Full Tracker</div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchTab('log')">Log Today</button>
-    <button class="nav-tab" onclick="switchTab('trends')">Trends</button>
-    <button class="nav-tab" onclick="switchTab('history')">History</button>
-    <button class="nav-tab" onclick="switchTab('profile')">Profile</button>
+    <button class="nav-tab active" onclick="switchTab('log',event)">Log Today</button>
+    <button class="nav-tab" onclick="switchTab('trends',event)">Trends</button>
+    <button class="nav-tab" onclick="switchTab('history',event)">History</button>
+    <button class="nav-tab" onclick="switchTab('profile',event)">Profile</button>
   </div>
 </nav>
 
-<!-- ═══════════════ LOG PAGE ═══════════════ -->
+<!-- LOG PAGE -->
 <div id="page-log" class="page active">
   <div style="margin-bottom:1.2rem">
-    <div id="day-badge" class="day-badge">📅 Day 1 · <span id="today-date"></span></div>
+    <div id="day-badge" class="day-badge">📅 Day 1</div>
     <h2 style="font-size:22px;font-weight:700;line-height:1.2" id="log-heading">Log your day</h2>
     <p style="font-size:12px;color:var(--muted);margin-top:.3rem">Fill in your habits for today to build your trend.</p>
     <div class="prog-bar" style="margin-top:1rem"><div class="prog-fill" id="log-progress" style="width:0%"></div></div>
@@ -146,41 +151,26 @@ select:focus,input[type=time]:focus{border-color:var(--green)}
       <div style="font-size:32px;margin-bottom:.5rem">✅</div>
       <h3 style="font-size:16px;margin-bottom:.3rem">Already logged today!</h3>
       <p style="font-size:12px;color:var(--muted)">Come back tomorrow to continue your streak.</p>
-      <button class="btn-ghost" style="margin-top:1rem;max-width:200px;margin-left:auto;margin-right:auto" onclick="viewTrends()">View trends →</button>
+      <button class="btn-ghost" style="margin-top:1rem;max-width:200px;margin-left:auto;margin-right:auto" onclick="goTrends()">View trends →</button>
     </div>
   </div>
 
   <div id="log-form">
-    <!-- SECTION A: Profile (only shown on first log) -->
     <div id="profile-section">
       <div class="sec-head"><div class="sec-dot">A</div><span class="sec-label">About you (one-time setup)</span></div>
-
       <div class="card">
-        <div class="field">
-          <label>Age group</label>
-          <select id="p-age">
-            <option value="">Select…</option>
-            <option>Under 18</option><option>18–25</option><option>26–35</option><option>36–50</option><option>50+</option>
-          </select>
+        <div class="field"><label>Age group</label>
+          <select id="p-age"><option value="">Select…</option><option>Under 18</option><option>18–25</option><option>26–35</option><option>36–50</option><option>50+</option></select>
         </div>
-        <div class="field">
-          <label>Where do you live?</label>
-          <select id="p-loc">
-            <option value="">Select…</option>
-            <option>Urban</option><option>Semi-urban</option><option>Rural</option>
-          </select>
+        <div class="field"><label>Where do you live?</label>
+          <select id="p-loc"><option value="">Select…</option><option>Urban</option><option>Semi-urban</option><option>Rural</option></select>
         </div>
-        <div class="field">
-          <label>Type of work</label>
-          <select id="p-work">
-            <option value="">Select…</option>
-            <option>Mostly sitting work</option><option>Mostly physical work</option><option>Both sitting and physical</option>
-          </select>
+        <div class="field"><label>Type of work</label>
+          <select id="p-work"><option value="">Select…</option><option>Mostly sitting work</option><option>Mostly physical work</option><option>Both sitting and physical</option></select>
         </div>
       </div>
     </div>
 
-    <!-- SECTION B: Daily Inputs -->
     <div class="sec-head"><div class="sec-dot">B</div><span class="sec-label">Daily lifestyle inputs</span></div>
 
     <div class="card">
@@ -194,10 +184,10 @@ select:focus,input[type=time]:focus{border-color:var(--green)}
         </select>
       </div>
       <div class="field">
-        <label>Set work alarm — start time</label>
+        <label>Set work alarm</label>
         <div class="row2">
-          <div><label style="font-size:11px;margin-bottom:3px;display:block">Start (AM/PM)</label><input type="time" id="b-work-start" onchange="updateProg();showAlarm('work-alarm')"/></div>
-          <div><label style="font-size:11px;margin-bottom:3px;display:block">End (AM/PM)</label><input type="time" id="b-work-end" onchange="updateProg();showAlarm('work-alarm')"/></div>
+          <div><label style="font-size:11px;margin-bottom:3px;display:block">Start</label><input type="time" id="b-work-start" onchange="updateProg();showAlarm('work-alarm')"/></div>
+          <div><label style="font-size:11px;margin-bottom:3px;display:block">End</label><input type="time" id="b-work-end" onchange="updateProg();showAlarm('work-alarm')"/></div>
         </div>
         <div id="work-alarm" class="alarm-set" style="display:none">⏰ Work alarm set</div>
       </div>
@@ -216,8 +206,8 @@ select:focus,input[type=time]:focus{border-color:var(--green)}
       <div class="field">
         <label>Set sleep alarm</label>
         <div class="row2">
-          <div><label style="font-size:11px;margin-bottom:3px;display:block">Bedtime (PM)</label><input type="time" id="b-bedtime" onchange="updateProg();showAlarm('sleep-alarm')"/></div>
-          <div><label style="font-size:11px;margin-bottom:3px;display:block">Wake-up (AM)</label><input type="time" id="b-waketime" onchange="updateProg();showAlarm('sleep-alarm')"/></div>
+          <div><label style="font-size:11px;margin-bottom:3px;display:block">Bedtime</label><input type="time" id="b-bedtime" onchange="updateProg();showAlarm('sleep-alarm')"/></div>
+          <div><label style="font-size:11px;margin-bottom:3px;display:block">Wake-up</label><input type="time" id="b-waketime" onchange="updateProg();showAlarm('sleep-alarm')"/></div>
         </div>
         <div id="sleep-alarm" class="alarm-set" style="display:none">⏰ Sleep alarm set</div>
       </div>
@@ -237,14 +227,8 @@ select:focus,input[type=time]:focus{border-color:var(--green)}
           <option value=">3h">More than 3 hours</option>
         </select>
       </div>
-      <div id="phone-time-field" class="field" style="display:none">
-        <label>Track phone use end time (PM)</label>
-        <input type="time" id="b-phone-end" onchange="showAlarm('phone-alarm')"/>
-        <div id="phone-alarm" class="alarm-set" style="display:none">⏰ Phone cutoff alarm set</div>
-      </div>
     </div>
 
-    <!-- SECTION C: Likert -->
     <div class="sec-head"><div class="sec-dot">C</div><span class="sec-label">Sleep quality & energy outcomes</span></div>
 
     <div class="card">
@@ -279,25 +263,22 @@ select:focus,input[type=time]:focus{border-color:var(--green)}
     <button class="btn-primary" id="save-btn" disabled onclick="saveDay()">Save today's log</button>
   </div>
 
-  <!-- TODAY'S RESULT (shown after save) -->
   <div id="today-result" style="display:none">
     <div class="card" style="border:1.5px solid var(--green)">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
         <span style="font-size:20px">🌿</span>
-        <h3 style="font-size:16px;font-family:'Playfair Display',serif">Based on your answers…</h3>
+        <h3 style="font-size:16px;font-family:'Playfair Display',serif">Based on today's answers…</h3>
       </div>
       <p id="result-text" style="font-size:13px;line-height:1.65;color:var(--text)"></p>
     </div>
     <div class="stat-grid" id="result-stats"></div>
-    <div style="margin-top:.5rem">
-      <p style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem">Personalised recommendations</p>
-      <div id="result-recs"></div>
-    </div>
-    <button class="btn-ghost" onclick="viewTrends()">View your trends →</button>
+    <p style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem">Today's insights</p>
+    <div id="result-recs"></div>
+    <button class="btn-ghost" onclick="goTrends()">View your trends →</button>
   </div>
 </div>
 
-<!-- ═══════════════ TRENDS PAGE ═══════════════ -->
+<!-- TRENDS PAGE -->
 <div id="page-trends" class="page">
   <h2 style="font-size:22px;margin-bottom:.3rem">Your trends</h2>
   <p style="font-size:12px;color:var(--muted);margin-bottom:1.5rem">Tracking builds insight — keep logging daily.</p>
@@ -326,46 +307,35 @@ select:focus,input[type=time]:focus{border-color:var(--green)}
     </div>
 
     <div class="card">
-      <div class="card-title">Recommendations from trends</div>
+      <div class="card-title">Deep insights from your trends</div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:1rem" id="trend-days-note"></p>
       <div id="trend-recs"></div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════ HISTORY PAGE ═══════════════ -->
+<!-- HISTORY PAGE -->
 <div id="page-history" class="page">
   <h2 style="font-size:22px;margin-bottom:.3rem">Log history</h2>
   <p style="font-size:12px;color:var(--muted);margin-bottom:1.5rem">All your logged days.</p>
-  <div id="history-empty" class="empty">
-    <div class="empty-icon">📋</div>
-    <p>No history yet. Start logging daily!</p>
-  </div>
+  <div id="history-empty" class="empty"><div class="empty-icon">📋</div><p>No history yet. Start logging daily!</p></div>
   <div class="card" id="history-list" style="display:none"></div>
   <button class="btn-ghost" id="clear-btn" style="display:none;color:#C0392B;border-color:#C0392B" onclick="clearData()">Clear all data</button>
 </div>
 
-<!-- ═══════════════ PROFILE PAGE ═══════════════ -->
+<!-- PROFILE PAGE -->
 <div id="page-profile" class="page">
   <h2 style="font-size:22px;margin-bottom:.3rem">Your profile</h2>
   <p style="font-size:12px;color:var(--muted);margin-bottom:1.5rem">Edit your personal details anytime.</p>
   <div class="card">
     <div class="field"><label>Age group</label>
-      <select id="prof-age">
-        <option value="">Select…</option>
-        <option>Under 18</option><option>18–25</option><option>26–35</option><option>36–50</option><option>50+</option>
-      </select>
+      <select id="prof-age"><option value="">Select…</option><option>Under 18</option><option>18–25</option><option>26–35</option><option>36–50</option><option>50+</option></select>
     </div>
     <div class="field"><label>Where do you live?</label>
-      <select id="prof-loc">
-        <option value="">Select…</option>
-        <option>Urban</option><option>Semi-urban</option><option>Rural</option>
-      </select>
+      <select id="prof-loc"><option value="">Select…</option><option>Urban</option><option>Semi-urban</option><option>Rural</option></select>
     </div>
     <div class="field"><label>Type of work</label>
-      <select id="prof-work">
-        <option value="">Select…</option>
-        <option>Mostly sitting work</option><option>Mostly physical work</option><option>Both sitting and physical</option>
-      </select>
+      <select id="prof-work"><option value="">Select…</option><option>Mostly sitting work</option><option>Mostly physical work</option><option>Both sitting and physical</option></select>
     </div>
     <button class="btn-primary" onclick="saveProfile()">Save profile</button>
   </div>
@@ -376,351 +346,450 @@ select:focus,input[type=time]:focus{border-color:var(--green)}
 </div>
 
 <script>
-// ─── STATE ───────────────────────────────────────────────
-const STATE_KEY = 'fulltracker_v2';
-let state = { profile: {}, logs: [] };
-let hoursChart = null, outcomeChart = null;
+const STATE_KEY = 'fulltracker_v3';
+let state = { profile:{}, logs:[] };
+let hoursChart=null, outcomeChart=null;
 const lAnswers = {};
 
-// ─── INIT ─────────────────────────────────────────────────
-function load() {
-  try { const d = localStorage.getItem(STATE_KEY); if (d) state = JSON.parse(d); } catch(e) {}
-  initLog();
-  renderTrends();
-  renderHistory();
-  renderProfile();
+function load(){
+  try{const d=localStorage.getItem(STATE_KEY);if(d)state=JSON.parse(d);}catch(e){}
+  initLog();renderTrends();renderHistory();renderProfile();
 }
+function save(){localStorage.setItem(STATE_KEY,JSON.stringify(state));}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function fmtDate(s){const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+function fmt12(t){if(!t)return'—';const[h,m]=t.split(':').map(Number);const ampm=h>=12?'PM':'AM';const h12=h%12||12;return`${h12}:${String(m).padStart(2,'0')} ${ampm}`;}
+function v(id){const el=document.getElementById(id);return el?el.value:'';}
+function dayNum(){return state.logs.length+1;}
 
-function save() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
-
-// ─── DATE UTILS ───────────────────────────────────────────
-function todayStr() { return new Date().toISOString().slice(0, 10); }
-function fmtDate(s) { const d = new Date(s+'T00:00:00'); return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
-function dayNum() { return state.logs.length + 1; }
-
-// ─── LOG PAGE INIT ────────────────────────────────────────
-function initLog() {
-  const today = todayStr();
-  document.getElementById('today-date').textContent = fmtDate(today);
-  document.getElementById('day-badge').querySelector('span').textContent = fmtDate(today);
-  const n = dayNum();
-  document.getElementById('day-badge').innerHTML = `📅 Day ${n} &nbsp;·&nbsp; ${fmtDate(today)}`;
-  document.getElementById('log-heading').textContent = n === 1 ? 'Log your first day' : `Log Day ${n}`;
-
-  const alreadyLogged = state.logs.find(l => l.date === today);
-  if (alreadyLogged) {
-    document.getElementById('already-logged').style.display = 'block';
-    document.getElementById('log-form').style.display = 'none';
+function initLog(){
+  const today=todayStr();
+  const n=dayNum();
+  document.getElementById('day-badge').innerHTML=`📅 Day ${n} &nbsp;·&nbsp; ${fmtDate(today)}`;
+  document.getElementById('log-heading').textContent=n===1?'Log your first day':`Log Day ${n}`;
+  const alreadyLogged=state.logs.find(l=>l.date===today);
+  if(alreadyLogged){
+    document.getElementById('already-logged').style.display='block';
+    document.getElementById('log-form').style.display='none';
     return;
   }
-
-  // Show/hide profile section
-  const hasProfile = state.profile && state.profile.age;
-  document.getElementById('profile-section').style.display = hasProfile ? 'none' : 'block';
-
-  // Phone field toggle
-  document.getElementById('b-phone').addEventListener('change', function() {
-    document.getElementById('phone-time-field').style.display = this.value && this.value !== 'none' ? 'block' : 'none';
-    updateProg();
-  });
-
-  // Likert
-  document.querySelectorAll('.likert-opts').forEach(grp => {
-    grp.querySelectorAll('.lopt').forEach(btn => {
-      btn.addEventListener('click', () => {
-        grp.querySelectorAll('.lopt').forEach(b => b.classList.remove('sel'));
+  const hasProfile=state.profile&&state.profile.age;
+  document.getElementById('profile-section').style.display=hasProfile?'none':'block';
+  document.querySelectorAll('.likert-opts').forEach(grp=>{
+    grp.querySelectorAll('.lopt').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        grp.querySelectorAll('.lopt').forEach(b=>b.classList.remove('sel'));
         btn.classList.add('sel');
-        lAnswers[grp.dataset.lq] = parseInt(btn.dataset.v);
+        lAnswers[grp.dataset.lq]=parseInt(btn.dataset.v);
         updateProg();
       });
     });
   });
 }
 
-function showAlarm(id) {
-  document.getElementById(id).style.display = 'inline-flex';
+function showAlarm(id){document.getElementById(id).style.display='inline-flex';}
+
+function updateProg(){
+  const hasProfile=state.profile&&state.profile.age;
+  let done=0;
+  if(!hasProfile){if(v('p-age'))done++;if(v('p-loc'))done++;if(v('p-work'))done++;}
+  if(v('b-workhours'))done++;if(v('b-sleephours'))done++;if(v('b-phone'))done++;
+  done+=Object.keys(lAnswers).length;
+  const total=(!hasProfile?3:0)+3+5;
+  document.getElementById('log-progress').style.width=Math.round((done/total)*100)+'%';
+  const allLikert=Object.keys(lAnswers).length===5;
+  const allB=v('b-workhours')&&v('b-sleephours')&&v('b-phone');
+  const profileOk=hasProfile||(v('p-age')&&v('p-loc')&&v('p-work'));
+  document.getElementById('save-btn').disabled=!(allLikert&&allB&&profileOk);
 }
 
-function updateProg() {
-  const hasProfile = state.profile && state.profile.age;
-  let total = hasProfile ? 6 : 9;
-  let done = 0;
-  if (!hasProfile) {
-    if (v('p-age')) done++;
-    if (v('p-loc')) done++;
-    if (v('p-work')) done++;
-  }
-  if (v('b-workhours')) done++;
-  if (v('b-work-start')) done++;
-  if (v('b-sleephours')) done++;
-  if (v('b-bedtime')) done++;
-  if (v('b-phone')) done++;
-  done += Object.keys(lAnswers).length;
-  total = (!hasProfile ? 3 : 0) + 5 + 5;
-  document.getElementById('log-progress').style.width = Math.round((done/total)*100)+'%';
-  const allLikert = Object.keys(lAnswers).length === 5;
-  const allB = v('b-workhours') && v('b-sleephours') && v('b-phone');
-  const profileOk = hasProfile || (v('p-age') && v('p-loc') && v('p-work'));
-  document.getElementById('save-btn').disabled = !(allLikert && allB && profileOk);
-}
-
-function v(id) { const el = document.getElementById(id); return el ? el.value : ''; }
-
-// ─── SAVE DAY ─────────────────────────────────────────────
-function saveDay() {
-  const hasProfile = state.profile && state.profile.age;
-  if (!hasProfile) {
-    state.profile = { age: v('p-age'), location: v('p-loc'), worktype: v('p-work') };
-  }
-  const log = {
-    date: todayStr(),
-    workhours: v('b-workhours'),
-    workStart: v('b-work-start'),
-    workEnd: v('b-work-end'),
-    sleephours: v('b-sleephours'),
-    bedtime: v('b-bedtime'),
-    waketime: v('b-waketime'),
-    phone: v('b-phone'),
-    likert: {...lAnswers}
+function saveDay(){
+  const hasProfile=state.profile&&state.profile.age;
+  if(!hasProfile){state.profile={age:v('p-age'),location:v('p-loc'),worktype:v('p-work')};}
+  const log={
+    date:todayStr(),workhours:v('b-workhours'),workStart:v('b-work-start'),workEnd:v('b-work-end'),
+    sleephours:v('b-sleephours'),bedtime:v('b-bedtime'),waketime:v('b-waketime'),
+    phone:v('b-phone'),likert:{...lAnswers}
   };
-  state.logs.push(log);
-  save();
-
-  document.getElementById('log-form').style.display = 'none';
-  document.getElementById('today-result').style.display = 'block';
+  state.logs.push(log);save();
+  document.getElementById('log-form').style.display='none';
+  document.getElementById('today-result').style.display='block';
   renderResult(log);
 }
 
-// ─── RESULT ───────────────────────────────────────────────
-function sleepQuality(likert) {
-  const l = likert;
-  const pos = ((l.l1||3)+(l.l2||3)+(l.l3||3)+(l.l5||3)) / 4;
-  const alert = 6 - (l.l4||3);
+// ── SCORING ─────────────────────────────────────────────
+function sleepQuality(likert){
+  const l=likert;
+  const pos=((l.l1||3)+(l.l2||3)+(l.l3||3)+(l.l5||3))/4;
+  const alert=6-(l.l4||3);
   return Math.round(((pos+alert)/2)*10);
 }
 
-function phoneLabel(v) {
-  return {none:'no phone before bed','<30min':'less than 30 min','30min-1h':'30 min–1 hour','1-2h':'1–2 hours','2-3h':'2–3 hours','>3h':'more than 3 hours'}[v]||v;
+const phoneLabel={none:'no phone before bed','<30min':'less than 30 min','30min-1h':'30 min–1 hour','1-2h':'1–2 hours','2-3h':'2–3 hours','>3h':'more than 3 hours'};
+const phoneRisk={none:0,'<30min':1,'30min-1h':2,'1-2h':3,'2-3h':4,'>3h':5};
+const sleepMap={'0–4':2,'5–6':5.5,'7–8':7.5,'9+':9.5};
+const workMap={'0–4':2,'5–6':5.5,'7–8':7.5,'9+':9.5};
+const phoneMap={none:0,'<30min':0.25,'30min-1h':0.75,'1-2h':1.5,'2-3h':2.5,'>3h':3.5};
+
+function avg(arr){return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;}
+
+function checkConsistency(){
+  if(state.logs.length<2)return null;
+  const last3=state.logs.slice(-3);
+  const bedtimes=last3.map(l=>l.bedtime).filter(Boolean);
+  if(bedtimes.length<2)return null;
+  const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
+  const mins=bedtimes.map(toMin);
+  return(Math.max(...mins)-Math.min(...mins))<=45;
 }
 
-function renderResult(log) {
-  const sq = sleepQuality(log.likert);
-  const consistent = state.logs.length >= 2 ? checkConsistency() : null;
-
-  let intro = `You planned to work ${log.workhours} and sleep ${log.sleephours} tonight. `;
-  if (log.bedtime) intro += `Your bedtime alarm is set for ${fmt12(log.bedtime)}. `;
-  intro += `You use your phone ${phoneLabel(log.phone)} before sleeping. `;
-  if (consistent !== null) intro += consistent ? 'Your alarm times have been consistent — great habit building! ' : 'Your alarm times have varied — try to keep them consistent for better results. ';
-
-  document.getElementById('result-text').textContent = intro;
-
-  document.getElementById('result-stats').innerHTML = `
+// ── TODAY'S RESULT ───────────────────────────────────────
+function renderResult(log){
+  const sq=sleepQuality(log.likert);
+  const consistent=state.logs.length>=2?checkConsistency():null;
+  let intro=`You planned to work ${log.workhours} and sleep ${log.sleephours} tonight. `;
+  if(log.bedtime)intro+=`Your bedtime alarm is set for ${fmt12(log.bedtime)}. `;
+  intro+=`You use your phone ${phoneLabel[log.phone]||log.phone} before sleeping. `;
+  if(consistent!==null)intro+=consistent?'Your alarm times have been consistent — great habit building! ':'Your alarm times have varied — try to keep them consistent for better results. ';
+  document.getElementById('result-text').textContent=intro;
+  document.getElementById('result-stats').innerHTML=`
     <div class="stat"><div class="stat-val">${log.workhours}</div><div class="stat-lbl">Work target</div></div>
     <div class="stat"><div class="stat-val">${log.sleephours}</div><div class="stat-lbl">Sleep target</div></div>
     <div class="stat"><div class="stat-val">${sq}<span style="font-size:12px;font-weight:400">/50</span></div><div class="stat-lbl">Quality score</div></div>
     <div class="stat"><div class="stat-val" style="font-size:13px">${log.bedtime?fmt12(log.bedtime):'—'}</div><div class="stat-lbl">Bedtime alarm</div></div>
   `;
-
-  const recs = buildRecs(log, state.logs.length);
-  document.getElementById('result-recs').innerHTML = recs.map(r => `<div class="rec ${r.cls}"><h4>${r.title}</h4><p>${r.body}</p></div>`).join('');
+  const recs=buildDayRecs(log,state.logs);
+  document.getElementById('result-recs').innerHTML=recs.map(renderRec).join('');
 }
 
-function fmt12(t) {
-  if (!t) return '—';
-  const [h, m] = t.split(':').map(Number);
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const h12 = h % 12 || 12;
-  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+function renderRec(r){
+  const iconMap={green:'✓',amber:'!',red:'✕',blue:'→'};
+  return `<div class="rec ${r.cls}">
+    <div class="rec-header">
+      <div class="rec-icon ${r.icon}">${iconMap[r.icon]||'→'}</div>
+      <h4>${r.title}</h4>
+    </div>
+    <div class="rec-blocks">
+      <div class="rec-block what"><div class="rec-block-label">What's happening</div><p>${r.what}</p></div>
+      <div class="rec-block why"><div class="rec-block-label">Why it matters</div><p>${r.why}</p></div>
+      <div class="rec-block try"><div class="rec-block-label">What to try</div><p>${r.action}</p></div>
+    </div>
+  </div>`;
 }
 
-function buildRecs(log, dayCount) {
-  const recs = [];
-  if (log.sleephours === '0–4' || log.sleephours === '5–6') {
-    recs.push({cls:'warn',title:'Low sleep target',body:`You've set a sleep goal of ${log.sleephours} hours. Adults typically need 7–8 hours for optimal recovery. Consider gradually moving your bedtime earlier by 15 minutes each week.`});
+function buildDayRecs(log, allLogs){
+  const recs=[];
+  const l=log.likert;
+  const poorRested=l.l3<=2;
+  const lowEnergy=l.l5<=2;
+  const hardToSleep=l.l1<=2;
+  const daySleepy=l.l4>=4;
+  const shortSleep=log.sleephours==='0–4'||log.sleephours==='5–6';
+  const goodSleep=log.sleephours==='7–8'||log.sleephours==='9+';
+  const highPhone=phoneRisk[log.phone]>=3;
+  const overwork=log.workhours==='9+';
+  const sq=sleepQuality(l);
+  const outcomeGood=!poorRested&&!lowEnergy&&!daySleepy;
+
+  if(outcomeGood&&goodSleep&&!highPhone){
+    recs.push({cls:'good',icon:'green',title:'Your habits are working today',
+      what:'You have set a healthy sleep target, you use your phone minimally before bed, and your energy and rest scores are positive.',
+      why:'When your sleep target, bedtime routine, and physical wellbeing all align, your body gets the deep rest it needs. This is the foundation everything else builds on.',
+      action:'Keep your bedtime within 30 minutes of the same time each night — even on weekends. Consistency is more important than the exact hour you choose.'
+    });
   }
-  if (log.phone === '1-2h' || log.phone === '2-3h' || log.phone === '>3h') {
-    recs.push({cls:'warn',title:'High phone use before bed',body:`Using your phone ${phoneLabel(log.phone)} before sleeping suppresses melatonin and delays sleep onset. Try setting your phone cutoff alarm 30–60 minutes before your bedtime alarm.`});
+
+  if(poorRested&&goodSleep){
+    recs.push({cls:'warn',icon:'amber',title:'Enough hours but still not feeling rested',
+      what:`You aim to sleep ${log.sleephours} which is within a healthy range, but you are waking up without feeling refreshed. The number of hours alone is not the full picture.`,
+      why:'Sleep quality is shaped by more than quantity. Screen light before bed disrupts melatonin, variable bedtimes confuse your circadian rhythm, and stress keeps your nervous system in a light-sleep state even during long nights.',
+      action:`Try putting your phone away 45 minutes before your bedtime alarm. If your bedtime has varied this week, pick one consistent time and stick to it for 7 days straight — this alone can transform how rested you feel.`
+    });
   }
-  if (log.workhours === '9+') {
-    recs.push({cls:'bad',title:'Long work hours',body:`A target of 9+ work hours daily can build fatigue. Your nervous system needs wind-down time. Even a 10-minute walk between work and sleep helps your body transition.`});
+
+  if(shortSleep&&(poorRested||lowEnergy)){
+    recs.push({cls:'bad',icon:'red',title:'Short sleep is draining your energy',
+      what:`You plan to sleep ${log.sleephours} and you are feeling tired and low on energy. These two facts are directly connected — your body is not getting enough recovery time.`,
+      why:'During sleep your brain clears waste products, your muscles repair, and your hormones reset. Cutting this short — especially below 6 hours — leaves all of these processes incomplete. The effects compound daily.',
+      action:'Move your bedtime 15–20 minutes earlier this week. Avoid caffeine after 2pm. If you cannot go to bed earlier, protect your sleep window by stopping work at least 1 hour before your target bedtime.'
+    });
   }
-  if (!log.bedtime) {
-    recs.push({cls:'',title:'Set a bedtime alarm',body:'Tracking your actual bedtime is one of the most powerful habits you can build. Try setting a PM alarm to remind yourself to start winding down.'});
+
+  if(hardToSleep){
+    recs.push({cls:'warn',icon:'amber',title:'Struggling to fall asleep',
+      what:'You find it hard to drift off when you get into bed. Your mind stays active when your body needs to wind down.',
+      why:'Falling asleep quickly is a skill that depends on your pre-sleep routine and circadian rhythm consistency. Irregular bedtimes, phone use, and unresolved stress all delay sleep onset by keeping your nervous system in alert mode.',
+      action:'Create a 20-minute wind-down routine before bed: dim your lights, put your phone in another room, and do something low-stimulation like reading or light stretching. Do this at the same time every night — your brain will start associating it with sleep.'
+    });
   }
-  if (dayCount > 1 && !checkConsistency()) {
-    recs.push({cls:'warn',title:'Inconsistent alarm times',body:'Your work or sleep alarm times have varied day to day. Consistent timing trains your circadian rhythm — try keeping your wake time within 30 minutes of the same time each day.'});
+
+  if(daySleepy){
+    recs.push({cls:daySleepy&&poorRested?'bad':'warn',icon:daySleepy&&poorRested?'red':'amber',title:'Feeling sleepy during the day',
+      what:'You feel drowsy and sluggish during waking hours. This is your body signalling it did not get enough quality sleep last night or across recent nights.',
+      why:'Daytime sleepiness is one of the clearest signs of sleep debt — a deficit that builds when you consistently sleep less than your body needs. It impairs concentration, mood, and decision-making throughout the day.',
+      action:'Wake up at the same time every morning — even on rest days. This is the single most powerful thing you can do to regulate your sleep drive. A 10–20 minute nap before 3pm is fine if needed, but avoid napping later as it disrupts night sleep.'
+    });
   }
-  if (recs.length === 0) {
-    recs.push({cls:'',title:'Solid habits today',body:'Your targets look balanced. Keep logging daily — trends across 5+ days reveal patterns that single days miss.'});
+
+  if(highPhone){
+    recs.push({cls:'warn',icon:'amber',title:`High phone use before bed`,
+      what:`You use your phone ${phoneLabel[log.phone]||log.phone} before sleeping. This is one of the most common and easily changeable factors affecting sleep quality.`,
+      why:'The blue light from phone screens suppresses melatonin — the hormone that signals your brain it is time to sleep. Even 30 minutes of phone use before bed can delay sleep onset by 45–90 minutes, reducing the deep sleep you get.',
+      action:'Set a phone cutoff alarm 45 minutes before your bedtime alarm. Put your phone on charge in another room if possible. Replace that time with something analogue — a book, light journalling, or a short walk.'
+    });
   }
+
+  if(overwork){
+    recs.push({cls:'bad',icon:'red',title:'9+ hours of work takes a toll',
+      what:'You have set a target of 9 or more work hours today. At this level, work time is likely encroaching on your recovery and wind-down time.',
+      why:'Long working hours raise cortisol — a stress hormone that keeps your nervous system activated. High evening cortisol makes it harder to fall into deep sleep, even when you are physically exhausted.',
+      action:'Try to stop all work tasks at least 60 minutes before your target bedtime. Take a short walk or do something that has nothing to do with work to help your mind switch off. Even a 10-minute walk after finishing work significantly lowers evening cortisol.'
+    });
+  }
+
+  if(!log.bedtime){
+    recs.push({cls:'',icon:'blue',title:'Set a bedtime alarm',
+      what:'You have not set a bedtime alarm today. Tracking your actual bedtime is one of the highest-value habits you can build.',
+      why:'What gets measured gets managed. Without a fixed bedtime alarm, it is easy for bedtime to drift later night by night — a pattern called social jet lag that disrupts your circadian rhythm even when total sleep hours seem adequate.',
+      action:'Add a bedtime alarm for tomorrow — even an approximate one. Over time, the data will reveal patterns you cannot see day to day.'
+    });
+  }
+
+  if(allLogs.length>=2&&checkConsistency()===false){
+    recs.push({cls:'warn',icon:'amber',title:'Your bedtimes are varying day to day',
+      what:'Your sleep timing has been inconsistent across your recent logged days. Going to bed at different times each night is a subtle but powerful source of poor sleep quality.',
+      why:'Your circadian rhythm — your internal body clock — needs a consistent anchor point to function properly. Shifting your bedtime by more than 30–45 minutes between nights is like giving yourself mild jet lag repeatedly.',
+      action:'Pick one bedtime and wake time and stick to both for one full week. Do not lie in at the weekend — this is the most common way people accidentally reset their body clock in the wrong direction.'
+    });
+  }
+
+  if(recs.length===0){
+    recs.push({cls:'good',icon:'green',title:'Solid habits today',
+      what:'Your targets look balanced and your wellbeing scores are positive. No significant concerns today.',
+      why:'Consistent healthy habits compound over time. The more days you log with balanced sleep, manageable work hours, and low phone use before bed, the more resilient your sleep becomes.',
+      action:'Keep logging daily — trends across 5+ days reveal patterns that single days miss. Share the trends tab with someone you trust if you want a second perspective.'
+    });
+  }
+
   return recs;
 }
 
-function checkConsistency() {
-  if (state.logs.length < 2) return null;
-  const last3 = state.logs.slice(-3);
-  const bedtimes = last3.map(l=>l.bedtime).filter(Boolean);
-  if (bedtimes.length < 2) return null;
-  const toMin = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
-  const mins = bedtimes.map(toMin);
-  const max = Math.max(...mins), min2 = Math.min(...mins);
-  return (max - min2) <= 45;
-}
-
-// ─── TRENDS PAGE ──────────────────────────────────────────
-function renderTrends() {
-  const logs = state.logs;
-  if (logs.length === 0) { document.getElementById('trends-empty').style.display='block'; document.getElementById('trends-content').style.display='none'; return; }
+// ── TRENDS PAGE ──────────────────────────────────────────
+function renderTrends(){
+  const logs=state.logs;
+  if(logs.length===0){document.getElementById('trends-empty').style.display='block';document.getElementById('trends-content').style.display='none';return;}
   document.getElementById('trends-empty').style.display='none';
   document.getElementById('trends-content').style.display='block';
 
-  const labels = logs.map((l,i) => `Day ${i+1}`);
-  const sleepMap = {'0–4':2,'5–6':5.5,'7–8':7.5,'9+':9.5};
-  const workMap = {'0–4':2,'5–6':5.5,'7–8':7.5,'9+':9.5};
-  const phoneMap = {none:0,'<30min':0.25,'30min-1h':0.75,'1-2h':1.5,'2-3h':2.5,'>3h':3.5};
-  const sleepVals = logs.map(l => sleepMap[l.sleephours]||0);
-  const workVals = logs.map(l => workMap[l.workhours]||0);
-  const phoneVals = logs.map(l => phoneMap[l.phone]||0);
-  const scores = logs.map(l => sleepQuality(l.likert));
+  const labels=logs.map((_,i)=>`Day ${i+1}`);
+  const sleepVals=logs.map(l=>sleepMap[l.sleephours]||0);
+  const workVals=logs.map(l=>workMap[l.workhours]||0);
+  const phoneVals=logs.map(l=>phoneMap[l.phone]||0);
+  const scores=logs.map(l=>sleepQuality(l.likert));
 
-  // Avg chips
-  const avgSleep = (sleepVals.reduce((a,b)=>a+b,0)/sleepVals.length).toFixed(1);
-  const avgWork = (workVals.reduce((a,b)=>a+b,0)/workVals.length).toFixed(1);
-  const avgPhone = (phoneVals.reduce((a,b)=>a+b,0)/phoneVals.length).toFixed(1);
-  document.getElementById('avg-chips').innerHTML = `
+  const avgSleep=avg(sleepVals).toFixed(1);
+  const avgWork=avg(workVals).toFixed(1);
+  const avgPhone=avg(phoneVals).toFixed(1);
+
+  document.getElementById('avg-chips').innerHTML=`
     <span class="trend-chip ${parseFloat(avgSleep)>=7?'pos':'neg'}">😴 Avg sleep ${avgSleep} hrs</span>
     <span class="trend-chip ${parseFloat(avgWork)<=8?'pos':'neg'}">💼 Avg work ${avgWork} hrs</span>
     <span class="trend-chip ${parseFloat(avgPhone)<=0.75?'pos':'neg'}">📱 Avg phone ${avgPhone} hrs</span>
   `;
 
-  // Hours chart (bar for day 1, line for day 2+)
-  if (hoursChart) hoursChart.destroy();
-  const hCtx = document.getElementById('hours-chart').getContext('2d');
-  const hType = logs.length === 1 ? 'bar' : 'line';
-  hoursChart = new Chart(hCtx, {
-    type: hType,
-    data: {
-      labels,
-      datasets: [
-        { label: 'Sleep (hrs)', data: sleepVals, borderColor:'#1D9E75', backgroundColor: hType==='bar'?'#9FE1CB':'transparent', tension:.35, pointRadius:4, borderWidth:2 },
-        { label: 'Work (hrs)', data: workVals, borderColor:'#185FA5', backgroundColor: hType==='bar'?'#B5D4F4':'transparent', tension:.35, pointRadius:4, borderWidth:2 },
-        { label: 'Phone (hrs)', data: phoneVals, borderColor:'#BA7517', backgroundColor: hType==='bar'?'#FAC775':'transparent', tension:.35, pointRadius:4, borderWidth:2 }
-      ]
-    },
-    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{font:{family:'Sora',size:11}}}}, scales:{ y:{beginAtZero:true, ticks:{font:{family:'Sora',size:10}}}, x:{ticks:{font:{family:'Sora',size:10}}} } }
-  });
+  if(hoursChart)hoursChart.destroy();
+  const hCtx=document.getElementById('hours-chart').getContext('2d');
+  const hType=logs.length===1?'bar':'line';
+  hoursChart=new Chart(hCtx,{type:hType,data:{labels,datasets:[
+    {label:'Sleep (hrs)',data:sleepVals,borderColor:'#1D9E75',backgroundColor:hType==='bar'?'#9FE1CB':'transparent',tension:.35,pointRadius:4,borderWidth:2},
+    {label:'Work (hrs)',data:workVals,borderColor:'#185FA5',backgroundColor:hType==='bar'?'#B5D4F4':'transparent',tension:.35,pointRadius:4,borderWidth:2},
+    {label:'Phone (hrs)',data:phoneVals,borderColor:'#BA7517',backgroundColor:hType==='bar'?'#FAC775':'transparent',tension:.35,pointRadius:4,borderWidth:2}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Sora',size:11}}}},scales:{y:{beginAtZero:true,ticks:{font:{family:'Sora',size:10}}},x:{ticks:{font:{family:'Sora',size:10}}}}}});
 
-  // Outcome chips
-  const lastScore = scores[scores.length-1];
-  const prevScore = scores.length>1 ? scores[scores.length-2] : null;
-  const trend = prevScore !== null ? (lastScore > prevScore ? 'pos' : lastScore < prevScore ? 'neg' : 'neu') : 'neu';
-  const trendLabel = {pos:'↑ Improving','neg':'↓ Declining','neu':'→ Stable'}[trend];
-  document.getElementById('outcome-chips').innerHTML = `
+  const lastScore=scores[scores.length-1];
+  const prevScore=scores.length>1?scores[scores.length-2]:null;
+  const trend=prevScore!==null?(lastScore>prevScore?'pos':lastScore<prevScore?'neg':'neu'):'neu';
+  const trendLabel={pos:'↑ Improving',neg:'↓ Declining',neu:'→ Stable'}[trend];
+  document.getElementById('outcome-chips').innerHTML=`
     <span class="trend-chip ${trend}">${trendLabel}</span>
     <span class="trend-chip ${lastScore>=35?'pos':lastScore>=20?'neu':'neg'}">Score today: ${lastScore}/50</span>
   `;
 
-  // Outcome chart
-  if (outcomeChart) outcomeChart.destroy();
-  const oCtx = document.getElementById('outcome-chart').getContext('2d');
-  const oType = logs.length === 1 ? 'bar' : 'line';
-  outcomeChart = new Chart(oCtx, {
-    type: oType,
-    data: { labels, datasets:[{ label:'Quality score', data:scores, borderColor:'#1D9E75', backgroundColor: oType==='bar'?'#9FE1CB':'transparent', tension:.35, pointRadius:4, borderWidth:2, fill: oType!=='bar' }] },
-    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{font:{family:'Sora',size:11}}}}, scales:{ y:{min:0,max:50,ticks:{font:{family:'Sora',size:10}}}, x:{ticks:{font:{family:'Sora',size:10}}} } }
-  });
+  if(outcomeChart)outcomeChart.destroy();
+  const oCtx=document.getElementById('outcome-chart').getContext('2d');
+  const oType=logs.length===1?'bar':'line';
+  outcomeChart=new Chart(oCtx,{type:oType,data:{labels,datasets:[{label:'Quality score',data:scores,borderColor:'#1D9E75',backgroundColor:oType==='bar'?'#9FE1CB':'transparent',tension:.35,pointRadius:4,borderWidth:2,fill:oType!=='bar'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Sora',size:11}}}},scales:{y:{min:0,max:50,ticks:{font:{family:'Sora',size:10}}},x:{ticks:{font:{family:'Sora',size:10}}}}}});
 
-  // Consistency
-  const consistent = checkConsistency();
-  const cc = document.getElementById('consistency-content');
-  if (logs.length < 2) {
-    cc.innerHTML = '<p style="font-size:12px;color:var(--muted)">Log at least 2 days to see alarm consistency.</p>';
-  } else {
-    const cls = consistent===true?'good':consistent===false?'warn':'neu';
-    const msg = consistent===true ? '✅ Your alarm times are consistent — great habit!' : '⚠️ Your alarm times vary. Try to keep bedtime within 30 min of the same time.';
-    cc.innerHTML = `<div class="consist ${cls}">${msg}</div>`;
-  }
+  const consistent=checkConsistency();
+  const cc=document.getElementById('consistency-content');
+  if(logs.length<2){cc.innerHTML='<p style="font-size:12px;color:var(--muted)">Log at least 2 days to see alarm consistency.</p>';}
+  else{const cls=consistent===true?'good':consistent===false?'warn':'neu';const msg=consistent===true?'✅ Your alarm times are consistent — great habit!':'⚠️ Your alarm times vary. Try to keep bedtime within 30 min of the same time.';cc.innerHTML=`<div class="consist ${cls}">${msg}</div>`;}
 
-  // Trend recs
-  const tRecs = buildTrendRecs(logs, avgSleep, avgWork, avgPhone, scores);
-  document.getElementById('trend-recs').innerHTML = tRecs.map(r=>`<div class="rec ${r.cls}"><h4>${r.title}</h4><p>${r.body}</p></div>`).join('');
+  document.getElementById('trend-days-note').textContent=`Based on ${logs.length} day${logs.length===1?'':'s'} of data.${logs.length<5?' Insights become more accurate after 5+ days.':''}`;
+
+  const tRecs=buildTrendRecs(logs,parseFloat(avgSleep),parseFloat(avgWork),parseFloat(avgPhone),scores);
+  document.getElementById('trend-recs').innerHTML=tRecs.map(renderRec).join('');
 }
 
-function buildTrendRecs(logs, avgSleep, avgWork, avgPhone, scores) {
-  const recs = [];
-  if (parseFloat(avgSleep) < 7) recs.push({cls:'warn',title:`Average sleep: ${avgSleep} hrs`,body:`Your average sleep target of ${avgSleep} hrs is below the recommended 7–8. These hours may be your daily baseline — try shifting your bedtime alarm 15 minutes earlier each week.`});
-  if (parseFloat(avgPhone) > 1) recs.push({cls:'warn',title:`Average phone time: ${avgPhone} hrs before bed`,body:`Over your logged days you average ${avgPhone} hrs of screen time before sleeping. This is likely disrupting your sleep onset. A consistent phone cutoff alarm at least 45 minutes before bed is recommended.`});
-  if (parseFloat(avgWork) > 8) recs.push({cls:'bad',title:`Average work: ${avgWork} hrs daily`,body:`Working an average of ${avgWork} hrs daily over multiple days is a strong predictor of burnout. Consider if your work alarm end time is realistic and build in recovery time.`});
-  const declining = scores.length >= 3 && scores[scores.length-1] < scores[scores.length-3];
-  if (declining) recs.push({cls:'bad',title:'Declining quality score',body:'Your wellbeing score has dropped over the last few days. This often signals accumulated sleep debt or overwork. Prioritise one night of 7–8 hrs sleep and see if it improves.'});
-  if (recs.length === 0) recs.push({cls:'',title:'Trends look healthy',body:`Based on your ${logs.length} logged days, your habits appear balanced. Keep logging — patterns become clearer after 7+ days.`});
+function buildTrendRecs(logs,avgSleep,avgWork,avgPhone,scores){
+  const recs=[];
+  const n=logs.length;
+
+  // Average sleep analysis
+  const sleepLabels=logs.map(l=>l.sleephours);
+  const shortCount=sleepLabels.filter(s=>s==='0–4'||s==='5–6').length;
+  const shortPct=Math.round((shortCount/n)*100);
+
+  if(avgSleep<6){
+    recs.push({cls:'bad',icon:'red',title:`Your average sleep target is only ${avgSleep} hours`,
+      what:`Across your ${n} logged days, you have been aiming to sleep an average of ${avgSleep} hours per night. ${shortPct}% of your days have had a sleep target under 7 hours.`,
+      why:'Chronic short sleep — even by 1–2 hours — has measurable effects on attention, immune function, and emotional regulation. The damage compounds: after 5 days of sleeping 6 hours, cognitive performance matches someone who has been awake for 24 hours straight.',
+      action:'Set a non-negotiable target of 7 hours as your floor. Work backwards from your wake time to find your required bedtime. Set that bedtime alarm tonight and protect it like a meeting you cannot cancel.'
+    });
+  } else if(avgSleep<7){
+    recs.push({cls:'warn',icon:'amber',title:`Average sleep of ${avgSleep} hours is slightly below target`,
+      what:`Your average sleep target across ${n} days is ${avgSleep} hours. You are close to the recommended range but not quite there on most nights.`,
+      why:'The difference between 6.5 and 7.5 hours of sleep is larger than it sounds. That extra hour includes deep slow-wave sleep that is critical for memory consolidation, physical recovery, and immune system function.',
+      action:'Try moving your bedtime alarm 15–20 minutes earlier this week. A small shift is easier to sustain than a dramatic change. Over two weeks this adds over 2 hours of cumulative sleep.'
+    });
+  }
+
+  // Average phone use analysis
+  const highPhoneCount=logs.filter(l=>phoneRisk[l.phone]>=3).length;
+  if(avgPhone>1){
+    recs.push({cls:'warn',icon:'amber',title:`Averaging ${avgPhone} hours of phone use before bed`,
+      what:`On ${highPhoneCount} of your ${n} logged days, you had more than 1 hour of screen time before sleeping. Your overall average is ${avgPhone} hours per night before bed.`,
+      why:'Sustained phone use before bed is one of the best-documented disruptors of sleep quality. It delays sleep onset, reduces the proportion of deep slow-wave sleep, and increases night waking. The effect is dose-dependent — 2 hours of phone use has roughly twice the impact of 1 hour.',
+      action:`Set a recurring alarm titled "Put phone down" for ${avgPhone>2?'60':'45'} minutes before your usual bedtime. The goal is not perfection — even reducing your phone use by 30 minutes on 4 nights a week will noticeably improve how rested you feel.`
+    });
+  }
+
+  // Overwork pattern
+  const overworkCount=logs.filter(l=>l.workhours==='9+').length;
+  if(avgWork>8){
+    recs.push({cls:'bad',icon:'red',title:`Regularly targeting ${avgWork}+ work hours daily`,
+      what:`You have logged a 9+ hour work target on ${overworkCount} of ${n} days. Your average daily work target across your logged days is ${avgWork.toFixed(1)} hours.`,
+      why:'Working 9+ hours regularly is associated with elevated evening cortisol, delayed bedtimes, and reduced sleep quality. Your work hours are directly competing with your sleep and recovery window. This is a structural problem, not a willpower problem.',
+      action:'Build a hard stop time into your calendar — an alarm that marks the end of your work day. Even ending 30 minutes earlier creates a wind-down buffer. Track whether your score improves on lower-work days — the data will show the link.'
+    });
+  }
+
+  // Quality score trend
+  if(n>=3){
+    const recent=scores.slice(-3);
+    const recentAvg=avg(recent);
+    const earlyAvg=avg(scores.slice(0,Math.max(1,n-3)));
+    const declining=recentAvg<earlyAvg-3;
+    const improving=recentAvg>earlyAvg+3;
+
+    if(declining){
+      recs.push({cls:'bad',icon:'red',title:'Your wellbeing score has dropped over recent days',
+        what:`Your average quality score over the last 3 days is ${recentAvg.toFixed(0)}/50, down from ${earlyAvg.toFixed(0)}/50 earlier in your log. The trend is heading in the wrong direction.`,
+        why:'A declining score usually signals accumulated sleep debt or building stress. Unlike acute tiredness which recovers overnight, chronic deficits require several consecutive good nights to repair. The longer the pattern continues, the harder it is to reverse.',
+        action:'Prioritise one night of 7–8 hours of sleep with no phone use before bed and see if it lifts your score. If the decline continues after 5 days of better habits, consider whether there is a structural cause — work demands, caffeine, or sleep environment.'
+      });
+    } else if(improving){
+      recs.push({cls:'good',icon:'green',title:'Your wellbeing score is improving',
+        what:`Your average quality score over the last 3 days is ${recentAvg.toFixed(0)}/50, up from ${earlyAvg.toFixed(0)}/50 in your earlier logged days. You are trending in the right direction.`,
+        why:'Improving scores reflect real physiological changes — better sleep architecture, lower stress hormones, or more consistent circadian rhythm. These gains compound: each good night makes the next one easier.',
+        action:'Identify which habit changed most recently and protect it. Keep your bedtime consistent and avoid reverting to old patterns on weekends — weekend schedule drift is the most common reason good streaks end.'
+      });
+    }
+  }
+
+  // Bedtime consistency deep analysis
+  if(n>=3){
+    const bedtimes=logs.map(l=>l.bedtime).filter(Boolean);
+    if(bedtimes.length>=3){
+      const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
+      const mins=bedtimes.map(toMin);
+      const spread=Math.max(...mins)-Math.min(...mins);
+      if(spread>60){
+        recs.push({cls:'warn',icon:'amber',title:'Your bedtime varies by more than an hour across days',
+          what:`Your logged bedtimes span a ${Math.round(spread/60*10)/10}-hour window across your ${bedtimes.length} recorded nights. This kind of variation is common but its impact on sleep quality is underestimated.`,
+          why:'Your body clock uses light, temperature, and — crucially — consistent sleep and wake timing to set itself each day. When your bedtime shifts by more than 45 minutes regularly, your clock cannot synchronise properly. This is called social jet lag and causes the same symptoms as travelling across time zones — difficulty falling asleep, reduced deep sleep, and daytime fatigue.',
+          action:'Choose a bedtime window of 30 minutes — for example "between 10:00 and 10:30 PM" — and treat it as fixed for one week. Set an alarm 20 minutes before the start of that window as a reminder to start winding down.'
+        });
+      }
+    }
+  }
+
+  // Sedentary + low energy pattern
+  if(state.profile&&state.profile.worktype==='Mostly sitting work'){
+    const lowEnergyCount=logs.filter(l=>l.likert.l5<=2).length;
+    if(lowEnergyCount>n/2){
+      recs.push({cls:'warn',icon:'amber',title:'Sitting work is compounding your low energy',
+        what:`You do mostly sitting work and have reported low daytime energy on ${lowEnergyCount} of ${n} logged days. These two factors interact in a feedback loop.`,
+        why:'Prolonged sitting slows circulation, reduces oxygen delivery to the brain, and suppresses the hormones that help you feel alert and motivated. Unlike physical fatigue, this kind of tiredness does not actually recover with rest — movement is what reverses it.',
+        action:'Stand up and move for 2 minutes every hour. A short walk after lunch and one after finishing work makes a measurable difference to alertness and evening sleep quality. Even standing while on calls helps. Small, frequent movement beats one big exercise session.'
+      });
+    }
+  }
+
+  // Positive fallback for good data
+  if(recs.length===0){
+    recs.push({cls:'good',icon:'green',title:`Healthy habits across ${n} days`,
+      what:`Your averages look balanced: ${avgSleep} hrs sleep, ${avgWork.toFixed(1)} hrs work, and ${avgPhone} hrs phone use before bed. No significant patterns of concern detected.`,
+      why:'Consistency is the key driver of long-term sleep quality. You are building the kind of regular routine that trains your circadian rhythm to work for you, not against you.',
+      action:`Keep logging daily. Patterns become clearest after 7+ days — at that point you can see whether weekday vs weekend differences exist, and whether specific habits are driving your best and worst scores.`
+    });
+  }
+
   return recs;
 }
 
-// ─── HISTORY PAGE ─────────────────────────────────────────
-function renderHistory() {
-  const logs = state.logs;
-  if (logs.length === 0) { document.getElementById('history-empty').style.display='block'; document.getElementById('history-list').style.display='none'; document.getElementById('clear-btn').style.display='none'; return; }
+// ── HISTORY ──────────────────────────────────────────────
+function renderHistory(){
+  const logs=state.logs;
+  if(logs.length===0){document.getElementById('history-empty').style.display='block';document.getElementById('history-list').style.display='none';document.getElementById('clear-btn').style.display='none';return;}
   document.getElementById('history-empty').style.display='none';
   document.getElementById('history-list').style.display='block';
   document.getElementById('clear-btn').style.display='block';
-  const sl = [...logs].reverse();
-  document.getElementById('history-list').innerHTML = sl.map((l,i)=>{
-    const sq = sleepQuality(l.likert);
-    const cls = sq>=35?'good':sq>=20?'ok':'low';
-    return `<div class="hist-item">
-      <div><div class="hist-day">Day ${logs.length-i} · ${fmtDate(l.date)}</div><div class="hist-meta">Sleep: ${l.sleephours} · Work: ${l.workhours} · Phone: ${phoneLabel(l.phone)}</div></div>
-      <div class="hist-score ${cls}">${sq}/50</div>
-    </div>`;
+  const sl=[...logs].reverse();
+  document.getElementById('history-list').innerHTML=sl.map((l,i)=>{
+    const sq=sleepQuality(l.likert);const cls=sq>=35?'good':sq>=20?'ok':'low';
+    return`<div class="hist-item"><div><div class="hist-day">Day ${logs.length-i} · ${fmtDate(l.date)}</div><div class="hist-meta">Sleep: ${l.sleephours} · Work: ${l.workhours} · Phone: ${phoneLabel[l.phone]||l.phone}</div></div><div class="hist-score ${cls}">${sq}/50</div></div>`;
   }).join('');
-  document.getElementById('total-days').textContent = logs.length;
+  document.getElementById('total-days').textContent=logs.length;
 }
 
-// ─── PROFILE PAGE ─────────────────────────────────────────
-function renderProfile() {
-  if (!state.profile) return;
-  const p = state.profile;
-  if (p.age) { const s = document.getElementById('prof-age'); for(let o of s.options) if(o.value===p.age) o.selected=true; }
-  if (p.location) { const s = document.getElementById('prof-loc'); for(let o of s.options) if(o.value===p.location) o.selected=true; }
-  if (p.worktype) { const s = document.getElementById('prof-work'); for(let o of s.options) if(o.value===p.worktype) o.selected=true; }
-  document.getElementById('total-days').textContent = state.logs.length;
+// ── PROFILE ───────────────────────────────────────────────
+function renderProfile(){
+  if(!state.profile)return;
+  const p=state.profile;
+  const setVal=(id,val)=>{if(!val)return;const s=document.getElementById(id);for(let o of s.options)if(o.value===val)o.selected=true;};
+  setVal('prof-age',p.age);setVal('prof-loc',p.location);setVal('prof-work',p.worktype);
+  document.getElementById('total-days').textContent=state.logs.length;
 }
 
-function saveProfile() {
-  state.profile = { age: v('prof-age'), location: v('prof-loc'), worktype: v('prof-work') };
-  save();
-  alert('Profile saved!');
+function saveProfile(){
+  state.profile={age:v('prof-age'),location:v('prof-loc'),worktype:v('prof-work')};
+  save();alert('Profile saved!');
 }
 
-// ─── NAV ──────────────────────────────────────────────────
-function switchTab(tab) {
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+// ── NAV ───────────────────────────────────────────────────
+function switchTab(tab,event){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+tab).classList.add('active');
-  event.target.classList.add('active');
-  if (tab==='trends') renderTrends();
-  if (tab==='history') renderHistory();
-  if (tab==='profile') renderProfile();
+  if(event&&event.target)event.target.classList.add('active');
+  if(tab==='trends')renderTrends();
+  if(tab==='history')renderHistory();
+  if(tab==='profile')renderProfile();
 }
 
-function viewTrends() {
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelector('[onclick="switchTab(\'trends\')"]').classList.add('active');
+function goTrends(){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelector('[onclick^="switchTab(\'trends\'"]').classList.add('active');
   document.getElementById('page-trends').classList.add('active');
-  renderTrends();
-  window.scrollTo(0,0);
+  renderTrends();window.scrollTo(0,0);
 }
 
-function clearData() {
-  if (confirm('Clear all tracking data? This cannot be undone.')) {
-    state = { profile: {}, logs: [] };
-    save();
-    location.reload();
-  }
+function clearData(){
+  if(confirm('Clear all tracking data? This cannot be undone.')){state={profile:{},logs:[]};save();location.reload();}
 }
 
-// ─── BOOT ─────────────────────────────────────────────────
 load();
 </script>
 </body>
