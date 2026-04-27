@@ -86,6 +86,8 @@ function navigateTo(pageId, btn) {
 }
 
 
+
+
 // ── Show home section (tabs) ───────────────────────────────────────────────
 
 function showHomeSection(sectionId, btn) {
