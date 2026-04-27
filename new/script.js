@@ -31,7 +31,12 @@ function setGreetingCards(name, greet) {
     },
     {
       id:   'products-greeting-text',
-      text: `Explore the tools and applications being developed by SomPel Tech to improve sleep health and daily wellbeing in Bhutan.`,
+      text: `Explore the tools and applications being developed by SomPel Tech to improve sleep health and daily wellbeing in Bhutan.
+      
+      
+      
+      
+      `,
     },
   ];
 
