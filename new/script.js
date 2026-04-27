@@ -29,18 +29,6 @@ function setGreetingCards(name, greet) {
       id:   'files-greeting-text',
       text: `Here are the files related to the project. Click "Preview" to view the Tableau Public story and the report directly on this page, or click "Download" to access the files.`,
     },
-    {
-      id:   'products-greeting-text',
-      text: `Why do some individuals feel tired despite getting enough sleep?
-Often, the answer lies not in duration, but in daily habits that quietly influence sleep quality and energy levels.
-
-SomPel Tech helps make these invisible patterns visible, allowing users to better understand how lifestyle behaviors shape their wellbeing.
-
-Explore the story (below pdf) to examine how these patterns emerge across different environments.
-
-Then explore the tools and applications being developed by SomPel Tech to improve sleep health and daily wellbeing in Bhutan.
-      `,
-    },
   ];
 
   cards.forEach(({ id, text }) => {
