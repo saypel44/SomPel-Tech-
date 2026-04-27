@@ -41,6 +41,12 @@ function setGreetingCards(name, greet) {
   });
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelector(".link-like").addEventListener("click", () => {
+    showPage("page-products");
+  });
+});
+
 
 // ── Pages that are live (others show "Coming Soon") ───────────────────────
 

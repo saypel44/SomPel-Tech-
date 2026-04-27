@@ -690,6 +690,22 @@ body::before {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+.link-like {
+  color: #2a6df4;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.hero-bio-text a {
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.hero-bio-text a:hover {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.7);
+}
+
 /* ══════════════════════════════════════
    SECTION PANELS
 ══════════════════════════════════════ */
