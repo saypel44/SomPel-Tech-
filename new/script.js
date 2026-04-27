@@ -33,9 +33,6 @@ function setGreetingCards(name, greet) {
       id:   'products-greeting-text',
       text: `Explore the tools and applications being developed by SomPel Tech to improve sleep health and daily wellbeing in Bhutan.
       
-      
-      
-      
       `,
     },
   ];
@@ -51,6 +48,20 @@ document.addEventListener("DOMContentLoaded", () => {
     showPage("page-products");
   });
 });
+
+function toggleStoryPdf(btn) {
+  const viewer = document.getElementById("story-pdf-viewer");
+
+  if (viewer.style.display === "none" || viewer.style.display === "") {
+    viewer.style.display = "block";
+    btn.classList.add("prc-toggle-btn--active");
+    btn.innerText = "✖ Close PDF";
+  } else {
+    viewer.style.display = "none";
+    btn.classList.remove("prc-toggle-btn--active");
+    btn.innerText = "⬇ Read as PDF";
+  }
+}
 
 
 // ── Pages that are live (others show "Coming Soon") ───────────────────────
