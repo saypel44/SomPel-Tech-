@@ -31,8 +31,14 @@ function setGreetingCards(name, greet) {
     },
     {
       id:   'products-greeting-text',
-      text: `Explore the tools and applications being developed by SomPel Tech to improve sleep health and daily wellbeing in Bhutan.
-      
+      text: `Why do some individuals feel tired despite getting enough sleep?
+Often, the answer lies not in duration, but in daily habits that quietly influence sleep quality and energy levels.
+
+SomPel Tech helps make these invisible patterns visible, allowing users to better understand how lifestyle behaviors shape their wellbeing.
+
+Explore the story (below pdf) to examine how these patterns emerge across different environments.
+
+Then explore the tools and applications being developed by SomPel Tech to improve sleep health and daily wellbeing in Bhutan.
       `,
     },
   ];
@@ -146,6 +152,22 @@ function togglePdfReader(viewerId, btn) {
   if (btn) btn.classList.toggle('prc-toggle-btn--active', !isOpen);
 }
 
+
+
+function toggleStoryPdf(btn) {
+  const viewer = document.getElementById("story-pdf-viewer");
+
+  if (viewer.style.display === "none" || viewer.style.display === "") {
+    viewer.style.display = "block";
+    btn.innerText = "✖ Close PDF";
+    btn.classList.add("prc-toggle-btn--active");
+    viewer.scrollIntoView({ behavior: "smooth" });
+  } else {
+    viewer.style.display = "none";
+    btn.innerText = "⬇ Read as PDF";
+    btn.classList.remove("prc-toggle-btn--active");
+  }
+}
 
 
 // ── Mobile sidebar toggle ──────────────────────────────────────────────────
