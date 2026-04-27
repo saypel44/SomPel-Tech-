@@ -131,6 +131,19 @@ function scrollToFinding(id) {
   window.scrollTo({ top, behavior: 'smooth' });
 }
 
+// ── Toggle PDF/preview viewer ──────────────────────────────────────────────
+
+function togglePdfReader(viewerId, btn) {
+  const viewer = document.getElementById(viewerId);
+  if (!viewer) return;
+
+  const isOpen = viewer.style.display !== 'none';
+  viewer.style.display = isOpen ? 'none' : 'block';
+
+  if (btn) btn.classList.toggle('prc-toggle-btn--active', !isOpen);
+}
+
+
 
 // ── Mobile sidebar toggle ──────────────────────────────────────────────────
 
