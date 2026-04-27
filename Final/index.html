@@ -8,23 +8,6 @@
 </head>
 <body>
 
-  <!-- ══ NAME SCREEN ══ -->
-  <div id="name-screen">
-    <div class="name-card">
-      <span class="name-icon">👋</span>
-      <h1>Welcome</h1>
-      <p>Before we begin, please enter your name.</p>
-      <input class="name-input" type="text" id="inp-name"
-        placeholder="Your name" maxlength="40" autocomplete="off">
-      <button class="name-btn" onclick="submitName()">Continue →</button>
-      <div class="name-error" id="name-error">Please enter your name to continue.</div>
-      <div class="name-footer">
-         SomPel Tech · 2026<br>
-        Gedu College of Business Studies · Bhutan Data Scientists Pvt. Ltd.
-      </div>
-    </div>
-  </div>
-
   <!-- ══ MAIN APP ══ -->
   <div id="app-screen">
 
@@ -108,7 +91,7 @@
 
           <!-- Hero eyebrow -->
           <div class="hero-eyebrow">
-            <span class="hero-eyebrow-dot"></span>
+            <span class="hero-eyebrow"></span>
             SomPel Tech · Bhutan Lifestyle &amp; Wellbeing 2026
           </div>
 
@@ -121,11 +104,35 @@
               <div class="hero-bio-name">Sonam Peldon</div>
               <div class="hero-bio-role">Gedu College of Business Studies intern &amp; Data Practitioner · Bhutan Data Scientists Pvt. Ltd.</div>
               <p class="hero-bio-text">
-                I am exploring how lifestyle habits affect health and wellbeing. This helps examine how daily routines — sleep, work, and screen use — differ between urban and rural residents in Bhutan, and how these differences influence sleep quality and daytime energy. Using these insights, I aim to develop evidence-based tools, like a website and mobile app, to help individuals and communities improve their daily habits and overall wellbeing.
+                 <br>
+                  I am Sonam Peldon, a Year 3 student pursuing a Bachelor of Business Intelligence and Information Systems, majoring in Financial Engineering at
+                  <a href="https://www.gcbs.edu.bt/index.php" target="_blank">
+                      Gedu College of Business Studies
+                  </a>.
+                  <br>
+                  As part of our academic requirements, we are required to complete a six-month internship to gain practical experience and apply the theoretical knowledge acquired during our studies. 
+
+                  Accordingly, I joined as a Data Practitioner intern at
+                  <a href="https://datascientists.bt/?fbclid=IwY2xjawRb1fNleHRuA2FlbQIxMABicmlkETFZVGRUdmMwZEhtOWthdnZqc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHsEyhAR88e_PLyOP5OaAdjT5j3hLZk-MIY0WBqpfM6a0eirqHi4ZVW4Vo5Pe_aem_Ggwchuh_rEYZZZfvxkM77w" target="_blank">
+                      Bhutan Data Scientists Pvt. Ltd.
+                  </a>
+                 
+                  <br><br>
+
+                 As part of the internship requirement, we were assigned to carry out a project based on our area of interest. I focused on understanding how lifestyle habits such as sleep, work routines, and screen use affect health and wellbeing in Bhutan. Through research involving both urban and rural populations, I examined how daily behaviors influence sleep quality and daytime energy.
+                  <br><br>
+
+                  Based on these insights, I developed simple data-driven 
+                  <span class="link-like" onclick="navigateTo('products')">
+                    solutions
+                  </span>
+                  delivered through a website aimed at helping individuals and communities better understand their habits and improve their sleep quality and day energy levels.
               </p>
+
+              
             </div>
           </div>
-          <p class="hero-tagline"> A balanced life brings a peaceful mind. </p>
+          <!-- <p class="hero-tagline"> A balanced life brings a peaceful mind. </p> -->
         </div>
       </div>
       <!-- ── END PAGE: HOME ── -->
@@ -166,7 +173,7 @@
                 SomPel Tech was founded during a six-month internship at Bhutan Data Scientists Pvt. Ltd., where I was encouraged to create a company identity as part of a project.
               </p>
               <p class="sp-body">
-                At first, I proposed the name <strong>Phendhey Tech</strong>, inspired by the Dzongkha word <em>"Phendhey"</em> — meaning wellness — combined with technology. However, I later chose a more personal and meaningful name: <strong>SomPel Tech</strong>.
+                At first, I proposed the name and chose a more personal and meaningful name: <strong>SomPel Tech</strong>.
               </p>
 
               <div class="name-meaning-row">
@@ -204,7 +211,10 @@
               <div class="vision-orb">🔭</div>
               <blockquote class="vision-quote">
                 To create a healthier and more balanced society in Bhutan by transforming how people understand and manage sleep, lifestyle, and wellbeing through data-driven technology.
+              
               </blockquote>
+
+              <br> 
               <div class="vision-pillars">
                 <div class="vp-pill vp-pill--health">Healthier Society</div>
                 <div class="vp-pill vp-pill--balance">Balance &amp; Wellbeing</div>
@@ -224,6 +234,7 @@
               <blockquote class="mission-quote">
                 To develop accessible and user-friendly digital solutions that analyze lifestyle habits and provide personalized insights to improve sleep quality and daily energy.
               </blockquote>
+              <br>
               <div class="mission-focus-row">
                 <div class="mf-item">
                   <div class="mf-icon">📱</div>
@@ -690,6 +701,7 @@
                   Preview
                 </button>
                 <a class="prc-download-btn" href="https://public.tableau.com/views/LifestyledifferencesinBhutanUrban-ruralstory/Story1" target="_blank">
+                  
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   Open on Tableau
                 </a>
@@ -697,11 +709,12 @@
             </div>
             <div class="prc-pdf-viewer" id="tableau-preview-viewer" style="display:none;">
               <iframe
-                src="https://public.tableau.com/views/LifestyledifferencesinBhutanUrban-ruralstory/Story1?:embed=y&:showVizHome=no&:toolbar=yes&:tabs=no"
+               src="https://public.tableau.com/views/LifestyledifferencesinBhutanUrban-ruralstory/Story1?:embed=y&:showVizHome=no&:toolbar=yes&:tabs=no"
                 style="width:100%;height:700px;border:none;border-radius:8px;"
                 allowfullscreen
-                title="Bhutan Lifestyle Differences – Tableau Story">
-              </iframe>
+                title="Bhutan Lifestyle Differences – Tableau Story"> -->
+            </iframe>
+
             </div>
           </div>
 
@@ -750,11 +763,36 @@
           <h1 class="hero-title">
             
           </h1>
-      
 
-          <div class="about-greeting-card" id="products-greeting-card">
-            <div class="about-greeting-icon">📊</div>
-            <p id="products-greeting-text"></p>
+          <!-- Bio card -->
+          <div class="hero-bio-card">
+            <!-- <div class="hero-bio-avatar">WHAT?</div> -->
+            <div class="hero-bio-body">
+              <div class="hero-bio-name">SomPel Tech Products </div>
+              <div class="hero-bio-role">SomPel Quick Tracker &amp; Sompel Daily Tracker </div>
+              <p class="hero-bio-text"> 
+                Why do some individuals feel tired despite getting enough sleep?
+                Often, the answer lies not in duration, but in daily habits that quietly influence sleep quality and energy levels.
+                 <br><br>
+                SomPel Tech helps make these invisible patterns visible, allowing users to better understand how lifestyle behaviors shape their wellbeing.
+                 <br><br>
+                Explore the story to examine how these patterns emerge across different environments.
+
+                <div class="story-actions">
+                  <button class="prc-download-btn" onclick="toggleStoryPdf(this)">
+                    ⬇ Read as PDF
+                  </button>
+
+                  <div id="story-pdf-viewer" class="prc-pdf-viewer" style="display:none;">
+                    <iframe src="0424.pdf" class="pdf-iframe"></iframe>
+                  </div>
+                </div>
+                 <br><br>
+
+                Then explore the tools and applications being developed by SomPel Tech to improve sleep health and daily wellbeing in Bhutan.
+                 <br><br>
+              </p>
+            </div>
           </div>
 
           <div class = "prod-overview-grid">
@@ -788,7 +826,7 @@
 
   <!-- ── Bottom navigation bar (mobile) ── -->
   <nav class="bottom-nav" id="bottom-nav">
-    <button class="bottom-nav-item " data-page="home" onclick="navigateTo('home', this); syncBottomNav(this);">
+    <button class="bottom-nav-item-active " data-page="home" onclick="navigateTo('home', this); syncBottomNav(this);">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       <span class="bnav-label">Home</span>
     </button>
