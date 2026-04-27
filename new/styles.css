@@ -232,7 +232,7 @@ body::before {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  width: 100%;
+  margin-left: var(--sidebar-w);
 }
 
 .greeting-bar {
@@ -244,7 +244,6 @@ body::before {
   letter-spacing: 0.01em;
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  width: 100%;
 }
 
 .greeting-bar-signout {
@@ -1418,6 +1417,8 @@ body::before {
   .mobile-menu-btn { display: flex; }
   .bottom-nav      { display: flex; }
 
+  .main-content { margin-left: 0; }
+
   .sidebar {
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s;
@@ -1468,7 +1469,6 @@ body::before {
 }
 
 @media (max-width: 680px) {
-  .main-content { margin-left: 0; }
   .stats-row { gap: 8px; }
   .stat-card { min-width: 80px; }
   .sidebar-logo-text { display: none; }
