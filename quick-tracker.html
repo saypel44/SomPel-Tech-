@@ -72,6 +72,279 @@
       --tint-c-num:    #a080e0;
     }
 
+        /* ══════════════════════════════════════
+      NAME SCREEN
+    ══════════════════════════════════════ */
+    /* ── Bhutan Lifestyle Study · script.js ── */
+
+let visitorName = '';
+
+
+// ── Toggle PDF/preview viewer ──────────────────────────────────────────────
+
+function togglePdfReader(viewerId, btn) {
+  const viewer = document.getElementById(viewerId);
+  if (!viewer) return;
+
+  const isOpen = viewer.style.display !== 'none';
+  viewer.style.display = isOpen ? 'none' : 'block';
+
+  if (btn) btn.classList.toggle('prc-toggle-btn--active', !isOpen);
+}
+
+
+// ── Show home section (tabs) ───────────────────────────────────────────────
+
+function showHomeSection(sectionId, btn) {
+  document.querySelectorAll('.home-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.home-tab').forEach(b => b.classList.remove('active'));
+
+  const target = document.getElementById('home-' + sectionId);
+  if (target) target.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+
+// ── Google Sheets logging ──────────────────────────────────────────────────
+
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbys3-Yefk8RbNEMZFzBJ9xupG4WMWhitYAw1EfoJnQwDEI-miDb9jNC2bthJtGbLGib2A/exec';
+
+function logVisitor(name) {
+  if (!SHEET_URL || SHEET_URL === 'YOUR_APPS_SCRIPT_URL') return;
+
+  const now = new Date().toLocaleString('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', hour12: true,
+  });
+
+  fetch(SHEET_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, time: now }),
+    mode: 'no-cors',
+  }).catch(() => {});
+}
+
+
+
+    #name-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      background: linear-gradient(160deg, #F0F5F0 0%, #F9F9F7 40%, #EDF3F8 70%, #E8F0EA 100%);
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Soft green radial glow */
+    #name-screen::after {
+      content: '';
+      position: absolute;
+      width: 1000px; height: 1000px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(107,163,104,0.12) 0%, rgba(167,199,231,0.08) 45%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -58%);
+      pointer-events: none;
+    }
+
+    .name-card {
+      background: linear-gradient(160deg, #FFFFFF 0%, #F7FAF7 60%, #EDF5F8 100%);
+      border: 1.5px solid rgba(107,163,104,0.30);
+      border-radius: 18px;
+      padding: 56px 48px 48px;
+      width: 100%; max-width: 420px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 4px 24px rgba(107,163,104,0.10), 0 1px 6px rgba(107,163,104,0.08);
+      animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity:0; transform:translateY(20px) scale(0.98); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    /* Top accent stripe — green → sky blue */
+    .name-card::before {
+      content: '';
+      position: absolute; top:0; left:0; right:0; height:4px;
+      background: linear-gradient(90deg, var(--green) 0%, var(--sky-lt) 50%, var(--accent) 100%);
+      border-radius: 18px 18px 0 0;
+    }
+    // ── Greeting helper ────────────────────────────────────────────────────────
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+
+// ── Name submission ────────────────────────────────────────────────────────
+
+function submitName() {
+  const input = document.getElementById('inp-name');
+  const err   = document.getElementById('name-error');
+  const name  = input.value.trim();
+
+  if (!name) {
+    err.style.display = 'block';
+    input.focus();
+    return;
+  }
+
+  err.style.display = 'none';
+  visitorName = name;
+  logVisitor(name);
+
+  // Set avatar (first letter)
+  const avatar = document.getElementById('sidebar-avatar');
+  avatar.textContent = name.charAt(0).toUpperCase();
+
+  // Set username in sidebar
+  document.getElementById('sidebar-username').textContent = name;
+
+  // Personalised greetings for page cards
+  const greet = getGreeting();
+  setGreetingCards(name, greet);
+
+  // Show greeting bar
+  const bar = document.getElementById('greeting-bar');
+  document.getElementById('greeting-text').innerHTML =
+    `${greet}, <strong>${name}</strong> — welcome to SomPel Tech website 2026.`;
+
+  // Transition screens
+  document.getElementById('name-screen').style.display = 'none';
+
+  const appScreen = document.getElementById('app-screen');
+  appScreen.classList.add('visible');
+  appScreen.style.opacity = '0';
+  appScreen.style.transition = 'opacity 0.4s ease';
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { appScreen.style.opacity = '1'; });
+  });
+
+  // Navigate to products page on login
+  navigateTo('products', document.querySelector('.nav-item[data-page="products"]'));
+
+  // Animate market bars after a short delay (they'll be visible on market page)
+  setTimeout(animateMarketBars, 600);
+
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+
+// ── Per-page personalised greeting cards ───────────────────────────────────
+
+function setGreetingCards(name, greet) {
+  const cards = [
+    {
+      id: 'findings-greeting-text',
+      text: `Here's a breakdown of the seven key findings from the study — from respondent distribution to market readiness for wellness tools.`,
+    },
+    {
+      id: 'market-greeting-text',
+      text: `This section examines whether Bhutan has a viable market for digital wellness tools — and what the data says.`,
+    },
+    {
+      id: 'files-greeting-text',
+      text: 'Here are the files related to the project. Click "Preview" to view the Tableau Public story and the report directly on this page, or click "Download" to access the files.'
+    },
+    {
+      id: 'products-greeting-text',
+      text: `Explore the tools and applications being developed by SomPel Tech to improve sleep health and daily wellbeing in Bhutan.`,
+    },
+  ];
+
+  cards.forEach(({ id, text }) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  });
+}
+
+
+    .name-icon {
+      font-size: 2.6rem;
+      display: block;
+      margin-bottom: 20px;
+      animation: wave 2.8s ease-in-out infinite;
+      transform-origin: 70% 70%;
+    }
+    @keyframes wave {
+      0%,60%,100%{ transform:rotate(0deg); }
+      10%,30%    { transform:rotate(18deg); }
+      20%        { transform:rotate(-6deg); }
+      40%        { transform:rotate(12deg); }
+      50%        { transform:rotate(-4deg); }
+    }
+
+    .name-card h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem; font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .name-card p {
+      font-size: 0.88rem; color: var(--muted);
+      line-height: 1.7; margin-bottom: 28px;
+    }
+
+    .name-input {
+      width: 100%; padding: 13px 18px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text); font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem; font-weight: 400;
+      text-align: center; outline: none;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      margin-bottom: 12px;
+    }
+    .name-input::placeholder { color: var(--muted); }
+    .name-input:focus {
+      border-color: var(--green);
+      background: #FAFDF9;
+      box-shadow: 0 0 0 4px rgba(107,163,104,0.15);
+    }
+
+    .name-btn {
+      width: 100%; padding: 13px;
+      background: linear-gradient(90deg, var(--green) 0%, var(--sky) 100%);
+      border: none; border-radius: var(--radius-sm);
+      color: #fff; font-family: 'Outfit', sans-serif;
+      font-size: 0.92rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+      letter-spacing: 0.03em;
+      text-shadow: 0 1px 2px rgba(0,60,30,0.18);
+    }
+    .name-btn:hover {
+      background: linear-gradient(90deg, #5A9257 0%, #6A9CB8 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(107,163,104,0.32);
+    }
+    .name-btn:active { transform: translateY(0); }
+
+    .name-error {
+      font-size: 0.76rem; color: var(--red);
+      margin-top: 8px; display: none;
+    }
+
+    .name-footer {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 0.71rem; color: var(--muted);
+      line-height: 1.65; letter-spacing: 0.02em;
+    }
+
     body {
       font-family: 'DM Sans', sans-serif;
       font-size: 15px;
@@ -357,6 +630,25 @@
   </svg>
   <span class="bulb-label" id="toggle-label">Light</span>
 </button>
+
+
+
+<!-- ══ NAME SCREEN ══ -->
+  <div id="name-screen">
+    <div class="name-card">
+      <span class="name-icon">👋</span>
+      <h1>Welcome</h1>
+      <p>Before we begin, please enter your name.</p>
+      <input class="name-input" type="text" id="inp-name"
+        placeholder="Your name" maxlength="40" autocomplete="off">
+      <button class="name-btn" onclick="submitName()">Continue →</button>
+      <div class="name-error" id="name-error">Please enter your name to continue.</div>
+      <div class="name-footer">
+         SomPel Tech · 2026<br>
+        Gedu College of Business Studies · Bhutan Data Scientists Pvt. Ltd.
+      </div>
+    </div>
+  </div>
 
 <div id="app">
 
