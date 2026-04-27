@@ -770,22 +770,17 @@
             <p id="products-greeting-text"></p>
           </div>
 
-          <div class="prc-pdf-viewer" id="story-pdf-viewer"  style="display:none;">
-            <iframe src="0424.pdf" class="pdf-iframe"></iframe>
+          <div class="story-actions">
+
+            <button class="prc-download-btn" onclick="toggleStoryPdf(this)">
+              ⬇ Read as PDF
+            </button>
+
           </div>
 
-
-<!-- 
-          <div class="story-actions">
-            <button onclick="toggleStoryMode()">📖 Focus Mode</button>
-
-            <a href="0424.pdf" target="_blank">
-              ⬇ Read as PDF
-            </a>
-          </div> -->
-          
-
-       
+          <div id="story-pdf-viewer" class="prc-pdf-viewer" style="display:none;">
+            <iframe src="0424.pdf" class="pdf-iframe"></iframe>
+          </div>
 
           <div class = "prod-overview-grid">
             <div class="prod-card prod-card-primary">

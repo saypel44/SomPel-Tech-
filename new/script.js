@@ -49,19 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-function toggleStoryPdf(btn) {
-  const viewer = document.getElementById("story-pdf-viewer");
-
-  if (viewer.style.display === "none" || viewer.style.display === "") {
-    viewer.style.display = "block";
-    btn.classList.add("prc-toggle-btn--active");
-    btn.innerText = "✖ Close PDF";
-  } else {
-    viewer.style.display = "none";
-    btn.classList.remove("prc-toggle-btn--active");
-    btn.innerText = "⬇ Read as PDF";
-  }
-}
 
 
 // ── Pages that are live (others show "Coming Soon") ───────────────────────
