@@ -208,6 +208,21 @@ function autoLoadApp() {
 }
 
 
+// ── Sync bottom-nav active state ──────────────────────────────────────────
+
+function syncBottomNav(btn) {
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+
+// ── Sign-out stub ─────────────────────────────────────────────────────────
+
+function doSignOut() {
+  if (confirm('Sign out? This will reload the page.')) location.reload();
+}
+
+
 // ── DOMContentLoaded ───────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
