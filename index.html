@@ -146,23 +146,33 @@
           <div class="page-eyebrow">SomPel Tech · Founded 2026</div>
 
           <!-- Pill tabs -->
-
           <div class="home-tabs">
-            <button class="home-tab active" onclick="showHomeSection('about', this)">
-              <span class="tab-icon">🏢</span> About
-            </button>
-            <button class="home-tab" onclick="showHomeSection('vision', this)">
-              <span class="tab-icon">🔭</span> Vision
-            </button>
-            <button class="home-tab" onclick="showHomeSection('mission', this)">
-              <span class="tab-icon">🎯</span> Mission
-            </button>
-            <button class="home-tab" onclick="showHomeSection('objectives', this)">
-              <span class="tab-icon">📋</span> Objectives
-            </button>
-            <button class="home-tab" onclick="showHomeSection('values', this)">
-              <span class="tab-icon">✨</span> Values
-            </button>
+
+              <!-- Vision shown first -->
+              <button class="home-tab active about-tab"
+                  onclick="showAboutFirst(this)">
+                  <span class="tab-icon">🔭</span> About ☰
+              </button>
+
+              <!-- Other tabs hidden initially -->
+              <div class="other-home-tabs" id="otherHomeTabs">
+                  <button class="home-tab" onclick="showHomeSection('vision', this)">
+                      <span class="tab-icon">🏢</span> Vision
+                  </button>
+
+                  <button class="home-tab" onclick="showHomeSection('mission', this)">
+                      <span class="tab-icon">🎯</span> Mission
+                  </button>
+
+                  <button class="home-tab" onclick="showHomeSection('objectives', this)">
+                      <span class="tab-icon">📋</span> Objectives
+                  </button>
+
+                  <button class="home-tab" onclick="showHomeSection('values', this)">
+                      <span class="tab-icon">✨</span> Values
+                  </button>
+              </div>
+
           </div>
 
           <!-- ── ABOUT ── -->
@@ -205,33 +215,38 @@
           </div>
 
           <!-- ── VISION ── -->
+          <!-- ── VISION ── -->
           <div id="home-vision" class="home-section">
             <div class="section-panel section-panel--vision">
               <div class="sp-header">
                 <div class="sp-badge sp-badge--sky">Vision Statement</div>
               </div>
+
               <div class="vision-orb">🔭</div>
-              <br>
-              <blockquote class="vision-quote">
-              To create a healthier and more balanced society in Bhutan by transforming how people understand and manage sleep, lifestyle, and wellbeing through data-driven technology.
-              </blockquote>
 
-              <br> 
-
+              <div class="vision-statement-box">
+                To create a healthier and more balanced society in Bhutan by
+                transforming how people understand and manage sleep, lifestyle,
+                and wellbeing through data-driven technology.
+              </div>
             </div>
           </div>
 
+          <!-- ── MISSION ── -->
           <!-- ── MISSION ── -->
           <div id="home-mission" class="home-section">
             <div class="section-panel section-panel--mission">
               <div class="sp-header">
                 <div class="sp-badge sp-badge--green">Mission Statement</div>
               </div>
+
               <div class="mission-icon-wrap">🎯</div>
-              <blockquote class="mission-quote">
-                To develop accessible and user-friendly digital solutions that analyze lifestyle habits and provide personalized insights to improve sleep quality and daily energy.
-              </blockquote>
-              <br>
+
+              <div class="mission-statement-box">
+                To develop accessible and user-friendly digital solutions that
+                analyze lifestyle habits and provide personalized insights to
+                improve sleep quality and daily energy.
+              </div>
             </div>
           </div>
 

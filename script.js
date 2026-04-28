@@ -44,7 +44,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Hamburger
+function showAboutFirst(button) {
+    // Show about content
+    showHomeSection('about', button);
 
+    // Reveal other tabs
+    document.getElementById("otherHomeTabs").style.display = "flex";
+}
 
 
 // ── Pages that are live (others show "Coming Soon") ───────────────────────
