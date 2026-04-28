@@ -536,26 +536,26 @@ body::before {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  margin: 24px 0 8px;
+  margin: 15px 0 8px;
 }
 
 .mkt-card {
-  border-radius: 16px;
-  padding: 24px 20px 20px;
-  display: flex; flex-direction: column; gap: 8px;
+  border-radius: 10px;
+  padding: 8px 5px 8px;
+  display: flex; flex-direction: column; gap: 0.45px;
   position: relative; overflow: hidden;
 }
 .mkt-card--green  { background: linear-gradient(135deg, #4A8A47, var(--green)); color: #fff; }
 .mkt-card--amber  { background: linear-gradient(135deg, #8A6D3A, var(--accent)); color: #fff; }
 .mkt-card--red    { background: linear-gradient(135deg, #5A6A77, var(--grey-urban)); color: #fff; }
 
-.mkt-card-emoji { font-size: 1.8rem; line-height: 1; }
-.mkt-card-pct   { font-size: 2.6rem; font-weight: 800; line-height: 1; letter-spacing: -1px; }
-.mkt-card-label { font-size: 0.82rem; font-weight: 500; opacity: 0.88; line-height: 1.3; }
+/* .mkt-card-emoji { font-size: 1.2rem; line-height: 1; } */
+.mkt-card-pct   { font-size: 1.6rem; font-weight: 500; line-height: 1; letter-spacing: -1px; align-items: center; }
+.mkt-card-label { font-size: 0.82rem; font-weight: 500; opacity: 0.88; line-height: 1.3; align-items: center; }
 
 .mkt-card-bar-track {
-  margin-top: 10px;
-  height: 8px;
+  margin-top: 8px;
+  height: 1px;
   background: rgba(255,255,255,0.25);
   border-radius: 99px; overflow: hidden;
 }
@@ -1360,9 +1360,9 @@ body::before {
   display: flex; align-items: center; gap: 20px;
   background: linear-gradient(135deg, rgba(107,163,104,0.09), rgba(122,171,200,0.06));
   border: 1.5px solid rgba(107,163,104,0.24);
-  border-radius: var(--radius); padding: 22px 28px; margin: 8px 0 28px;
+  border-radius: var(--radius); padding: 22px 28px; margin: 8px 0 20px;
 }
-.mkt-big-num   { font-family: 'Playfair Display', serif; font-size: 2.8rem; font-weight: 700; color: var(--green); line-height: 1; flex-shrink: 0; }
+.mkt-big-num   { font-family: 'Playfair Display', serif; font-size: 2.8rem; font-weight: 700; color: var(--green); line-height: 1; flex-shrink: 0; align-items: center;}
 .mkt-big-label { font-size: 0.92rem; color: var(--text2); line-height: 1.65; }
 
 /* ══════════════════════════════════════
