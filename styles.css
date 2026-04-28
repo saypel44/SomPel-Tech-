@@ -461,6 +461,13 @@ body::before {
   text-transform: uppercase;
 }
 
+
+.home-nav {
+  position: relative;
+}
+
+
+
 /* ══════════════════════════════════════
    FINDINGS PAGE
 ══════════════════════════════════════ */

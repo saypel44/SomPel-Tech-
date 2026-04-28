@@ -146,22 +146,34 @@
           <div class="page-eyebrow">SomPel Tech · Founded 2026</div>
 
           <!-- Pill tabs -->
-          <div class="home-tabs">
-            <button class="home-tab active" onclick="showHomeSection('about', this)">
-              <span class="tab-icon">🏢</span> About
-            </button>
-            <button class="home-tab" onclick="showHomeSection('vision', this)">
-              <span class="tab-icon">🔭</span> Vision
-            </button>
-            <button class="home-tab" onclick="showHomeSection('mission', this)">
-              <span class="tab-icon">🎯</span> Mission
-            </button>
-            <button class="home-tab" onclick="showHomeSection('objectives', this)">
-              <span class="tab-icon">📋</span> Objectives
-            </button>
-            <button class="home-tab" onclick="showHomeSection('values', this)">
-              <span class="tab-icon">✨</span> Values
-            </button>
+          <div class="home-nav">
+  <!-- Hamburger Button -->
+            <div class="hamburger" onclick="toggleMenu()">
+              ☰
+            </div>
+
+            <!-- Tabs (now collapsible) -->
+            <div class="home-tabs" id="homeTabs">
+              <button class="home-tab active" onclick="showHomeSection('about', this)">
+                <span class="tab-icon">🏢</span> About
+              </button>
+
+              <button class="home-tab" onclick="showHomeSection('vision', this)">
+                <span class="tab-icon">🔭</span> Vision
+              </button>
+
+              <button class="home-tab" onclick="showHomeSection('mission', this)">
+                <span class="tab-icon">🎯</span> Mission
+              </button>
+
+              <button class="home-tab" onclick="showHomeSection('objectives', this)">
+                <span class="tab-icon">📋</span> Objectives
+              </button>
+
+              <button class="home-tab" onclick="showHomeSection('values', this)">
+                <span class="tab-icon">✨</span> Values
+              </button>
+            </div>
           </div>
 
           <!-- ── ABOUT ── -->
