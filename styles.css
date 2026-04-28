@@ -801,13 +801,6 @@ body::before {
   line-height: 0; vertical-align: -0.3em;
 }
 
-.vision-pillars { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-.vp-pill { padding: 7px 16px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; }
-.vp-pill--health  { background: rgba(107,163,104,0.12); color: var(--green); }
-.vp-pill--balance { background: rgba(122,171,200,0.14); color: var(--sky); }
-.vp-pill--data    { background: rgba(176,141,87,0.12);  color: var(--accent); }
-.vp-pill--bhutan  { background: rgba(244,208,111,0.20); color: #8A6A20; }
-
 /* ── Mission ── */
 .section-panel--mission {
   background: linear-gradient(145deg, #F5FAF5 0%, #EBF5EB 100%);
@@ -1526,7 +1519,6 @@ body::before {
 
 @media (max-width: 600px) {
   .hero-bio-card { flex-direction: column; align-items: flex-start; }
-  .mission-focus-row { flex-direction: column; }
   .values-grid { grid-template-columns: 1fr; }
 }
 
