@@ -1509,88 +1509,198 @@ body::before {
 /* ══════════════════════════════════════
    RESPONSIVE BREAKPOINTS
 ══════════════════════════════════════ */
-@media (max-width: 900px) {
-  .page-inner    { padding: 40px 28px 60px; }
-  .greeting-bar  { padding: 10px 28px; }
-  .nav-item      { padding: 7px 9px; }
-  .mkt-cards     { grid-template-columns: 1fr; }
+/* ══════════════════════════════════════
+   GLOBAL RESPONSIVE IMPROVEMENTS
+══════════════════════════════════════ */
+
+/* Fluid typography */
+html {
+  font-size: clamp(14px, 1vw, 16px);
 }
+
+/* Prevent overflow everywhere */
+* {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Better container spacing */
+.page-inner {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: clamp(20px, 4vw, 52px)
+           clamp(16px, 4vw, 48px)
+           clamp(40px, 6vw, 80px);
+}
+
+/* Prevent card overflow */
+.stat-card,
+.info-card,
+.mw-stat-card,
+.prod-card {
+  min-width: 0;
+}
+
+/* Improve readability */
+.page-bio,
+.section-text,
+.sp-body {
+  font-size: clamp(0.85rem, 1vw, 0.95rem);
+}
+
+/* Better table scrolling */
+.table-box {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Touch-friendly buttons */
+.home-tab,
+.report-btn,
+.prod-card-button {
+  min-height: 40px;
+}
+
+/* Smooth sidebar animation */
+.sidebar {
+  will-change: transform;
+}
+
+/* Better layout balance on large screens */
+.main-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ══════════════════════════════════════
+   SMART GRID FIXES (TABLET + MOBILE)
+══════════════════════════════════════ */
+
+.mkt-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.values-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+/* ══════════════════════════════════════
+   MOBILE OPTIMIZATION (<= 768px)
+══════════════════════════════════════ */
 
 @media (max-width: 768px) {
-  .mobile-menu-btn { display: flex; }
-  .bottom-nav      { display: flex; }
 
-  .main-content { margin-left: 0; }
-
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s;
-    z-index: 200; top: 0; height: 100vh; box-shadow: none;
+  /* Reduce spacing slightly */
+  .page-inner {
+    padding: 24px 16px 80px;
   }
-  .sidebar.open { transform: translateX(0); box-shadow: 4px 0 32px rgba(0,0,0,0.16); }
 
-  .greeting-bar { padding: 8px 14px; gap: 10px; }
-
-  .page-inner { padding: 24px 18px 80px; max-width: 100%; }
-
-  #greeting-text { font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
-
+  /* Stack grids nicely */
   .stats-row,
-  .info-cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .info-cards-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
 
-  .hero-title  { font-size: clamp(1.2rem, 6vw, 2rem); }
-  .page-title  { font-size: clamp(1.4rem, 5vw, 2rem); }
+  /* Improve headings */
+  .hero-title {
+    font-size: clamp(1.4rem, 6vw, 2rem);
+  }
 
-  .home-tabs { flex-wrap: wrap; gap: 6px; }
-  .home-tab  { flex: 1; min-width: 100px; font-size: 0.78rem; padding: 8px 10px; }
+  .page-title {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+  }
 
+  /* Tabs become flexible */
+  .home-tabs {
+    gap: 6px;
+  }
 
-  .fc-bar-label { min-width: 110px; font-size: 0.72rem; }
-  .fc-compare-wrap, .fc-heatmap-wrap { overflow-x: auto; }
-  .fc-heatmap { min-width: 420px; }
+  .home-tab {
+    flex: 1;
+    min-width: 100px;
+    font-size: 0.78rem;
+    padding: 8px 10px;
+  }
 
-  .mw-visual-row    { flex-direction: column; padding: 20px; }
-  .mw-stat-plus,
-  .mw-stat-equals   { display: none; }
+  /* Fix chart labels */
+  .fc-bar-label {
+    min-width: 110px;
+    font-size: 0.72rem;
+  }
+
+  /* Stack visuals */
+  .mw-visual-row {
+    flex-direction: column;
+    padding: 20px;
+  }
+
   .mw-tools-row,
-  .mw-challenges-row { flex-direction: column; }
+  .mw-challenges-row {
+    flex-direction: column;
+  }
 
-  .mkt-big-stat { flex-direction: column; align-items: flex-start; gap: 6px; padding: 16px 18px; }
-  .mkt-big-num  { font-size: 2rem; }
+  /* Big stat fix */
+  .mkt-big-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
 
-  .prod-overview-grid { grid-template-columns: 1fr; }
+  .mkt-big-num {
+    font-size: 2rem;
+  }
 
-  iframe { height: 400px !important; }
-  .prc-viewer iframe { height: 480px !important; }
+  /* Product grid */
+  .prod-overview-grid {
+    grid-template-columns: 1fr;
+  }
 
-  .greeting-bar-signout { padding: 5px 8px; font-size: 0.7rem; }
-  .greeting-bar-signout span { display: none; }
+  /* Section panels */
+  .section-panel {
+    padding: 26px 18px 28px;
+  }
 
-  .section-panel { padding: 26px 22px 28px; }
-  .name-meaning-row { flex-direction: column; align-items: stretch; }
-  .nm-plus { text-align: center; }
-  .values-grid { grid-template-columns: 1fr 1fr; }
+  /* Name meaning stack */
+  .name-meaning-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Values grid */
+  .values-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-@media (max-width: 680px) {
-  .stats-row { gap: 8px; }
-  .stat-card { min-width: 80px; }
-  .sidebar-logo-text { display: none; }
-  .sidebar-user { display: none; }
-}
-
-@media (max-width: 600px) {
-  .hero-bio-card { flex-direction: column; align-items: flex-start; }
-  .values-grid { grid-template-columns: 1fr; }
-}
+/* ══════════════════════════════════════
+   SMALL MOBILE (<= 480px)
+══════════════════════════════════════ */
 
 @media (max-width: 480px) {
-  .report-options { grid-template-columns: 1fr; }
-}
 
-@media (max-width: 380px) {
-  .page-inner   { padding: 18px 12px 80px; }
-  .stats-row    { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .fc-bar-label { min-width: 90px; font-size: 0.68rem; }
-  .prod-card    { padding: 20px 14px 18px; }
+  .page-inner {
+    padding: 18px 12px 80px;
+  }
+
+  .report-options {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .fc-bar-label {
+    min-width: 90px;
+    font-size: 0.68rem;
+  }
+
+  .prod-card {
+    padding: 20px 14px 18px;
+  }
 }
