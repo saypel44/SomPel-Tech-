@@ -43,11 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// Hambueger under about 
-function toggleMenu() {
-  const menu = document.getElementById("homeTabs");
-  menu.classList.toggle("show");
-}
+// Hamburger
 
 
 
