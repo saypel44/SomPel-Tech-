@@ -194,8 +194,8 @@ function autoLoadApp() {
 
   const greet = getGreeting();
 
-  document.getElementById('sidebar-avatar').textContent = 'G';
-  document.getElementById('sidebar-username').textContent = 'Guest';
+  // document.getElementById('sidebar-avatar').textContent = 'G';
+  // document.getElementById('sidebar-username').textContent = 'Guest';
 
   document.getElementById('greeting-text').innerHTML =
     `${greet} — welcome to SomPel Tech 2026.`;
