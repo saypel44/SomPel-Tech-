@@ -216,7 +216,7 @@ body::before {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
 }
 
-.greeting-bar-signout {
+/* .greeting-bar-signout {
   display: flex; align-items: center; gap: 6px;
   padding: 6px 14px;
   background: #fff;
@@ -233,7 +233,7 @@ body::before {
   border-color: var(--red);
   color: var(--red);
   background: rgba(192,57,43,0.04);
-}
+} */
 
 /* ══════════════════════════════════════
    PAGES
@@ -1548,7 +1548,7 @@ body::before {
     flex: 1;
     min-width: 0;
   }
-  .greeting-bar-signout { padding: 5px 9px; font-size: 0.70rem; }
+  /* .greeting-bar-signout { padding: 5px 9px; font-size: 0.70rem; } */
 
   /* Page content */
   .page-inner {
@@ -1772,7 +1772,7 @@ body::before {
 
   .mkt-card-pct { font-size: 1.3rem; }
 
-  .greeting-bar-signout span { display: none; }
+  /* .greeting-bar-signout span { display: none; } */
 
   /* Stat pills → 1 column on tiny screens */
   .fc-stat-pills { grid-template-columns: 1fr; }
