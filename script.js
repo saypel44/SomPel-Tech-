@@ -29,6 +29,10 @@ function setGreetingCards(name, greet) {
       id:   'files-greeting-text',
       text: `Here are the files related to the project. Click "Preview" to view the Tableau Public story and the report directly on this page, or click "Download" to access the files.`,
     },
+    {
+      id:   'contact-greeting-text',
+      text: `Have a question, feedback, or want to collaborate? Reach out through any of the channels below.`,
+    }
   ];
 
   cards.forEach(({ id, text }) => {
@@ -55,7 +59,7 @@ function showAboutFirst(button) {
 
 // ── Pages that are live (others show "Coming Soon") ───────────────────────
 
-const LIVE_PAGES = ['home', 'about', 'findings', 'market', 'tableau', 'report', 'products'];
+const LIVE_PAGES = ['home', 'about', 'findings', 'market', 'tableau', 'report', 'products', 'contact'];
 
 
 // ── Navigation ─────────────────────────────────────────────────────────────

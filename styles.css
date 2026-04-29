@@ -1641,6 +1641,56 @@ body::before {
   .pdf-iframe        { height: 70dvh !important; }
 }
 
+/* ── Contact Cards ── */
+.contact-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 24px;
+  background: var(--card-bg, #fff);
+  border: 1.5px solid var(--border, #e8e4e0);
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+  cursor: pointer;
+}
+.contact-card:hover {
+  border-color: var(--accent, #6c5ce7);
+  box-shadow: 0 4px 18px rgba(108, 92, 231, 0.10);
+  transform: translateY(-2px);
+}
+.contact-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.contact-icon--email    { background: #fef3c7; color: #d97706; }
+.contact-icon--phone    { background: #d1fae5; color: #059669; }
+.contact-icon--linkedin { background: #dbeafe; color: #1d4ed8; }
+.contact-icon--github   { background: #f3f4f6; color: #374151; }
+.contact-card-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 3px;
+}
+.contact-card-value {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.contact-card-hint {
+  font-size: 12px;
+  opacity: 0.45;
+}
+
 /* ── SMALL MOBILE  ≤ 640px ───────────────────────────────────
    Extra tightening for phones like iPhone SE, Galaxy A-series
 ──────────────────────────────────────────────────────────── */
