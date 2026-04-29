@@ -1334,7 +1334,7 @@ body::before {
 /* ══════════════════════════════════════
    PRODUCT CARDS
 ══════════════════════════════════════ */
-.prod-overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 28px; }
+.prod-overview-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 28px; }
 
 .prod-card {
   background: var(--surface); border: 1.5px solid var(--border);
