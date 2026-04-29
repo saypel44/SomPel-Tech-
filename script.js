@@ -198,7 +198,7 @@ function autoLoadApp() {
   // document.getElementById('sidebar-username').textContent = 'Guest';
 
   document.getElementById('greeting-text').innerHTML =
-    `${greet} — welcome to SomPel Tech 2026.`;
+    `${greet}, welcome to SomPel Tech 2026.`;
 
   setGreetingCards(visitorName, greet);
 
