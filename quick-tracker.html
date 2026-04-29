@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Fraunces:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:     #1D9E75;
+  --green-lt:  #E1F5EE;
+  --green-dk:  #0F6E56;
+  --amber:     #BA7517;
+  --amber-lt:  #FAEEDA;
+  --red:       #C0392B;
+  --red-lt:    #FDEEEC;
+  --bg:        #F7F5F1;
+  --surf:      #ffffff;
+  --surf2:     #F0EDE7;
+  --surf3:     #E8E4DC;
+  --text:      #1a1816;
+  --muted:     #6b6660;
+  --hint:      #a09c96;
+  --border:    rgba(0,0,0,0.08);
+  --borderf:   rgba(0,0,0,0.18);
+  --r:         14px;
+  --rsm:       8px;
+  --rxl:       24px;
+  --shadow:    0 2px 20px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+}
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; }
+
+/* ════════════════════════════════
+   AUTH SCREEN
+════════════════════════════════ */
+#auth-screen {
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #EEF7F3 0%, #F7F5F1 50%, #EDF3F8 100%);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+#auth-screen::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(29,158,117,0.08) 0%, transparent 70%);
+  top: -150px; right: -150px;
+  pointer-events: none;
+}
+
+#auth-screen::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(29,158,117,0.06) 0%, transparent 70%);
+  bottom: -100px; left: -100px;
+  pointer-events: none;
+}
+
+.auth-card {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba(29,158,117,0.15);
+  box-shadow: var(--shadow-lg);
+  width: 100%; max-width: 400px;
+  overflow: hidden;
+  position: relative; z-index: 1;
+  animation: cardUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@keyframes cardUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.auth-top {
+  background: linear-gradient(135deg, #0F6E56 0%, #1D9E75 60%, #2EBF8E 100%);
+  padding: 32px 28px 28px;
+  text-align: center;
+}
+
+.auth-top-icon {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.18);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  margin: 0 auto 14px;
+}
+
+.auth-top h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 22px; font-weight: 600;
+  color: #fff;
+}
+
+.auth-top p {
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+  margin-top: 5px;
+}
+
+/* Tabs */
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--surf2);
+}
+
+.auth-tab {
+  flex: 1; padding: 13px;
+  font-size: 13px; font-weight: 500;
+  background: none; border: none; cursor: pointer;
+  color: var(--muted);
+  font-family: 'Sora', sans-serif;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+}
+
+.auth-tab.active {
+  color: var(--green);
+  border-bottom-color: var(--green);
+  background: #fff;
+}
+
+/* Auth body */
+.auth-body { padding: 24px 28px 28px; }
+
+.field { margin-bottom: 16px; }
+
+.field label {
+  font-size: 11px; font-weight: 500;
+  color: var(--muted);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  display: block; margin-bottom: 6px;
+}
+
+.field input {
+  width: 100%; padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--rsm);
+  font-family: 'Sora', sans-serif;
+  font-size: 14px; color: var(--text);
+  background: var(--surf);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.field input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(29,158,117,0.12);
+}
+
+.field input::placeholder { color: var(--hint); }
+
+.pw-wrap { position: relative; }
+
+.pw-toggle {
+  position: absolute; right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--hint); font-size: 13px; padding: 2px;
+}
+
+.auth-btn {
+  width: 100%; padding: 12px; margin-top: 4px;
+  background: linear-gradient(135deg, #0F6E56, #1D9E75);
+  border: none; border-radius: var(--rsm);
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.auth-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(29,158,117,0.35);
+}
+
+.auth-btn:active { transform: none; }
+
+.auth-msg {
+  font-size: 12px; margin-top: 12px;
+  padding: 10px 12px; border-radius: var(--rsm);
+  display: none;
+}
+
+.auth-msg.err {
+  background: var(--red-lt); color: var(--red);
+  border: 1px solid rgba(192,57,43,0.15);
+  display: block;
+}
+
+.auth-msg.ok {
+  background: var(--green-lt); color: var(--green-dk);
+  border: 1px solid rgba(29,158,117,0.2);
+  display: block;
+}
+
+/* ════════════════════════════════
+   APP SCREEN
+════════════════════════════════ */
+#app-screen { flex-direction: column; }
+
+.app-header {
+  background: #fff;
+  border-bottom: 0.5px solid var(--border);
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+
+.app-logo { display: flex; align-items: center; gap: 10px; }
+
+.app-logo-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: var(--green-lt);
+  border: 1px solid rgba(29,158,117,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+.app-logo span {
+  font-family: 'Fraunces', serif;
+  font-size: 16px; font-weight: 600; color: var(--text);
+}
+
+.user-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surf2);
+  border: 0.5px solid var(--border);
+  border-radius: 20px; padding: 6px 12px 6px 7px;
+  cursor: pointer; transition: all 0.2s;
+}
+
+.user-pill:hover { border-color: var(--green); }
+
+.user-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: linear-gradient(135deg, #0F6E56, #2EBF8E);
+  color: #fff; font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.user-pill-name { font-size: 12px; font-weight: 500; color: var(--text); }
+.logout-btn { font-size: 11px; color: var(--muted); padding-left: 4px; }
+
+.app-body {
+  padding: 0 16px 60px;
+  max-width: 600px; margin: 0 auto; width: 100%;
+}
+
+/* Hero */
+.hero { text-align: center; padding: 32px 16px 24px; }
+
+.hero-icon {
+  width: 60px; height: 60px; border-radius: 18px;
+  background: var(--green-lt);
+  border: 1.5px solid rgba(29,158,117,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; margin: 0 auto 16px;
+}
+
+.hero h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 26px; font-weight: 600; color: var(--text);
+  margin-bottom: 8px;
+}
+
+.hero p {
+  font-size: 13px; color: var(--muted);
+  line-height: 1.7; max-width: 380px;
+  margin: 0 auto 20px;
+}
+
+/* Progress */
+.prog-wrap { margin: 0 0 8px; }
+.prog-meta {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--hint); margin-bottom: 5px;
+}
+.prog-bar { height: 4px; background: var(--surf3); border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width 0.3s ease; }
+
+/* Section headers */
+.sec-hdr { display: flex; align-items: center; gap: 12px; margin: 24px 0 12px; }
+
+.sec-pill {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 14px 5px 8px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; border: 1px solid; white-space: nowrap;
+}
+
+.sec-pill.a { background: var(--amber-lt); border-color: rgba(186,117,23,0.3); color: var(--amber); }
+.sec-pill.b { background: var(--green-lt); border-color: rgba(29,158,117,0.25); color: var(--green-dk); }
+.sec-pill.c { background: #EEF0FC; border-color: rgba(83,74,183,0.25); color: #534AB7; }
+
+.sec-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: currentColor;
+  display: flex; align-items: center; justify-content: center;
+}
+.sec-dot span { font-size: 9px; color: #fff; font-weight: 700; }
+.sec-line { flex: 1; height: 0.5px; background: var(--border); }
+
+/* Question cards */
+.q-card {
+  background: var(--surf);
+  border: 0.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px 20px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+.q-card:hover { border-color: var(--borderf); }
+
+.q-num {
+  font-size: 10px; color: var(--hint); font-weight: 500;
+  letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px;
+}
+
+.q-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 14px; line-height: 1.5; }
+
+/* Options */
+.opts { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.opt {
+  display: flex; align-items: center; gap: 6px;
+  border: 1px solid var(--borderf); border-radius: 20px;
+  padding: 8px 15px; font-size: 13px; cursor: pointer;
+  background: var(--surf2); color: var(--muted);
+  font-family: 'Sora', sans-serif;
+  transition: all 0.15s; line-height: 1.2;
+}
+
+.opt:hover {
+  border-color: var(--green); color: var(--text);
+  background: var(--green-lt); transform: translateY(-1px);
+}
+
+.opt.sel {
+  background: var(--green-lt);
+  border-color: var(--green); border-width: 1.5px;
+  color: var(--green-dk); font-weight: 500;
+}
+
+.opt.sel::after {
+  content: '';
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--green); margin-left: 2px;
+}
+
+.opt-em { font-size: 14px; }
+
+/* Likert */
+.lik-row { display: flex; flex-direction: column; gap: 16px; }
+
+.lik-item {
+  display: flex; flex-direction: column; gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 0.5px solid var(--border);
+}
+.lik-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+.lik-label { font-size: 13px; color: var(--text); line-height: 1.45; }
+
+.lik-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.lbtn {
+  border: 1px solid var(--borderf); border-radius: 20px;
+  padding: 6px 12px; font-size: 12px; cursor: pointer;
+  background: var(--surf2); color: var(--muted);
+  font-family: 'Sora', sans-serif; transition: all 0.15s; white-space: nowrap;
+}
+
+.lbtn:hover { border-color: var(--green); color: var(--green); background: var(--green-lt); }
+
+.lbtn.sel {
+  background: var(--green-lt);
+  border-color: var(--green); border-width: 1.5px;
+  color: var(--green-dk); font-weight: 500;
+}
+
+/* Submit button */
+#submit-btn {
+  width: 100%; padding: 14px; margin-top: 16px;
+  background: var(--green); color: #fff; border: none;
+  border-radius: var(--r); font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: 'Sora', sans-serif;
+  transition: all 0.15s; letter-spacing: 0.01em;
+}
+
+#submit-btn:hover:not(:disabled) { background: var(--green-dk); transform: translateY(-1px); }
+#submit-btn:disabled { background: var(--surf3); color: var(--hint); cursor: not-allowed; }
+
+/* Results */
+.res-hero {
+  background: var(--green-lt);
+  border: 1px solid rgba(29,158,117,0.2);
+  border-radius: var(--r);
+  padding: 24px 20px; margin-bottom: 12px; text-align: center;
+}
+
+.res-emoji { font-size: 32px; margin-bottom: 10px; }
+
+.res-hero h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 20px; color: var(--green-dk); margin-bottom: 8px;
+}
+
+.res-hero p { font-size: 13px; color: var(--muted); line-height: 1.65; max-width: 400px; margin: 0 auto; }
+
+.stat-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 8px; margin-bottom: 12px;
+}
+
+.stat {
+  background: var(--surf); border: 0.5px solid var(--border);
+  border-radius: var(--rsm); padding: 14px; text-align: center;
+}
+
+.stat-val { font-size: 18px; font-weight: 600; color: var(--text); }
+.stat-sub { font-size: 11px; color: var(--hint); margin-top: 3px; }
+
+.rec {
+  background: var(--surf); border: 0.5px solid var(--border);
+  border-left: 3px solid var(--green);
+  border-radius: var(--rsm); padding: 14px 16px; margin-bottom: 10px;
+}
+.rec.warn { border-left-color: var(--amber); background: var(--amber-lt); }
+.rec.bad  { border-left-color: var(--red); background: var(--red-lt); }
+
+.rec h4 { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+
+.rec ul { margin: 0 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.rec li { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
+.sec-lbl {
+  font-size: 10px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--hint);
+  font-weight: 500; margin: 14px 0 8px;
+}
+
+#restart-btn {
+  width: 100%; padding: 12px; margin-top: 16px;
+  background: transparent;
+  border: 0.5px solid var(--borderf);
+  border-radius: var(--rsm); font-size: 13px; cursor: pointer;
+  font-family: 'Sora', sans-serif; color: var(--muted);
+  transition: background 0.15s;
+}
+#restart-btn:hover { background: var(--surf2); }
+  </style>
+</head>
+<body>
+
+  <!-- AUTH SCREEN -->
+  <div id="auth-screen" class="screen active">
+    <div class="auth-card">
+      <div class="auth-top">
+        <div class="auth-top-icon">🌿</div>
+        <h1>Quick Tracker</h1>
+        <p>Personalised wellness check-ins, just for you</p>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Sign in</button>
+        <button class="auth-tab" onclick="switchTab('signup')">Create account</button>
+      </div>
+      <div class="auth-body">
+        <!-- LOGIN -->
+        <div id="tab-login">
+          <div class="field">
+            <label>Username</label>
+            <input id="li-user" type="text" placeholder="Enter your username" autocomplete="username">
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <div class="pw-wrap">
+              <input id="li-pass" type="password" placeholder="Enter your password" autocomplete="current-password">
+              <button class="pw-toggle" onclick="togglePw('li-pass',this)" tabindex="-1">👁</button>
+            </div>
+          </div>
+          <button class="auth-btn" onclick="doLogin()">Sign in →</button>
+          <div id="li-msg" class="auth-msg"></div>
+        </div>
+        <!-- SIGNUP -->
+        <div id="tab-signup" style="display:none">
+          <div class="field">
+            <label>Full name</label>
+            <input id="su-name" type="text" placeholder="e.g. Tshering Wangmo">
+          </div>
+          <div class="field">
+            <label>Choose a username</label>
+            <input id="su-user" type="text" placeholder="e.g. tshering99" autocomplete="username">
+          </div>
+          <div class="field">
+            <label>Create password</label>
+            <div class="pw-wrap">
+              <input id="su-pass" type="password" placeholder="At least 6 characters" autocomplete="new-password">
+              <button class="pw-toggle" onclick="togglePw('su-pass',this)" tabindex="-1">👁</button>
+            </div>
+          </div>
+          <button class="auth-btn" onclick="doSignup()">Create account →</button>
+          <div id="su-msg" class="auth-msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP SCREEN -->
+  <div id="app-screen" class="screen">
+    <div class="app-header">
+      <div class="app-logo">
+        <div class="app-logo-icon">🌿</div>
+        <span>Quick Tracker</span>
+      </div>
+      <div class="user-pill" onclick="doLogout()">
+        <div class="user-avatar" id="hdr-avatar"></div>
+        <span class="user-pill-name" id="hdr-name"></span>
+        <span class="logout-btn">· Sign out</span>
+      </div>
+    </div>
+
+    <div class="app-body">
+      <div class="hero">
+        <div class="hero-icon">🌿</div>
+        <h2>Hello, <span id="greeting-name"></span> 👋</h2>
+        <p>A few gentle questions about your day — and we'll share honest, personalised tips.</p>
+        <div class="prog-wrap">
+          <div class="prog-meta">
+            <span>Your progress</span>
+            <span id="prog-txt">0 of 12</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" id="prog-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <form id="tracker-form" onsubmit="return false">
+
+        <div class="sec-hdr">
+          <div class="sec-pill a"><div class="sec-dot"><span>A</span></div> About you</div>
+          <div class="sec-line"></div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-num">Question 1</div>
+          <p class="q-title">How old are you?</p>
+          <div class="opts" data-q="age">
+            <button type="button" class="opt" data-v="Under 18"><span class="opt-em">🌱</span> Under 18</button>
+            <button type="button" class="opt" data-v="18–25"><span class="opt-em">☀️</span> 18 – 25</button>
+            <button type="button" class="opt" data-v="26–35"><span class="opt-em">🌤</span> 26 – 35</button>
+            <button type="button" class="opt" data-v="36–50"><span class="opt-em">🍂</span> 36 – 50</button>
+            <button type="button" class="opt" data-v="50+"><span class="opt-em">🌾</span> Over 50</button>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-num">Question 2</div>
+          <p class="q-title">Where do you live?</p>
+          <div class="opts" data-q="location">
+            <button type="button" class="opt" data-v="Urban"><span class="opt-em">🏙️</span> City</button>
+            <button type="button" class="opt" data-v="Semi-urban"><span class="opt-em">🏘️</span> Town</button>
+            <button type="button" class="opt" data-v="Rural"><span class="opt-em">🌳</span> Village / countryside</button>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-num">Question 3</div>
+          <p class="q-title">What kind of work do you do most of the time?</p>
+          <div class="opts" data-q="worktype">
+            <button type="button" class="opt" data-v="Sitting"><span class="opt-em">💻</span> Mostly sitting</button>
+            <button type="button" class="opt" data-v="Physical"><span class="opt-em">🚶</span> Mostly moving</button>
+            <button type="button" class="opt" data-v="Both"><span class="opt-em">🔄</span> A mix</button>
+          </div>
+        </div>
+
+        <div class="sec-hdr">
+          <div class="sec-pill b"><div class="sec-dot"><span>B</span></div> Daily habits</div>
+          <div class="sec-line"></div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-num">Question 4</div>
+          <p class="q-title">How many hours do you work on a normal day?</p>
+          <div class="opts" data-q="workhours">
+            <button type="button" class="opt" data-v="0–4 hours"><span class="opt-em">🌙</span> 0–4 hrs</button>
+            <button type="button" class="opt" data-v="5–6 hours"><span class="opt-em">🌤</span> 5–6 hrs</button>
+            <button type="button" class="opt" data-v="7–8 hours"><span class="opt-em">☀️</span> 7–8 hrs</button>
+            <button type="button" class="opt" data-v="9 or more hours"><span class="opt-em">🔥</span> 9+ hrs</button>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-num">Question 5</div>
+          <p class="q-title">How many hours do you sleep most nights?</p>
+          <div class="opts" data-q="sleep">
+            <button type="button" class="opt" data-v="0–4 hours"><span class="opt-em">😴</span> 0–4 hrs</button>
+            <button type="button" class="opt" data-v="5–6 hours"><span class="opt-em">🌛</span> 5–6 hrs</button>
+            <button type="button" class="opt" data-v="7–8 hours"><span class="opt-em">🌟</span> 7–8 hrs</button>
+            <button type="button" class="opt" data-v="9 or more hours"><span class="opt-em">💤</span> 9+ hrs</button>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-num">Question 6</div>
+          <p class="q-title">How long do you use your phone before going to sleep?</p>
+          <div class="opts" data-q="phonetime">
+            <button type="button" class="opt" data-v="no phone before bed"><span class="opt-em">🚫</span> No phone</button>
+            <button type="button" class="opt" data-v="less than 30 minutes"><span class="opt-em">⏱️</span> Under 30 min</button>
+            <button type="button" class="opt" data-v="30 min–1 hour"><span class="opt-em">📱</span> 30 min – 1 hr</button>
+            <button type="button" class="opt" data-v="1–2 hours"><span class="opt-em">📲</span> 1–2 hrs</button>
+            <button type="button" class="opt" data-v="2–3 hours"><span class="opt-em">😬</span> 2–3 hrs</button>
+            <button type="button" class="opt" data-v="more than 3 hours"><span class="opt-em">😵</span> 3+ hrs</button>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-num">Question 7</div>
+          <p class="q-title">What time do you usually go to sleep?</p>
+          <div class="opts" data-q="bedtime">
+            <button type="button" class="opt" data-v="before 9 PM"><span class="opt-em">🌅</span> Before 9 pm</button>
+            <button type="button" class="opt" data-v="9–10 PM"><span class="opt-em">🌆</span> 9–10 pm</button>
+            <button type="button" class="opt" data-v="10–11 PM"><span class="opt-em">🌃</span> 10–11 pm</button>
+            <button type="button" class="opt" data-v="11 PM–12 AM"><span class="opt-em">🌉</span> 11 pm–midnight</button>
+            <button type="button" class="opt" data-v="after 12 AM"><span class="opt-em">🌑</span> After midnight</button>
+          </div>
+        </div>
+
+        <div class="sec-hdr">
+          <div class="sec-pill c"><div class="sec-dot"><span>C</span></div> How you feel</div>
+          <div class="sec-line"></div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-num">Questions 8 – 12</div>
+          <p class="q-title" style="margin-bottom:16px">Do you agree with each of these?</p>
+          <div class="lik-row" id="lik-container"></div>
+        </div>
+
+        <button type="button" id="submit-btn" disabled onclick="showResults()">See my results →</button>
+      </form>
+
+      <div id="results"></div>
+    </div>
+  </div>
+
+  <script>
+/* ════════════════════════════════
+   AUTH — in-memory user store (no localStorage)
+════════════════════════════════ */
+const users = {};
+let currentUser = null;
+
+/* ── Tab switching ── */
+function switchTab(t) {
+  document.getElementById('tab-login').style.display  = t === 'login'  ? '' : 'none';
+  document.getElementById('tab-signup').style.display = t === 'signup' ? '' : 'none';
+  document.querySelectorAll('.auth-tab').forEach((el, i) => {
+    el.classList.toggle('active', (i === 0 && t === 'login') || (i === 1 && t === 'signup'));
+  });
+  clearMsgs();
+}
+
+function clearMsgs() {
+  ['li-msg', 'su-msg'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'auth-msg';
+    el.textContent = '';
+  });
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'auth-msg ' + type;
+}
+
+/* ── Password toggle ── */
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+/* ── Sign up ── */
+function doSignup() {
+  const name = document.getElementById('su-name').value.trim();
+  const user = document.getElementById('su-user').value.trim().toLowerCase();
+  const pass = document.getElementById('su-pass').value;
+
+  if (!name || !user || !pass)  return showMsg('su-msg', 'Please fill in all fields.', 'err');
+  if (user.length < 3)          return showMsg('su-msg', 'Username must be at least 3 characters.', 'err');
+  if (pass.length < 6)          return showMsg('su-msg', 'Password must be at least 6 characters.', 'err');
+
+  if (users[user])              return showMsg('su-msg', 'That username is already taken.', 'err');
+
+  users[user] = { name, pass, created: new Date().toISOString() };
+  showMsg('su-msg', 'Account created! Signing you in…', 'ok');
+  setTimeout(() => launchApp({ username: user, name }), 900);
+}
+
+/* ── Sign in ── */
+function doLogin() {
+  const user = document.getElementById('li-user').value.trim().toLowerCase();
+  const pass = document.getElementById('li-pass').value;
+
+  if (!user || !pass) return showMsg('li-msg', 'Please enter your username and password.', 'err');
+
+  if (!users[user] || users[user].pass !== pass) {
+    return showMsg('li-msg', 'Incorrect username or password.', 'err');
+  }
+  launchApp({ username: user, name: users[user].name });
+}
+
+/* ── Launch app ── */
+function launchApp(user) {
+  currentUser = user;
+  const firstName = user.name.split(' ')[0];
+  document.getElementById('greeting-name').textContent = firstName;
+  document.getElementById('hdr-avatar').textContent    = user.name.charAt(0).toUpperCase();
+  document.getElementById('hdr-name').textContent      = user.name;
+
+  document.getElementById('auth-screen').classList.remove('active');
+  document.getElementById('app-screen').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ── Sign out ── */
+function doLogout() {
+  currentUser = null;
+  restartForm();
+  document.getElementById('app-screen').classList.remove('active');
+  document.getElementById('auth-screen').classList.add('active');
+  clearMsgs();
+  document.getElementById('li-user').value = '';
+  document.getElementById('li-pass').value = '';
+  switchTab('login');
+  window.scrollTo(0, 0);
+}
+
+/* ── Enter-key shortcuts ── */
+document.getElementById('li-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('li-pass').focus(); });
+document.getElementById('li-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('su-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doSignup(); });
+
+
+/* ════════════════════════════════
+   TRACKER
+════════════════════════════════ */
+const likertQs = [
+  { id: 'l1', text: 'I can fall asleep easily.' },
+  { id: 'l2', text: 'I sleep well most nights.' },
+  { id: 'l3', text: 'I wake up feeling rested.' },
+  { id: 'l4', text: 'I feel sleepy during the day.' },
+  { id: 'l5', text: 'I have good energy during the day.' }
+];
+const likertOpts = ['Yes, always', 'Most of the time', 'Sometimes', 'Not really', 'No, never'];
+const answers  = {};
+const lAnswers = {};
+
+/* Build likert rows */
+const lc = document.getElementById('lik-container');
+likertQs.forEach((q, i) => {
+  const row = document.createElement('div');
+  row.className = 'lik-item';
+  row.innerHTML = `
+    <span class="lik-label">Q${i + 8}. ${q.text}</span>
+    <div class="lik-btns">
+      ${likertOpts.map(o => `<button type="button" class="lbtn" data-lq="${q.id}" data-v="${o}">${o}</button>`).join('')}
+    </div>`;
+  lc.appendChild(row);
+});
+
+/* Option click handlers */
+document.querySelectorAll('.opts').forEach(grp => {
+  grp.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      grp.querySelectorAll('.opt').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+      answers[grp.dataset.q] = btn.dataset.v;
+      updateProg();
+    });
+  });
+});
+
+document.querySelectorAll('.lbtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll(`.lbtn[data-lq="${btn.dataset.lq}"]`).forEach(b => b.classList.remove('sel'));
+    btn.classList.add('sel');
+    lAnswers[btn.dataset.lq] = btn.dataset.v;
+    updateProg();
+  });
+});
+
+function updateProg() {
+  const total = 12;
+  const done  = Object.keys(answers).length + Object.keys(lAnswers).length;
+  const pct   = Math.round((done / total) * 100);
+  document.getElementById('prog-bar').style.width = pct + '%';
+  document.getElementById('prog-txt').textContent = `${done} of ${total}`;
+  document.getElementById('submit-btn').disabled  = (done < total);
+}
+
+/* ── Scoring helpers ── */
+function lScore(v) {
+  return { 'Yes, always': 5, 'Most of the time': 4, 'Sometimes': 3, 'Not really': 2, 'No, never': 1 }[v] || 3;
+}
+
+function sleepScore() {
+  const s = {};
+  likertQs.forEach(q => { s[q.id] = lScore(lAnswers[q.id]); });
+  return Math.round((((s.l1 + s.l2 + s.l3 + s.l5) / 4) + (6 - s.l4)) / 2 * 10);
+}
+
+function phoneRisk() {
+  return {
+    'no phone before bed': 0, 'less than 30 minutes': 1,
+    '30 min–1 hour': 2, '1–2 hours': 3, '2–3 hours': 4, 'more than 3 hours': 5
+  }[answers.phonetime] || 0;
+}
+
+function isLateNight() {
+  return answers.bedtime === 'after 12 AM' || answers.bedtime === '11 PM–12 AM';
+}
+
+/* ── Show results ── */
+function showResults() {
+  document.getElementById('tracker-form').style.display = 'none';
+  const rd = document.getElementById('results');
+  rd.style.display = 'block';
+  window.scrollTo(0, 0);
+
+  const sc   = sleepScore();
+  const pr   = phoneRisk();
+  const late = isLateNight();
+
+  const overwork      = answers.workhours === '9 or more hours';
+  const sedentary     = answers.worktype  === 'Sitting';
+  const feelRested    = lAnswers.l3 === 'Yes, always'    || lAnswers.l3 === 'Most of the time';
+  const poorRested    = lAnswers.l3 === 'Not really'     || lAnswers.l3 === 'No, never';
+  const feelEnergetic = lAnswers.l5 === 'Yes, always'    || lAnswers.l5 === 'Most of the time';
+  const lowEnergy     = lAnswers.l5 === 'Not really'     || lAnswers.l5 === 'No, never';
+  const daySleepy     = lAnswers.l4 === 'Yes, always'    || lAnswers.l4 === 'Most of the time';
+  const hardToSleep   = lAnswers.l1 === 'Not really'     || lAnswers.l1 === 'No, never';
+  const shortSleep    = answers.sleep === '0–4 hours'    || answers.sleep === '5–6 hours';
+  const goodHours     = answers.sleep === '7–8 hours'    || answers.sleep === '9 or more hours';
+  const outcomeGood   = feelRested && feelEnergetic && !daySleepy;
+  const outcomePoor   = poorRested || lowEnergy || daySleepy;
+
+  let intro = '', emoji = '✨';
+  if (outcomeGood) {
+    intro = "Your body is doing well — you feel rested and have good energy. Keep up what you're doing!"; emoji = '🌟';
+  } else if (outcomePoor && goodHours) {
+    intro = `You sleep ${answers.sleep} but still don't feel your best. Duration isn't everything — a consistent bedtime and less phone time before bed can help a lot.`; emoji = '⚠️';
+  } else if (outcomePoor && shortSleep) {
+    intro = `You sleep ${answers.sleep} and your energy shows it. Small changes to your bedtime routine can make a big difference very quickly.`; emoji = '💤';
+  } else {
+    intro = 'Some things are going well and some could improve. The tips below are based on how you actually feel.'; emoji = '🔍';
+  }
+
+  const recs = [];
+  if (outcomeGood && late) recs.push({ l: '', t: '✅ You feel good — your routine is working', b: [`<strong>What's happening:</strong> You go to bed ${answers.bedtime} and your body has adapted — you feel rested and energised.`, `<strong>Why it works:</strong> A consistent bedtime, even a late one, beats an irregular schedule.`, `<strong>Keep doing:</strong> Same bedtime every day including weekends.`] });
+  else if (outcomeGood)   recs.push({ l: '', t: '✅ Your habits are working — keep it up', b: [`<strong>What's happening:</strong> You wake up rested and have good energy — the best sign of healthy sleep.`, `<strong>Keep doing:</strong> Consistent bedtime every night, even weekends. Check in again in a few weeks.`] });
+  if (outcomePoor && goodHours)  recs.push({ l: 'warn', t: '⚠️ Enough hours but still tired', b: [`<strong>What's happening:</strong> You sleep ${answers.sleep} but still wake up drained. More hours alone isn't always the fix.`, `<strong>Why:</strong> Phone use, irregular timing, or stress reduce sleep quality even with enough hours.`, `<strong>Try:</strong> Phone away 30–60 min before bed. Same wake time every day. Darker, quieter room.`] });
+  if (outcomePoor && shortSleep) recs.push({ l: 'bad',  t: '🔴 Not enough sleep — your body feels it', b: [`<strong>What's happening:</strong> You sleep ${answers.sleep} and feel tired and low on energy — directly linked.`, `<strong>Why:</strong> Your body needs 7–8 hours to rest and repair.`, `<strong>Try:</strong> Go to bed 15–20 min earlier this week. No caffeine after 2 pm. No phone in bed.`] });
+  if (hardToSleep)  recs.push({ l: 'warn', t: '⚠️ Hard to fall asleep', b: [`<strong>What's happening:</strong> Your mind stays active when you try to sleep.`, `<strong>Try:</strong> 30 minutes of calm before bed — no phone, dim lights, light reading. Same wake time every morning.`] });
+  if (daySleepy)    recs.push({ l: (daySleepy && poorRested) ? 'bad' : 'warn', t: (daySleepy && poorRested) ? '🔴 Very tired during the day' : '⚠️ Sleepy during the day', b: [`<strong>What's happening:</strong> You feel sleepy through the day — your night sleep isn't fully refreshing you.`, `<strong>Try:</strong> Same wake time every day. A 10–20 min nap before 3 pm can help. No phone for the last 30 min before bed.`] });
+  if (pr >= 2 && outcomePoor)   recs.push({ l: 'warn', t: '⚠️ Phone use before bed is hurting your sleep', b: [`<strong>What's happening:</strong> You use your phone ${answers.phonetime} before sleeping — these are connected.`, `<strong>Why:</strong> Screens signal your brain it's still daytime, reducing deep sleep.`, `<strong>Try:</strong> Phone away 30 min before bed. Replace with reading or gentle stretching.`] });
+  if (overwork && outcomePoor)  recs.push({ l: 'bad',  t: '🔴 Too many work hours is draining you', b: [`<strong>What's happening:</strong> You work ${answers.workhours} a day and feel drained.`, `<strong>Try:</strong> A short walk after work to decompress. Stop all work at least 1 hour before bed.`] });
+  if (sedentary && lowEnergy)   recs.push({ l: '',     t: '🪑 Sitting all day could be making you sluggish', b: [`<strong>Why:</strong> Long sitting slows circulation, making you feel heavy and unfocused.`, `<strong>Try:</strong> 2-minute movement break every hour. A short walk after lunch.`] });
+  if (late && outcomePoor)      recs.push({ l: 'bad',  t: '🔴 Very late bedtime is reducing sleep quality', b: [`<strong>Why:</strong> Your deepest sleep happens earlier in the night. Going late shifts this window.`, `<strong>Try:</strong> Move your bedtime 15 min earlier each week. Aim for 11 pm as a first goal.`] });
+  if (recs.length === 0) recs.push({ l: '', t: '✅ Everything looks good', b: [`<strong>What's happening:</strong> Your habits and how you feel are both in good shape.`, `<strong>Keep doing:</strong> Same bedtime every day. Check in again in a few weeks.`] });
+
+  rd.innerHTML = `
+    <div class="res-hero">
+      <div class="res-emoji">${emoji}</div>
+      <h3>Here is what we found…</h3>
+      <p>${intro}</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-val">${answers.workhours.replace(' hours','')}</div><div class="stat-sub">Work / day</div></div>
+      <div class="stat"><div class="stat-val">${answers.sleep.replace(' hours','')}</div><div class="stat-sub">Sleep / night</div></div>
+      <div class="stat"><div class="stat-val">${sc}<span style="font-size:12px;font-weight:400">/50</span></div><div class="stat-sub">Sleep score</div></div>
+      <div class="stat"><div class="stat-val" style="font-size:13px">${answers.bedtime}</div><div class="stat-sub">Bedtime</div></div>
+    </div>
+    <p class="sec-lbl">Tips just for you</p>
+    ${recs.map(r => `<div class="rec ${r.l}"><h4>${r.t}</h4><ul>${r.b.map(b => `<li>${b}</li>`).join('')}</ul></div>`).join('')}
+    <button type="button" id="restart-btn" onclick="restartForm()">↩ Take the quiz again</button>
+  `;
+}
+
+/* ── Restart ── */
+function restartForm() {
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('tracker-form').style.display = 'block';
+  document.querySelectorAll('.opt, .lbtn').forEach(b => b.classList.remove('sel'));
+  Object.keys(answers).forEach(k  => delete answers[k]);
+  Object.keys(lAnswers).forEach(k => delete lAnswers[k]);
+  document.getElementById('prog-bar').style.width     = '0%';
+  document.getElementById('prog-txt').textContent     = '0 of 12';
+  document.getElementById('submit-btn').disabled      = true;
+  window.scrollTo(0, 0);
+}
+  </script>
+</body>
+</html>
