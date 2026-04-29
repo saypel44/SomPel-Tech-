@@ -48,12 +48,6 @@
           </span>
           <span>Findings</span>
         </button>
-        <button class="nav-item" data-page="market" onclick="navigateTo('market', this)">
-          <span class="nav-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          </span>
-          <span>Market Readiness</span>
-        </button>
         <button class="nav-item" data-page="tableau" onclick="navigateTo('tableau', this)">
           <span class="nav-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -345,7 +339,8 @@
                 <tr class="findings-index-row" onclick="scrollToFinding('finding-3')"><td class="td-num">3</td><td>Correlation Insights</td></tr>
                 <tr class="findings-index-row" onclick="scrollToFinding('finding-4')"><td class="td-num">4</td><td>Habits Believed to Improve Sleep</td></tr>
                 <tr class="findings-index-row" onclick="scrollToFinding('finding-5')"><td class="td-num">5</td><td>Preferred App Features</td></tr>
-                <tr class="findings-index-row" onclick="scrollToFinding('finding-7')"><td class="td-num">6</td><td>Key Takeaways</td></tr>
+                <tr class="findings-index-row" onclick="scrollToFinding('finding-6')"><td class="td-num">6</td><td>Market Readiness</td></tr>
+                <tr class="findings-index-row" onclick="scrollToFinding('finding-7')"><td class="td-num">7</td><td>Key Takeaways</td></tr>
               </tbody>
             </table>
           </div>
@@ -542,13 +537,59 @@
               </div>
             </div>
 
+            <!-- ── FINDING 6: Market Readiness (moved from sidebar) ── -->
+            <div class="finding-card finding-card--wide" id="finding-6">
+              <div class="finding-number">06</div>
+              <h3 class="finding-title">Market Readiness — Is Bhutan Ready for Wellness Tools?</h3>
+              <p class="finding-text" style="margin-bottom:20px;">We asked participants: <em>"Would you use a sleep or wellness app?"</em> — 358 respondents · Bhutan 2026</p>
+
+              <!-- Coloured stat cards -->
+              <div class="mkt-cards">
+                <div class="mkt-card mkt-card--green">
+                  <div class="mkt-card-pct">58.42%</div>
+                  <div class="mkt-card-label">Ready to use it now</div>
+                  <div class="mkt-card-bar-track">
+                    <div class="mkt-card-bar-fill" data-target="58.42" style="width:0"></div>
+                  </div>
+                </div>
+                <div class="mkt-card mkt-card--amber">
+                  <div class="mkt-card-pct">36.6%</div>
+                  <div class="mkt-card-label">Open, but need convincing</div>
+                  <div class="mkt-card-bar-track">
+                    <div class="mkt-card-bar-fill" data-target="36.6" style="width:0"></div>
+                  </div>
+                </div>
+                <div class="mkt-card mkt-card--red">
+                  <div class="mkt-card-pct">4.96%</div>
+                  <div class="mkt-card-label">Not interested</div>
+                  <div class="mkt-card-bar-track">
+                    <div class="mkt-card-bar-fill" data-target="4.96" style="width:0"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Big stat -->
+              <div class="mkt-big-stat">
+                <div class="mkt-big-num">95%+</div>
+                <div class="mkt-big-label">said Yes or Maybe — not a maybe market, that is a waiting market</div>
+              </div>
+
+              <div class="fc-insight-box" style="margin-top:20px;">
+                🤔 <strong>Why are there more "Maybe" people?</strong> They are not sure. Most haven't tried a wellness tool before. That 36.6% is not a wall — it's a door waiting to be opened with the right message.
+              </div>
+
+              <div class="fc-insight-box" style="margin-top:12px;">
+                🎯 <strong>The opportunity is clear.</strong> The demand exists. Most people in Bhutan don't know a sleep tool is even possible. That gap between wanting better sleep and knowing how to get it is exactly where SomPel Tech steps in.
+              </div>
+            </div>
+
           </div>
 
           <!-- Key Takeaways -->
           <div class="finding-card finding-card--wide" id="finding-7">
-            <div class="finding-number">06</div>
+            <div class="finding-number">07</div>
             <h3 class="finding-title">Key Takeaways</h3>
-            <p class="finding-text" style="margin-bottom:20px;">Here is what all five findings add up to, in plain language:</p>
+            <p class="finding-text" style="margin-bottom:20px;">Here is what all the findings add up to, in plain language:</p>
             <div class="fc-takeaways">
               <div class="fc-takeaway-item">
                 <div class="fc-takeaway-icon">1</div>
@@ -576,81 +617,6 @@
         </div>
       </div>
       <!-- ── END PAGE: FINDINGS ── -->
-
-      <!-- ── PAGE: MARKET READINESS ── -->
-      <div class="page" id="page-market">
-        <div class="page-inner">
-          <div class="page-eyebrow">Market Readiness</div>
-          <h1 class="page-title">Is Bhutan Ready for <em>Wellness Tools?</em></h1>
-          <div class="page-divider"></div>
-
-          <div class="about-greeting-card" id="market-greeting-card">
-            <div class="about-greeting-icon">📱</div>
-            <p id="market-greeting-text"></p>
-          </div>
-
-          <!-- Intro -->
-          <div class="content-section">
-            <h2 class="section-heading">We asked participants the question.</h2>
-            </div>
-          <p class="market-bar-caption">"Would you use a sleep or wellness app?" — 358 respondents · Bhutan 2026</p>
-
-
-          <!-- Coloured stat cards -->
-          <div class="mkt-cards">
-            <div class="mkt-card mkt-card--green">
-              <!-- <div class="mkt-card-emoji"></div> -->
-              <div class="mkt-card-pct"> 58.42%</div>
-              <div class="mkt-card-label">Ready to use it now</div>
-              <div class="mkt-card-bar-track">
-                <div class="mkt-card-bar-fill" data-target="58.42" style="width:0"></div>
-              </div>
-            </div>
-            <div class="mkt-card mkt-card--amber">
-              <!-- <div class="mkt-card-emoji"></div> -->
-              <div class="mkt-card-pct"> 36.6%</div>
-              <div class="mkt-card-label">Open, but need convincing</div>
-              <div class="mkt-card-bar-track">
-                <div class="mkt-card-bar-fill" data-target="36.6" style="width:0"></div>
-              </div>
-            </div>
-            <div class="mkt-card mkt-card--red">
-              <!-- <div class="mkt-card-emoji"></div> -->
-              <div class="mkt-card-pct"> 4.96%</div>
-              <div class="mkt-card-label">Not interested</div>
-              <div class="mkt-card-bar-track">
-                <div class="mkt-card-bar-fill" data-target="4.96" style="width:0"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Big stat -->
-          <div class="mkt-big-stat">
-            <div class="mkt-big-num">95%+</div>
-            <div class="mkt-big-label">said Yes or Maybe is not a maybe market, that is a waiting market</div>
-          </div>
-
-          <!-- Maybe group -->
-          <div class="content-section">
-            <h2 class="section-heading">🤔 why are more "Maybe" people?</h2>
-            <p class="section-text">They are not sure. Most haven't tried a wellness tool before. That 36.6% is not a wall. It's a door waiting to be opened with the right message.</p>
-          </div>
-
-          <!-- Top choice -->
-          <!-- <div class="highlight-box">
-            <div class="highlight-icon">💡</div>
-            <div><strong>What do people actually want?</strong> A sleep tracking app on the phone they already own — plus a benchmarking website to compare their habits with others. No new devices. No complicated setup. Just something that works quietly in the background.</div>
-          </div> -->
-
-          <!-- Bottom line -->
-          <div class="content-section">
-            <h2 class="section-heading">🎯 The <em>opportunity</em> is clear.</h2>
-            <p class="section-text">The demand exists. Most people in Bhutan don't know a sleep tool is even possible. That gap between wanting better sleep and knowing how to get it is exactly where SomPel Tech steps in.</p>
-          </div>
-
-        </div>
-      </div>
-      <!-- ── END PAGE: MARKET READINESS ── -->
 
       <!-- ── PAGE: files TABLEAU STORY ── -->
       <div class="page" id="page-tableau">
