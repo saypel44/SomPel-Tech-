@@ -19,7 +19,7 @@ function setGreetingCards(name, greet) {
   const cards = [
     {
       id:   'findings-greeting-text',
-      text: `Here's a breakdown of the seven key findings from the study — from respondent distribution to market readiness for wellness tools.`,
+      text: `Here's a breakdown of the seven key findings from the study from respondent distribution to market readiness for wellness tools.`,
     },
     {
       id:   'market-greeting-text',
