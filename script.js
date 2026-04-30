@@ -41,21 +41,6 @@ function setGreetingCards(name, greet) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelector(".link-like").addEventListener("click", () => {
-    showPage("page-products");
-  });
-});
-
-// Hamburger
-function showAboutFirst(button) {
-    // Show about content
-    showHomeSection('about', button);
-
-    // Reveal other tabs
-    document.getElementById("otherHomeTabs").style.display = "flex";
-}
-
 
 // ── Pages that are live (others show "Coming Soon") ───────────────────────
 
@@ -95,8 +80,6 @@ function navigateTo(pageId, btn) {
 }
 
 
-
-
 // ── Show home section (tabs) ───────────────────────────────────────────────
 
 function showHomeSection(sectionId, btn) {
@@ -106,6 +89,13 @@ function showHomeSection(sectionId, btn) {
   const target = document.getElementById('home-' + sectionId);
   if (target) target.classList.add('active');
   if (btn) btn.classList.add('active');
+}
+
+// Hamburger
+function showAboutFirst(button) {
+  showHomeSection('about', button);
+  const otherTabs = document.getElementById("otherHomeTabs");
+  if (otherTabs) otherTabs.style.display = "flex";
 }
 
 
@@ -140,6 +130,7 @@ function scrollToFinding(id) {
   window.scrollTo({ top, behavior: 'smooth' });
 }
 
+
 // ── Toggle PDF/preview viewer ──────────────────────────────────────────────
 
 function togglePdfReader(viewerId, btn) {
@@ -153,20 +144,18 @@ function togglePdfReader(viewerId, btn) {
 }
 
 
+// ── Toggle story PDF (products page) ──────────────────────────────────────
 
 function toggleStoryPdf(btn) {
   const viewer = document.getElementById("story-pdf-viewer");
+  if (!viewer) return;
 
-  if (viewer.style.display === "none" || viewer.style.display === "") {
-    viewer.style.display = "block";
-    btn.innerText = "✖ Close PDF";
-    btn.classList.add("prc-toggle-btn--active");
-    viewer.scrollIntoView({ behavior: "smooth" });
-  } else {
-    viewer.style.display = "none";
-    btn.innerText = "⬇ Read as PDF";
-    btn.classList.remove("prc-toggle-btn--active");
-  }
+  const isOpen = viewer.style.display === "block";
+  viewer.style.display = isOpen ? "none" : "block";
+  btn.innerText = isOpen ? "↓ Read as PDF" : "✖ Close PDF";
+  btn.classList.toggle("prc-toggle-btn--active", !isOpen);
+
+  if (!isOpen) viewer.scrollIntoView({ behavior: "smooth" });
 }
 
 
@@ -175,18 +164,22 @@ function toggleStoryPdf(btn) {
 function toggleMobileSidebar() {
   const sidebar  = document.getElementById('sidebar');
   const backdrop = document.getElementById('sidebar-backdrop');
+  if (!sidebar) return;
+
   if (sidebar.classList.contains('open')) {
     closeMobileSidebar();
   } else {
     sidebar.classList.add('open');
-    backdrop.classList.add('visible');
+    if (backdrop) backdrop.classList.add('visible');
     document.body.style.overflow = 'hidden';
   }
 }
 
 function closeMobileSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-backdrop').classList.remove('visible');
+  const sidebar  = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  if (sidebar)  sidebar.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('visible');
   document.body.style.overflow = '';
 }
 
@@ -198,11 +191,8 @@ function autoLoadApp() {
 
   const greet = getGreeting();
 
-  // document.getElementById('sidebar-avatar').textContent = 'G';
-  // document.getElementById('sidebar-username').textContent = 'Guest';
-
-  document.getElementById('greeting-text').innerHTML =
-    `${greet}, welcome to SomPel Tech 2026.`;
+  const greetingEl = document.getElementById('greeting-text');
+  if (greetingEl) greetingEl.innerHTML = `${greet}, welcome to SomPel Tech 2026.`;
 
   setGreetingCards(visitorName, greet);
 
@@ -229,8 +219,17 @@ function doSignOut() {
 
 // ── DOMContentLoaded ───────────────────────────────────────────────────────
 
+// Make scroll event listeners passive for better performance
+document.addEventListener('touchstart', () => {}, { passive: true });
+document.addEventListener('wheel', () => {}, { passive: true });
+
 document.addEventListener('DOMContentLoaded', () => {
   autoLoadApp();
+
+  const linkLike = document.querySelector(".link-like");
+  if (linkLike) {
+    linkLike.addEventListener("click", () => navigateTo("products"));
+  }
 
   document.querySelectorAll('.sidebar .nav-item').forEach(item => {
     item.addEventListener('click', () => {
