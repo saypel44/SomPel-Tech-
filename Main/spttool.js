@@ -514,6 +514,78 @@ function playSound(soundId,customDataUrl) {
   osc.start();osc.stop(ctx.currentTime+0.8);
 }
 
+function fmt12(val24){
+  if(!val24)return{h:'',m:'',ampm:'AM'};
+  const [hh,mm]=val24.split(':').map(Number);
+  const ampm=hh<12?'AM':'PM';
+  const h12=hh%12||12;
+  return{h:String(h12),m:String(mm).padStart(2,'0'),ampm};
+}
+function to24(h,m,ampm){
+  let hh=parseInt(h)||0;
+  const mm=parseInt(m)||0;
+  if(ampm==='AM'&&hh===12)hh=0;
+  if(ampm==='PM'&&hh!==12)hh+=12;
+  return hh.toString().padStart(2,'0')+':'+mm.toString().padStart(2,'0');
+}
+function calcDiff(t1,t2){
+  if(!t1||!t2)return null;
+  const [h1,m1]=t1.split(':').map(Number);
+  const [h2,m2]=t2.split(':').map(Number);
+  let diff=(h2*60+m2)-(h1*60+m1);
+  if(diff<0)diff+=1440;
+  const hrs=Math.floor(diff/60);
+  const mins=diff%60;
+  return hrs>0?(mins>0?`${hrs}h ${mins}m`:`${hrs}h`):(mins>0?`${mins}m`:null);
+}
+
+function ampmPicker(prefix,label,defaultVal){
+  const f=fmt12(defaultVal);
+  return `<div class="ampm-field">
+    <label>${label}</label>
+    <div class="ampm-wrap">
+      <input class="ampm-hour" id="${prefix}-h" type="number" min="1" max="12" value="${f.h}" placeholder="12">
+      <span class="ampm-sep">:</span>
+      <input class="ampm-min" id="${prefix}-m" type="number" min="0" max="59" value="${f.m}" placeholder="00">
+      <div class="ampm-toggle">
+        <button type="button" class="ampm-btn${f.ampm==='AM'?' sel':''}" id="${prefix}-am" onclick="setAmPm('${prefix}','AM')" tabindex="-1">AM</button>
+        <button type="button" class="ampm-btn${f.ampm==='PM'?' sel':''}" id="${prefix}-pm" onclick="setAmPm('${prefix}','PM')" tabindex="-1">PM</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function setAmPm(prefix,val){
+  document.getElementById(prefix+'-am').classList.toggle('sel',val==='AM');
+  document.getElementById(prefix+'-pm').classList.toggle('sel',val==='PM');
+  updateDiff(prefix.split('-log-')[0].replace(/^log-/,''));
+}
+function getAmPmVal(prefix){
+  const h=document.getElementById(prefix+'-h')?.value||'12';
+  const m=document.getElementById(prefix+'-m')?.value||'00';
+  const ampm=document.getElementById(prefix+'-am')?.classList.contains('sel')?'AM':'PM';
+  return to24(h,m,ampm);
+}
+function updateDiff(hId){
+  const start=getAmPmVal(`log-${hId}-start`);
+  const end=getAmPmVal(`log-${hId}-end`);
+  const diff=calcDiff(start,end);
+  const el=document.getElementById(`diff-${hId}`);
+  if(el)el.textContent=diff?`⏱ Duration: ${diff}`:'';
+  // auto-fill duration field
+  if(diff){
+    const [h1,m1]=start.split(':').map(Number);
+    const [h2,m2]=end.split(':').map(Number);
+    let mins=(h2*60+m2)-(h1*60+m1);
+    if(mins<0)mins+=1440;
+    const habit=HABITS.find(h=>h.id===hId);
+    const durEl=document.getElementById('dur-'+hId);
+    if(durEl&&habit){
+      durEl.value=habit.unit==='hrs'?(mins/60).toFixed(1):mins;
+    }
+  }
+}
+
 function buildHabitCards(){
   const wrap=document.getElementById('habit-cards-wrap');
   wrap.innerHTML='';
@@ -529,20 +601,30 @@ function buildHabitCards(){
     card.innerHTML=`
       <div class="habit-card-head">
         <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:36px;height:36px;border-radius:10px;background:${h.color}18;border:1px solid ${h.color}30;display:flex;align-items:center;justify-content:center;font-size:18px">${h.icon}</div>
-          <span class="habit-name">${h.name}</span>
+          <div class="habit-icon-btn" style="background:${h.color}18;border-color:${h.color}40" onclick="toggleHabit('${h.id}')">${h.icon}</div>
+          <div>
+            <div class="habit-name">${h.name}</div>
+            ${alarm.active?`<div class="alarm-mini-badge">⏰ ${fmt12(alarm.from).h}:${fmt12(alarm.from).m} ${fmt12(alarm.from).ampm} – ${fmt12(alarm.to).h}:${fmt12(alarm.to).m} ${fmt12(alarm.to).ampm}</div>`:'<div class="alarm-mini-badge muted">No alarm set</div>'}
+          </div>
         </div>
-        <div class="habit-toggle" onclick="toggleHabit('${h.id}')">
-          <span style="font-size:11px;color:var(--muted)">${enabled?'On':'Off'}</span>
-          <div class="toggle-track ${enabled?'on':''}" id="toggle-${h.id}"><div class="toggle-knob"></div></div>
+        <div class="habit-card-actions">
+          <button class="icon-action-btn ${alarm.active?'alarm-on':''}" title="Set alarm" onclick="toggleAlarmPanel('${h.id}')">⏰</button>
+          <button class="icon-action-btn log-action-btn" title="Log now" onclick="toggleLogPanel('${h.id}')">✏️</button>
+          <div class="habit-toggle" onclick="toggleHabit('${h.id}')">
+            <span class="toggle-lbl" style="font-size:11px;color:var(--muted)">${enabled?'On':'Off'}</span>
+            <div class="toggle-track ${enabled?'on':''}" id="toggle-${h.id}"><div class="toggle-knob"></div></div>
+          </div>
         </div>
       </div>
-      <div class="alarm-section ${enabled?'visible':''}" id="alarm-${h.id}">
-        <div class="alarm-row">
-          <div class="time-field"><label>Remind from</label><input type="time" id="from-${h.id}" value="${alarm.from||'08:00'}"></div>
-          <div class="time-field"><label>Until</label><input type="time" id="to-${h.id}" value="${alarm.to||'22:00'}"></div>
+
+      <div class="alarm-panel" id="alarm-panel-${h.id}" style="display:none">
+        <div class="panel-section-lbl">⏰ Set alarm window</div>
+        <div class="alarm-ampm-row">
+          ${ampmPicker(`alarm-${h.id}-from`,'From',alarm.from||'08:00')}
+          <div class="ampm-arrow">→</div>
+          ${ampmPicker(`alarm-${h.id}-to`,'Until',alarm.to||'22:00')}
         </div>
-        <div class="sound-row">
+        <div class="sound-row" style="margin-top:10px">
           <div class="sound-label">Alarm sound</div>
           <div class="sound-opts">
             ${SOUNDS.map(s=>`<button class="sound-btn ${selSound===s.id?'sel':''}" onclick="selectSound('${h.id}','${s.id}',this)">${s.name}</button>`).join('')}
@@ -550,34 +632,76 @@ function buildHabitCards(){
             <input type="file" id="sound-upload-${h.id}" accept="audio/*" style="display:none" onchange="uploadSound('${h.id}',this)">
           </div>
         </div>
-        ${alarm.active?`<div class="alarm-active-badge"><div class="dot"></div>Alarm set: ${alarm.from} – ${alarm.to}</div>`:''}
-        <button class="set-alarm-btn" onclick="setAlarm('${h.id}')">${alarm.active?'Update alarm':'Set alarm ⏰'}</button>
-        <div class="log-entry-section">
-          <div class="log-entry-title">📝 Log today's ${h.name.toLowerCase()}</div>
-          <div class="log-duration-row">
-            <div class="time-field" style="max-width:120px"><label>Duration (${h.unit})</label><input type="number" id="dur-${h.id}" min="0" max="24" step="0.5" placeholder="e.g. 7.5" style="padding:9px 12px;border:1px solid var(--border);border-radius:var(--rsm);font-family:'Sora',sans-serif;font-size:13px;width:100%;outline:none;background:var(--surf2);color:var(--text)"></div>
-            <div class="time-field" style="max-width:120px"><label>Start time</label><input type="time" id="start-${h.id}" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--rsm);font-family:'Sora',sans-serif;font-size:13px;outline:none;background:var(--surf2);color:var(--text)"></div>
-            <div class="time-field" style="max-width:120px"><label>End time</label><input type="time" id="end-${h.id}" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--rsm);font-family:'Sora',sans-serif;font-size:13px;outline:none;background:var(--surf2);color:var(--text)"></div>
-          </div>
-          <textarea class="log-note" id="note-${h.id}" rows="2" placeholder="Optional note…"></textarea>
-          <button class="log-btn" style="margin-top:8px" onclick="logHabit('${h.id}')">Save log</button>
+        <button class="set-alarm-btn" style="margin-top:10px" onclick="setAlarmAmPm('${h.id}')">${alarm.active?'Update alarm ⏰':'Set alarm ⏰'}</button>
+        ${alarm.active?`<button class="set-alarm-btn" style="margin-top:6px;background:var(--red-lt);color:var(--red);border-color:var(--red)" onclick="clearAlarm('${h.id}')">Remove alarm</button>`:''}
+      </div>
+
+      <div class="log-panel" id="log-panel-${h.id}" style="display:none">
+        <div class="panel-section-lbl">✏️ Log today's ${h.name.toLowerCase()}</div>
+        <div class="log-ampm-row">
+          ${ampmPicker(`log-${h.id}-start`,'Start time','09:00')}
+          <div class="ampm-arrow">→</div>
+          ${ampmPicker(`log-${h.id}-end`,'End time','10:00')}
         </div>
+        <div class="diff-display" id="diff-${h.id}"></div>
+        <div class="dur-manual-row">
+          <div class="ampm-field" style="flex:1">
+            <label>Or enter duration (${h.unit})</label>
+            <input type="number" id="dur-${h.id}" min="0" max="24" step="0.5" placeholder="e.g. 7.5" class="dur-input">
+          </div>
+        </div>
+        <textarea class="log-note" id="note-${h.id}" rows="2" placeholder="Optional note…"></textarea>
+        <button class="log-btn" style="margin-top:8px" onclick="logHabit('${h.id}')">Save log ✓</button>
       </div>`;
     wrap.appendChild(card);
+
+    // wire up live diff updates
+    ['h','m','am','pm'].forEach(s=>{
+      const elS=document.getElementById(`log-${h.id}-start-${s==='am'?'am':s==='pm'?'pm':s}`);
+      const elE=document.getElementById(`log-${h.id}-end-${s==='am'?'am':s==='pm'?'pm':s}`);
+      if(elS)elS.addEventListener('input',()=>updateDiff(h.id));
+      if(elE)elE.addEventListener('input',()=>updateDiff(h.id));
+    });
   });
+}
+
+function toggleAlarmPanel(id){
+  const p=document.getElementById('alarm-panel-'+id);
+  const l=document.getElementById('log-panel-'+id);
+  if(l)l.style.display='none';
+  if(p)p.style.display=p.style.display==='none'?'block':'none';
+}
+function toggleLogPanel(id){
+  const p=document.getElementById('log-panel-'+id);
+  const a=document.getElementById('alarm-panel-'+id);
+  if(a)a.style.display='none';
+  if(p){
+    p.style.display=p.style.display==='none'?'block':'none';
+    if(p.style.display==='block') updateDiff(id);
+  }
+}
+function setAlarmAmPm(id){
+  const ud=getUserData();if(!ud)return;
+  const from=getAmPmVal(`alarm-${id}-from`);
+  const to=getAmPmVal(`alarm-${id}-to`);
+  ud.alarms[id]={from,to,active:true};
+  saveUserData();
+  buildHabitCards();
+  // re-open alarm panel
+  setTimeout(()=>{ const p=document.getElementById('alarm-panel-'+id); if(p)p.style.display='block'; },50);
+}
+function clearAlarm(id){
+  const ud=getUserData();if(!ud)return;
+  ud.alarms[id]={active:false};
+  saveUserData();
+  buildHabitCards();
 }
 
 function toggleHabit(id){
   const ud=getUserData();if(!ud)return;
   ud.habitEnabled[id]=!ud.habitEnabled[id];
-  const enabled=ud.habitEnabled[id];
-  const track=document.getElementById('toggle-'+id);
-  const section=document.getElementById('alarm-'+id);
-  const labelEl=track.previousElementSibling;
-  if(track){track.classList.toggle('on',enabled);}
-  if(labelEl){labelEl.textContent=enabled?'On':'Off';}
-  if(section){section.classList.toggle('visible',enabled);}
   saveUserData();
+  buildHabitCards();
 }
 
 function selectSound(habitId,soundId,btn){
@@ -609,20 +733,13 @@ function uploadSound(habitId,input){
   reader.readAsDataURL(file);
 }
 
-function setAlarm(id){
-  const ud=getUserData();if(!ud)return;
-  const from=document.getElementById('from-'+id).value;
-  const to=document.getElementById('to-'+id).value;
-  ud.alarms[id]={from,to,active:true};
-  saveUserData();
-  buildHabitCards();
-}
+/* setAlarm replaced by setAlarmAmPm above */
 
 function logHabit(id){
   const ud=getUserData();if(!ud)return;
   const dur=parseFloat(document.getElementById('dur-'+id).value)||0;
-  const startT=document.getElementById('start-'+id).value;
-  const endT=document.getElementById('end-'+id).value;
+  const startT=getAmPmVal(`log-${id}-start`);
+  const endT=getAmPmVal(`log-${id}-end`);
   const note=document.getElementById('note-'+id).value;
   const habit=HABITS.find(h=>h.id===id);
   if(!dur&&!startT){alert('Please enter a duration or start time.');return;}
@@ -641,8 +758,6 @@ function logHabit(id){
   ud.logs.push(entry);
   saveUserData();
   document.getElementById('dur-'+id).value='';
-  document.getElementById('start-'+id).value='';
-  document.getElementById('end-'+id).value='';
   document.getElementById('note-'+id).value='';
   const btn=document.querySelector(`#habit-card-${id} .log-btn`);
   if(btn){const orig=btn.textContent;btn.textContent='✅ Saved!';btn.style.background='var(--green-dk)';setTimeout(()=>{btn.textContent=orig;btn.style.background='';},1500);}
@@ -898,29 +1013,97 @@ function buildHabitChart(habit,dates,vals,unit){
   const card=document.createElement('div');
   card.className='chart-card';
   const trend=calcTrend(vals);
-  const labels=dates.map(d=>new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+  const labels=dates.map(d=>new Date(d+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}));
   const canvasId='chart-'+habit.id;
   const avgVal=trend.avg.toFixed(1);
   const rec=getHabitRec(habit.id,trend,unit);
+
+  // build linear trendline points
+  const n=vals.length;
+  let trendData=[];
+  if(n>=2){
+    const sumX=vals.reduce((_,__,i)=>_+i,0);
+    const sumY=vals.reduce((a,b)=>a+b,0);
+    const sumXY=vals.reduce((a,b,i)=>a+i*b,0);
+    const sumXX=vals.reduce((a,_,i)=>a+i*i,0);
+    const slope=(n*sumXY-sumX*sumY)/(n*sumXX-sumX*sumX);
+    const intercept=(sumY-slope*sumX)/n;
+    trendData=vals.map((_,i)=>parseFloat((intercept+slope*i).toFixed(2)));
+  }
+
+  // duration-diff analysis: find start/end log entries for this habit
+  const ud=getUserData();
+  const diffLogs=(ud?.logs||[]).filter(l=>l.habitId===habit.id&&l.startTime&&l.endTime);
+  let diffHTML='';
+  if(diffLogs.length>=1){
+    const diffs=diffLogs.map(l=>{
+      const diff=calcDiff(l.startTime,l.endTime);
+      return{date:l.date,diff,start:l.startTime,end:l.endTime};
+    }).filter(d=>d.diff);
+    if(diffs.length){
+      const last=diffs[diffs.length-1];
+      const fmt=(t)=>{const f=fmt12(t);return `${f.h}:${f.m} ${f.ampm}`;};
+      diffHTML=`<div class="diff-analysis">
+        <span class="diff-chip">Last session: ${fmt(last.start)} → ${fmt(last.end)} <strong>${last.diff}</strong></span>
+        ${diffs.length>1?`<span class="diff-chip muted">Sessions logged: ${diffs.length}</span>`:''}
+      </div>`;
+    }
+  }
+
   card.innerHTML=`
     <div class="chart-title">${habit.icon} ${habit.name}</div>
-    <div class="chart-sub">Daily ${unit} logged</div>
-    <div style="position:relative;width:100%;height:160px"><canvas id="${canvasId}" role="img" aria-label="${habit.name} trend">Your ${habit.name.toLowerCase()} over time.</canvas></div>
+    <div class="chart-sub">Daily ${unit} logged · avg <strong>${avgVal} ${unit}</strong></div>
+    <div style="position:relative;width:100%;height:170px"><canvas id="${canvasId}"></canvas></div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px">
       <div class="trend-badge ${trend.dir}">
         ${trend.dir==='up'?'↑ Trending up':trend.dir==='down'?'↓ Trending down':'→ Stable'}
       </div>
-      <span style="font-size:11px;color:var(--hint)">avg ${avgVal} ${unit}/day</span>
+      <span class="trendline-legend"><span class="trendline-dot"></span> Trendline</span>
     </div>
+    ${diffHTML}
     ${rec?`<div class="chart-rec">${rec}</div>`:''}`;
+
   setTimeout(()=>{
     const ctx=document.getElementById(canvasId);
     if(!ctx)return;
     const color=habit.color||'#1D9E75';
+    const datasets=[{
+      label:habit.name,
+      data:vals,
+      borderColor:color,
+      backgroundColor:color+'18',
+      pointBackgroundColor:color,
+      pointRadius:4,
+      tension:.35,
+      fill:true,
+      order:2
+    }];
+    if(trendData.length){
+      datasets.push({
+        label:'Trend',
+        data:trendData,
+        borderColor:color,
+        borderWidth:2,
+        borderDash:[6,4],
+        pointRadius:0,
+        tension:0,
+        fill:false,
+        backgroundColor:'transparent',
+        order:1
+      });
+    }
     chartInstances[habit.id]=new Chart(ctx,{
       type:'line',
-      data:{labels,datasets:[{label:habit.name,data:vals,borderColor:color,backgroundColor:color+'18',pointBackgroundColor:color,tension:.35,fill:true,borderDash:[]}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0}}}
+      data:{labels,datasets},
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label==='Trend'?'Trend: ':''}${ctx.parsed.y} ${unit}`}}
+        },
+        scales:{y:{min:0,ticks:{maxTicksLimit:5}}}
+      }
     });
   },50);
   return card;
