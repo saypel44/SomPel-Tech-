@@ -167,7 +167,7 @@ const likertQs=[
   {id:'l1',text:'I can fall asleep easily.'},
   {id:'l2',text:'I sleep well most nights.'},
   {id:'l3',text:'I wake up feeling rested.'},
-  {id:'l4',text:'I feel sleepy during the day.'},
+  {id:'l4',text:'I stay alert during the day.'},
   {id:'l5',text:'I have good energy during the day.'}
 ];
 const likertOpts=['Yes, always','Most of the time','Sometimes','Not really','No, never'];
@@ -231,7 +231,7 @@ function detectContradictions() {
   const feelGoodAll=
     (lAnswers.l3==='Yes, always'||lAnswers.l3==='Most of the time')&&
     (lAnswers.l5==='Yes, always'||lAnswers.l5==='Most of the time')&&
-    (lAnswers.l4==='Not really'||lAnswers.l4==='No, never')&&
+    (lAnswers.l4==='Yes, always'||lAnswers.l4==='Most of the time')&&
     (lAnswers.l1==='Yes, always'||lAnswers.l1==='Most of the time');
 
   const overwork=answers.workhours==='9 or more hours';
