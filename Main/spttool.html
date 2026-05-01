@@ -335,6 +335,19 @@
       </div>
     </div>
 
+        <!-- Sound -->
+    <div class="add-alarm-section">
+      <div class="add-alarm-section-lbl">🔔 Alarm Sound</div>
+      <div class="sound-opts" id="aa-sounds">
+        <button class="sound-btn sel" data-sound="bell" onclick="aaSelectSound(this)">🔔 Bell</button>
+        <button class="sound-btn" data-sound="chime" onclick="aaSelectSound(this)">🎵 Chime</button>
+        <button class="sound-btn" data-sound="nature" onclick="aaSelectSound(this)">🌿 Nature</button>
+        <button class="sound-btn" data-sound="soft" onclick="aaSelectSound(this)">🎶 Soft Tone</button>
+        <button class="upload-sound-btn" onclick="document.getElementById('aa-sound-upload').click()">📎 My Sound</button>
+        <input type="file" id="aa-sound-upload" accept="audio/*" style="display:none" onchange="aaUploadSound(this)">
+      </div>
+    </div>
+
     <!-- Save -->
     <div class="add-alarm-section" style="border-bottom:none">
       <button class="auth-btn" onclick="saveSchedule()" id="sc-save-btn">💾 Save Schedule</button>
