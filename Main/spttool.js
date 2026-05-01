@@ -940,12 +940,20 @@ function showDayLogs(dateStr){
       <button onclick="deleteLog(${l.id})" style="background:none;border:none;cursor:pointer;color:var(--hint);font-size:16px;padding:2px 4px;flex-shrink:0" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--hint)'">🗑</button>`;
     entries.appendChild(item);
   });
+  
+  // Show calendar events with option to convert to schedule
   calEvts.forEach(e=>{
     const item=document.createElement('div');
     item.className='log-entry-item';
-    item.innerHTML=`<div class="log-entry-icon">📅</div><div class="log-entry-meta"><div class="log-entry-habit">${e.title}</div><div class="log-entry-dur">Calendar event</div></div>`;
+    item.innerHTML=`<div class="log-entry-icon">📅</div>
+      <div class="log-entry-meta">
+        <div class="log-entry-habit">${e.title}</div>
+        <div class="log-entry-dur">Calendar event</div>
+      </div>
+      <button class="log-btn" style="padding:6px 10px;font-size:11px;margin:0" onclick="convertCalEventToSchedule('${e.title}','${dateStr}')">＋ Add to Tracker</button>`;
     entries.appendChild(item);
   });
+  
   if(isFuture){
     const addBtn=document.createElement('button');
     addBtn.className='log-btn';
@@ -954,6 +962,45 @@ function showDayLogs(dateStr){
     addBtn.onclick=()=>lfGoToDate(dateStr);
     entries.appendChild(addBtn);
   }
+}
+
+/* Convert calendar event to schedule */
+function convertCalEventToSchedule(title, date) {
+  const ud = getUserData();
+  if (!ud) return;
+  if (!ud.schedules) ud.schedules = [];
+  
+  // Try to match category from title
+  let category = 'Other';
+  const titleLower = title.toLowerCase();
+  const catMap = {
+    'sleep': 'Sleep', 'meeting': 'Work', 'work': 'Work', 'class': 'Studies',
+    'study': 'Studies', 'exercise': 'Exercise', 'gym': 'Exercise', 'run': 'Exercise',
+    'meal': 'Meals', 'lunch': 'Meals', 'dinner': 'Meals', 'breakfast': 'Meals',
+    'reading': 'Reading', 'book': 'Reading', 'meditation': 'Meditation', 'yoga': 'Meditation'
+  };
+  for (const [key, val] of Object.entries(catMap)) {
+    if (titleLower.includes(key)) { category = val; break; }
+  }
+  
+  // Default time 9am-10am
+  const entry = {
+    id: Date.now(),
+    category,
+    date,
+    fromTime: '09:00',
+    toTime: '10:00',
+    durationMins: 60,
+    tasks: [],
+    createdAt: new Date().toISOString(),
+    fromCal: true,
+    calTitle: title
+  };
+  
+  ud.schedules.push(entry);
+  saveUserData();
+  renderTrackerSchedules();
+  alert(`✅ Added "${title}" to your Tracker schedules!`);
 }
 
 /* ═══════════════════════════════════════
