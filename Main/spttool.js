@@ -24,8 +24,9 @@ function getUserData() {
       _currentData = JSON.parse(localStorage.getItem('qt_data_' + currentUser.username) || 'null');
     } catch(e) { _currentData = null; }
     if (!_currentData) {
-      _currentData = { logs:[], alarms:{}, habitEnabled:{}, selectedSounds:{}, customSounds:{}, checkInHistory:[] };
+      _currentData = { logs:[], alarms:{}, habitEnabled:{}, selectedSounds:{}, customSounds:{}, checkInHistory:[], quickAlarms:[] };
     }
+    if (!_currentData.quickAlarms) _currentData.quickAlarms = [];
   }
   return _currentData;
 }
@@ -99,6 +100,7 @@ function launchApp(user) {
   renderCalendar();
   renderTrends();
   renderHistory();
+  renderTrackerSchedules();
   startAlarmWatcher();
   window.scrollTo(0, 0);
 }
@@ -145,19 +147,16 @@ function showTab(t) {
   document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(b=>{
-    if(b.textContent.toLowerCase().includes(t.replace('-',' '))||
-       (t==='check-in'&&b.textContent.includes('Check'))||
-       (t==='tracker'&&b.textContent.includes('Habit'))||
+    if((t==='check-in'&&b.textContent.includes('Check'))||
+       (t==='tracker'&&b.textContent.includes('Tracker'))||
        (t==='history'&&b.textContent.includes('History'))||
-       (t==='calendar'&&b.textContent.includes('Calendar'))||
        (t==='trends'&&b.textContent.includes('Trends'))) {
       b.classList.add('active');
     }
   });
   if(t==='trends') renderTrends();
-  if(t==='calendar') renderCalendar();
-  if(t==='history') renderHistory();
-  if(t==='settings') renderSettings();
+  if(t==='history'){ renderCalendar(); renderHistory(); }
+  // tracker rendering is handled by the appended showTab override below
 }
 
 /* ═══════════════════════════════════════
@@ -878,8 +877,10 @@ function renderCalendar(){
   const first=new Date(calYear,calMonth,1).getDay();
   const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
   const today=new Date();
+  const todayStr=today.toISOString().split('T')[0];
   const ud=getUserData();
   const logDates=new Set(ud?ud.logs.map(l=>l.date):[]);
+  const futureDates=new Set([...logDates].filter(d=>d>todayStr));
 
   for(let i=0;i<first;i++){
     const prev=new Date(calYear,calMonth,-(first-i-1));
@@ -895,6 +896,7 @@ function renderCalendar(){
     el.textContent=d;
     if(today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d) el.classList.add('today');
     if(logDates.has(dateStr)) el.classList.add('has-log');
+    if(futureDates.has(dateStr)) el.classList.add('has-plan');
     if(selectedDay===dateStr) el.classList.add('selected');
     el.onclick=()=>{selectedDay=dateStr;renderCalendar();showDayLogs(dateStr);};
     grid.appendChild(el);
@@ -907,25 +909,35 @@ function showDayLogs(dateStr){
   const title=document.getElementById('day-log-title');
   const entries=document.getElementById('day-log-entries');
   const ud=getUserData();
-  const d=new Date(dateStr);
+  const d=new Date(dateStr+'T12:00:00');
+  const todayStr=new Date().toISOString().split('T')[0];
+  const isFuture=dateStr>todayStr;
   const opts={weekday:'long',month:'long',day:'numeric'};
-  title.textContent=d.toLocaleDateString('en-US',opts);
+  title.textContent=d.toLocaleDateString('en-US',opts)+(isFuture?' 🔮 — Planned':'');
   entries.innerHTML='';
   const dayLogs=(ud?ud.logs:[]).filter(l=>l.date===dateStr);
   const calEvts=importedCalEvents.filter(e=>e.date===dateStr);
+
   if(!dayLogs.length&&!calEvts.length){
-    entries.innerHTML=`<div style="font-size:13px;color:var(--hint);padding:10px 0">No logs recorded for this day.</div>`;
+    if(isFuture){
+      entries.innerHTML=`<div style="font-size:13px;color:var(--hint);padding:8px 0 4px">No plans yet. Go to <strong>Tracker</strong> and pick this date to schedule something.</div>
+      <button class="log-btn" style="margin-top:6px" onclick="lfGoToDate('${dateStr}')">＋ Plan this day →</button>`;
+    } else {
+      entries.innerHTML=`<div style="font-size:13px;color:var(--hint);padding:8px 0">No logs recorded for this day.</div>`;
+    }
     return;
   }
+
   dayLogs.forEach(l=>{
     const item=document.createElement('div');
     item.className='log-entry-item';
     item.innerHTML=`<div class="log-entry-icon">${l.habitIcon}</div>
       <div class="log-entry-meta">
-        <div class="log-entry-habit">${l.habitName}</div>
-        <div class="log-entry-dur">${l.duration} ${l.unit}${l.startTime?` · ${l.startTime}–${l.endTime||'?'}`:''}</div>
-        ${l.note?`<div class="log-entry-note">${l.note}</div>`:''}
-      </div>`;
+        <div class="log-entry-habit">${l.habitName}${l.isQuickAlarm?'<span class="qa-history-badge">⏰ Alarm</span>':''}</div>
+        <div class="log-entry-dur">${l.startTime?`${l.startTime}–${l.endTime||'?'} · `:''}${l.duration} ${l.unit}</div>
+        ${l.note?`<div class="log-entry-note">💬 ${l.note}</div>`:''}
+      </div>
+      <button onclick="deleteLog(${l.id})" style="background:none;border:none;cursor:pointer;color:var(--hint);font-size:16px;padding:2px 4px;flex-shrink:0" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--hint)'">🗑</button>`;
     entries.appendChild(item);
   });
   calEvts.forEach(e=>{
@@ -934,6 +946,248 @@ function showDayLogs(dateStr){
     item.innerHTML=`<div class="log-entry-icon">📅</div><div class="log-entry-meta"><div class="log-entry-habit">${e.title}</div><div class="log-entry-dur">Calendar event</div></div>`;
     entries.appendChild(item);
   });
+  if(isFuture){
+    const addBtn=document.createElement('button');
+    addBtn.className='log-btn';
+    addBtn.style.marginTop='8px';
+    addBtn.textContent='＋ Add more to this day →';
+    addBtn.onclick=()=>lfGoToDate(dateStr);
+    entries.appendChild(addBtn);
+  }
+}
+
+/* ═══════════════════════════════════════
+   CALENDAR 2  (mini, inside Tracker tab)
+═══════════════════════════════════════ */
+let cal2Year=new Date().getFullYear();
+let cal2Month=new Date().getMonth();
+let selectedDay2=null;
+
+function changeMonth2(delta){
+  cal2Month+=delta;
+  if(cal2Month>11){cal2Month=0;cal2Year++;}
+  if(cal2Month<0){cal2Month=11;cal2Year--;}
+  renderCalendar2();
+}
+
+function renderCalendar2(){
+  const label=document.getElementById('cal2-month-label');
+  const grid=document.getElementById('cal2-grid');
+  if(!label||!grid)return;
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  label.textContent=months[cal2Month]+' '+cal2Year;
+  grid.innerHTML='';
+  const days=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  days.forEach(d=>{const el=document.createElement('div');el.className='cal-day-name';el.textContent=d;grid.appendChild(el);});
+  const first=new Date(cal2Year,cal2Month,1).getDay();
+  const daysInMonth=new Date(cal2Year,cal2Month+1,0).getDate();
+  const today=new Date();
+  const ud=getUserData();
+  const logDates=new Set(ud?ud.logs.map(l=>l.date):[]);
+  for(let i=0;i<first;i++){const el=document.createElement('div');el.className='cal-day other-month';el.textContent=new Date(cal2Year,cal2Month,-(first-i-1)).getDate();grid.appendChild(el);}
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=`${cal2Year}-${String(cal2Month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el=document.createElement('div');
+    el.className='cal-day';
+    el.textContent=d;
+    if(today.getFullYear()===cal2Year&&today.getMonth()===cal2Month&&today.getDate()===d) el.classList.add('today');
+    if(logDates.has(dateStr)) el.classList.add('has-log');
+    if(selectedDay2===dateStr) el.classList.add('selected');
+    el.onclick=()=>{selectedDay2=dateStr;renderCalendar2();showDayLogs2(dateStr);};
+    grid.appendChild(el);
+  }
+  if(selectedDay2)showDayLogs2(selectedDay2);
+}
+
+function showDayLogs2(dateStr){
+  const panel=document.getElementById('day2-log-panel');
+  const title=document.getElementById('day2-log-title');
+  const entries=document.getElementById('day2-log-entries');
+  if(!panel||!title||!entries)return;
+  panel.style.display='block';
+  const d=new Date(dateStr+'T12:00:00');
+  const isToday=dateStr===new Date().toISOString().split('T')[0];
+  const isFuture=dateStr>new Date().toISOString().split('T')[0];
+  title.textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+(isFuture?' 🔮':'');
+  entries.innerHTML='';
+  const ud=getUserData();
+  const dayLogs=(ud?ud.logs:[]).filter(l=>l.date===dateStr);
+  if(!dayLogs.length){
+    if(isFuture){
+      entries.innerHTML=`<div style="font-size:13px;color:var(--hint);padding:8px 0">No plans yet for this day. Use the log form above to schedule an activity.</div>`;
+    } else {
+      entries.innerHTML=`<div style="font-size:13px;color:var(--hint);padding:8px 0">Nothing logged for this day.</div>`;
+    }
+    return;
+  }
+  dayLogs.forEach(l=>{
+    const item=document.createElement('div');
+    item.className='log-entry-item';
+    item.innerHTML=`<div class="log-entry-icon">${l.habitIcon}</div>
+      <div class="log-entry-meta">
+        <div class="log-entry-habit">${l.habitName}</div>
+        <div class="log-entry-dur">${l.startTime?`${l.startTime}–${l.endTime||'?'} · `:''}${l.duration} ${l.unit}</div>
+        ${l.note?`<div class="log-entry-note">💬 ${l.note}</div>`:''}
+      </div>
+      <button onclick="deleteLog(${l.id})" style="background:none;border:none;cursor:pointer;color:var(--hint);font-size:16px;padding:2px 4px;flex-shrink:0" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--hint)'">🗑</button>`;
+    entries.appendChild(item);
+  });
+}
+
+/* ═══════════════════════════════════════
+   NEW LOG FORM  (Tracker tab)
+═══════════════════════════════════════ */
+let _lfCat='';
+let _lfIcon='📋';
+let _lfSound='bell';
+let _lfCustomSound=null;
+
+// Habit id map for trends compatibility
+const LF_CAT_HABIT_MAP={
+  'Sleep':'sleep','Work':'work','Exercise':'exercise','Screen Use':'screen',
+  'Reading':'reading','Meditation':'meditation','Meals':'meals','Studies':'studies'
+};
+const LF_CAT_UNIT_MAP={
+  'Sleep':'hrs','Work':'hrs','Screen Use':'hrs','Meals':'hrs',
+  'Exercise':'mins','Reading':'mins','Meditation':'mins','Studies':'mins'
+};
+
+function lfInit(){
+  // Set today's date
+  const dateEl=document.getElementById('lf-date');
+  if(dateEl) dateEl.value=new Date().toISOString().split('T')[0];
+  // Wire live diff
+  ['lf-start-h','lf-start-m','lf-end-h','lf-end-m'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener('input',lfUpdateDiff);
+  });
+  lfUpdateDiff();
+}
+
+document.addEventListener('DOMContentLoaded', lfInit);
+
+function lfSetAmPm(side,val){
+  document.getElementById(`lf-${side}-am`).classList.toggle('sel',val==='AM');
+  document.getElementById(`lf-${side}-pm`).classList.toggle('sel',val==='PM');
+  lfUpdateDiff();
+}
+function _lfGetTime(side){
+  const h=document.getElementById(`lf-${side}-h`).value||'8';
+  const m=document.getElementById(`lf-${side}-m`).value||'00';
+  const isAM=document.getElementById(`lf-${side}-am`).classList.contains('sel');
+  return to24(h,m,isAM?'AM':'PM');
+}
+function lfUpdateDiff(){
+  const from=_lfGetTime('start');
+  const to=_lfGetTime('end');
+  const diff=calcDiff(from,to);
+  const el=document.getElementById('lf-diff');
+  if(el) el.textContent=diff?`⏱ Duration: ${diff}`:'';
+}
+function lfSelectCat(btn){
+  document.getElementById('lf-cats').querySelectorAll('.lf-cat-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  _lfCat=btn.dataset.cat;
+  _lfIcon=btn.dataset.icon||'📋';
+  const customInput=document.getElementById('lf-custom');
+  if(!_lfCat){customInput.style.display='block';customInput.focus();}
+  else{customInput.style.display='none';customInput.value='';}
+}
+function lfCustomTyped(){
+  _lfCat='';
+  document.getElementById('lf-cats').querySelectorAll('.lf-cat-btn').forEach(b=>b.classList.remove('sel'));
+}
+function lfToggleReminder(){
+  const checked=document.getElementById('lf-reminder-check').checked;
+  document.getElementById('lf-reminder-sound').style.display=checked?'block':'none';
+}
+function lfSelectSound(btn){
+  btn.closest('.sound-opts').querySelectorAll('.sound-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  _lfSound=btn.dataset.sound;
+  _lfCustomSound=null;
+  playSound(_lfSound,null);
+}
+function lfUploadSound(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{_lfCustomSound=e.target.result;_lfSound='custom';playSound('custom',_lfCustomSound);};
+  reader.readAsDataURL(file);
+}
+function lfSaveLog(){
+  const customText=document.getElementById('lf-custom').value.trim();
+  const cat=customText||_lfCat;
+  const icon=customText?'✍':_lfIcon;
+  const msg=document.getElementById('lf-msg');
+  const dateVal=document.getElementById('lf-date').value;
+
+  if(!cat){msg.textContent='Please pick a category.';msg.className='auth-msg err';return;}
+  if(!dateVal){msg.textContent='Please pick a date.';msg.className='auth-msg err';return;}
+
+  const from=_lfGetTime('start');
+  const to=_lfGetTime('end');
+  const diff=calcDiff(from,to);
+  const [h1,m1]=from.split(':').map(Number);
+  const [h2,m2]=to.split(':').map(Number);
+  let durationMins=(h2*60+m2)-(h1*60+m1);
+  if(durationMins<0)durationMins+=1440;
+  const unit=LF_CAT_UNIT_MAP[cat]||'hrs';
+  const duration=unit==='hrs'?+(durationMins/60).toFixed(2):durationMins;
+  const habitId=LF_CAT_HABIT_MAP[cat]||cat.toLowerCase().replace(/\s+/g,'-');
+
+  const ud=getUserData();if(!ud)return;
+
+  const entry={
+    id:Date.now(),
+    habitId,
+    habitName:cat,
+    habitIcon:icon,
+    date:dateVal,
+    duration,
+    unit,
+    startTime:_aaFmtDisplay?_aaFmtDisplay(from):from,
+    endTime:_aaFmtDisplay?_aaFmtDisplay(to):to,
+    note:document.getElementById('lf-note').value.trim()
+  };
+  ud.logs.push(entry);
+
+  // If reminder checked, save alarm
+  const hasReminder=document.getElementById('lf-reminder-check').checked;
+  if(hasReminder){
+    if(!ud.quickAlarms)ud.quickAlarms=[];
+    ud.quickAlarms.push({
+      id:entry.id,date:dateVal,fromTime:from,toTime:to,
+      fromDisplay:entry.startTime,toDisplay:entry.endTime,
+      duration:diff||'—',durationMins,durationHrs:+(durationMins/60).toFixed(2),
+      category:cat,sound:_lfSound,createdAt:new Date().toISOString()
+    });
+    _scheduleQuickAlarm({id:entry.id,date:dateVal,fromTime:from,toTime:to,
+      fromDisplay:entry.startTime,toDisplay:entry.endTime,
+      duration:diff||'—',category:cat,sound:_lfSound});
+  }
+
+  saveUserData();
+
+  msg.textContent=`✅ Logged! ${cat} · ${diff||duration+' '+unit}`;
+  msg.className='auth-msg ok';
+
+  // Reset form partially
+  document.getElementById('lf-note').value='';
+  document.getElementById('lf-reminder-check').checked=false;
+  document.getElementById('lf-reminder-sound').style.display='none';
+
+  renderCalendar2();
+  renderCalendar();
+  renderTrends();
+  renderHistory();
+
+  // Show it on mini cal
+  selectedDay2=dateVal;
+  cal2Year=parseInt(dateVal.split('-')[0]);
+  cal2Month=parseInt(dateVal.split('-')[1])-1;
+  renderCalendar2();
+
+  setTimeout(()=>{msg.textContent='';msg.className='auth-msg';},3000);
 }
 
 /* ═══════════════════════════════════════
@@ -1286,9 +1540,18 @@ function deleteAccount() {
   location.reload();
 }
 
-/* ═══════════════════════════════════════
-   HISTORY
-═══════════════════════════════════════ */
+function lfGoToDate(dateStr){
+  showTab('tracker');
+  setTimeout(()=>{
+    const dateEl=document.getElementById('lf-date');
+    if(dateEl){dateEl.value=dateStr;}
+    cal2Year=parseInt(dateStr.split('-')[0]);
+    cal2Month=parseInt(dateStr.split('-')[1])-1;
+    selectedDay2=dateStr;
+    renderCalendar2();
+    document.getElementById('log-form-card').scrollIntoView({behavior:'smooth'});
+  },100);
+}
 let historyFilter = 'all';
 
 function renderHistory() {
@@ -1310,11 +1573,16 @@ function renderHistory() {
   allBtn.textContent = '🗂 All';
   allBtn.onclick = () => { historyFilter = 'all'; renderHistory(); };
   filterWrap.appendChild(allBtn);
-  HABITS.filter(h => habitIds.includes(h.id)).forEach(h => {
+
+  // Build unique categories from logs (not from old HABITS array)
+  const seen = new Set();
+  ud.logs.forEach(l => {
+    if(seen.has(l.habitId)) return;
+    seen.add(l.habitId);
     const btn = document.createElement('button');
-    btn.className = 'sound-btn' + (historyFilter === h.id ? ' sel' : '');
-    btn.textContent = h.icon + ' ' + h.name;
-    btn.onclick = () => { historyFilter = h.id; renderHistory(); };
+    btn.className = 'sound-btn' + (historyFilter === l.habitId ? ' sel' : '');
+    btn.textContent = l.habitIcon + ' ' + l.habitName;
+    btn.onclick = () => { historyFilter = l.habitId; renderHistory(); };
     filterWrap.appendChild(btn);
   });
 
@@ -1368,6 +1636,7 @@ function deleteLog(logId) {
   saveUserData();
   renderHistory();
   renderCalendar();
+  renderCalendar2();
   renderTrends();
 }
 
@@ -1400,4 +1669,737 @@ function exportExcel(){
   a.href=URL.createObjectURL(blob);
   a.download='quick-tracker-logs.xls';
   a.click();
+}
+/* ═══════════════════════════════════════
+   ADD ALARM MODAL  (floating + button)
+═══════════════════════════════════════ */
+
+// Category icons map for display
+const AA_CAT_ICONS = {
+  'Studies':'📚','Sleep':'😴','Screen Use':'📱','Exercise':'🏃','Meals':'🍽','Other':'✍'
+};
+
+// State for the add-alarm modal
+let _aaSound = 'bell';
+let _aaCustomSoundData = null;
+let _aaSelectedCat = '';
+
+function openAddAlarmModal() {
+  _aaSound = 'bell';
+  _aaCustomSoundData = null;
+  _aaSelectedCat = '';
+
+  // Reset fields
+  document.getElementById('aa-from-h').value = '8';
+  document.getElementById('aa-from-m').value = '00';
+  document.getElementById('aa-to-h').value = '9';
+  document.getElementById('aa-to-m').value = '00';
+  aaSetAmPm('from','AM');
+  aaSetAmPm('to','AM');
+  document.getElementById('aa-custom-activity').value = '';
+  document.getElementById('aa-categories').querySelectorAll('.aa-cat-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('aa-sounds').querySelectorAll('.sound-btn').forEach(b=>b.classList.remove('sel'));
+  const bellBtn = document.querySelector('#aa-sounds [data-sound="bell"]');
+  if(bellBtn) bellBtn.classList.add('sel');
+  const msg = document.getElementById('aa-msg');
+  msg.textContent=''; msg.className='auth-msg';
+  _aaDurationUpdate();
+  document.getElementById('add-alarm-modal').style.display = 'flex';
+}
+
+function closeAddAlarmModal() {
+  document.getElementById('add-alarm-modal').style.display = 'none';
+}
+
+function aaSetAmPm(side, val) {
+  document.getElementById(`aa-${side}-am`).classList.toggle('sel', val==='AM');
+  document.getElementById(`aa-${side}-pm`).classList.toggle('sel', val==='PM');
+  _aaDurationUpdate();
+}
+
+function _aaGetTime(side) {
+  const h = document.getElementById(`aa-${side}-h`).value;
+  const m = document.getElementById(`aa-${side}-m`).value;
+  const isAM = document.getElementById(`aa-${side}-am`).classList.contains('sel');
+  return to24(h, m, isAM ? 'AM' : 'PM');
+}
+
+function _aaDurationUpdate() {
+  const from = _aaGetTime('from');
+  const to   = _aaGetTime('to');
+  const disp = document.getElementById('aa-duration-display');
+  if(!disp) return;
+  const diff = calcDiff(from, to);
+  disp.textContent = diff ? `Total Duration: ${diff}` : 'Total Duration: —';
+}
+
+// Wire live updates once DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  ['aa-from-h','aa-from-m','aa-to-h','aa-to-m'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', _aaDurationUpdate);
+  });
+});
+
+function aaSelectCat(btn) {
+  document.getElementById('aa-categories').querySelectorAll('.aa-cat-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  _aaSelectedCat = btn.dataset.cat;
+  // Clear custom text if a preset is chosen
+  document.getElementById('aa-custom-activity').value = '';
+}
+
+function aaClearCatIfTyping() {
+  // If user types in custom field, deselect any preset category
+  if(document.getElementById('aa-custom-activity').value.trim()) {
+    document.getElementById('aa-categories').querySelectorAll('.aa-cat-btn').forEach(b=>b.classList.remove('sel'));
+    _aaSelectedCat = '';
+  }
+}
+
+function aaSelectSound(btn) {
+  document.getElementById('aa-sounds').querySelectorAll('.sound-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  _aaSound = btn.dataset.sound;
+  _aaCustomSoundData = null;
+  playSound(_aaSound, null);
+}
+
+function aaUploadSound(input) {
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    _aaCustomSoundData = e.target.result;
+    _aaSound = 'custom';
+    document.getElementById('aa-sounds').querySelectorAll('.sound-btn').forEach(b=>b.classList.remove('sel'));
+    input.previousElementSibling.textContent = '✅ ' + file.name.substring(0,16);
+    playSound('custom', _aaCustomSoundData);
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveAddAlarm() {
+  const from = _aaGetTime('from');
+  const to   = _aaGetTime('to');
+  const customText = document.getElementById('aa-custom-activity').value.trim();
+  const category = customText || _aaSelectedCat;
+  const msg = document.getElementById('aa-msg');
+
+  if(!category) {
+    msg.textContent = 'Please select a category or enter a custom activity.';
+    msg.className = 'auth-msg err';
+    return;
+  }
+
+  const diff = calcDiff(from, to);
+  const fromDisplay = _aaFmtDisplay(from);
+  const toDisplay   = _aaFmtDisplay(to);
+
+  // Calculate duration in minutes for data
+  const [h1,m1] = from.split(':').map(Number);
+  const [h2,m2] = to.split(':').map(Number);
+  let durationMins = (h2*60+m2) - (h1*60+m1);
+  if(durationMins < 0) durationMins += 1440;
+  const durationHrs = +(durationMins/60).toFixed(2);
+
+  const ud = getUserData();
+  if(!ud) { msg.textContent='Please sign in first.'; msg.className='auth-msg err'; return; }
+
+  // Ensure quickAlarms array exists
+  if(!ud.quickAlarms) ud.quickAlarms = [];
+
+  const entry = {
+    id: Date.now(),
+    date: new Date().toISOString().split('T')[0],
+    fromTime: from,
+    toTime: to,
+    fromDisplay,
+    toDisplay,
+    duration: diff || '—',
+    durationMins,
+    durationHrs,
+    category,
+    isCustomCategory: !!customText,
+    sound: _aaSound,
+    createdAt: new Date().toISOString()
+  };
+
+  ud.quickAlarms.push(entry);
+
+  // Also push into logs array so it shows in History and Trends
+  const catIcon = AA_CAT_ICONS[category] || '⏰';
+  ud.logs.push({
+    id: entry.id,
+    habitId: 'quickalarm',
+    habitName: category,
+    habitIcon: catIcon,
+    date: entry.date,
+    duration: durationHrs,
+    unit: 'hrs',
+    startTime: fromDisplay,
+    endTime: toDisplay,
+    note: `Quick Alarm · ${diff||'—'} · Sound: ${_aaSound}`,
+    isQuickAlarm: true
+  });
+
+  saveUserData();
+
+  // Schedule the alarm notification
+  _scheduleQuickAlarm(entry);
+
+  msg.textContent = `✅ Alarm saved! ${fromDisplay} → ${toDisplay} · ${diff||'—'}`;
+  msg.className = 'auth-msg ok';
+
+  renderHistory();
+  renderTrends();
+  renderCalendar();
+
+  setTimeout(()=>{ closeAddAlarmModal(); }, 1400);
+}
+
+function _aaFmtDisplay(time24) {
+  const f = fmt12(time24);
+  return `${f.h}:${f.m} ${f.ampm}`;
+}
+
+/* ── Quick Alarm scheduler ── */
+let _qaTimers = [];
+
+function _scheduleQuickAlarm(entry) {
+  const now = new Date();
+  const [fh, fm] = entry.fromTime.split(':').map(Number);
+  const alarmTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), fh, fm, 0);
+  let delay = alarmTime - now;
+  if(delay < 0) delay += 86400000; // tomorrow
+  if(delay > 86400000) return; // more than a day away, skip for now
+
+  const t = setTimeout(() => {
+    const ud = getUserData();
+    const sound  = entry.sound;
+    const custom = (ud && ud.customSounds) ? ud.customSounds['quickalarm'] : null;
+    playSound(sound === 'custom' ? 'custom' : sound, sound === 'custom' ? custom || _aaCustomSoundData : null);
+
+    const catIcon = AA_CAT_ICONS[entry.category] || '⏰';
+    document.getElementById('alarm-modal-icon').textContent = catIcon;
+    document.getElementById('alarm-modal-title').textContent = `Time for ${entry.category}!`;
+    document.getElementById('alarm-modal-sub').textContent = `${entry.fromDisplay} → ${entry.toDisplay} · ${entry.duration}`;
+    document.getElementById('alarm-modal').style.display = 'flex';
+    currentAlarmHabit = { id: 'quickalarm', name: entry.category };
+  }, delay);
+  _qaTimers.push(t);
+}
+
+/* Extend renderTrends to include Quick Alarm data by category */
+const _origRenderTrends = renderTrends;
+renderTrends = function() {
+  _origRenderTrends();
+  _renderQuickAlarmTrends();
+};
+
+function _renderQuickAlarmTrends() {
+  const ud = getUserData();
+  if(!ud || !ud.quickAlarms || !ud.quickAlarms.length) return;
+  const content = document.getElementById('trends-content');
+  if(!content) return;
+
+  // Group by category
+  const byCat = {};
+  ud.quickAlarms.forEach(a => {
+    if(!byCat[a.category]) byCat[a.category] = [];
+    byCat[a.category].push(a);
+  });
+
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = `<div style="font-size:11px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;padding:12px 0 8px;border-top:.5px solid var(--border);margin-top:8px">⏰ Quick Alarm Activity</div>`;
+
+  Object.entries(byCat).forEach(([cat, alarms]) => {
+    const totalMins = alarms.reduce((s,a)=>s+(a.durationMins||0), 0);
+    const totalHrs = (totalMins/60).toFixed(1);
+    const avgMins = Math.round(totalMins / alarms.length);
+    const catIcon = AA_CAT_ICONS[cat] || '⏰';
+
+    const card = document.createElement('div');
+    card.className = 'chart-card';
+    card.innerHTML = `
+      <div class="chart-title">${catIcon} ${cat}</div>
+      <div class="chart-sub">${alarms.length} session${alarms.length>1?'s':''} logged via Quick Alarm</div>
+      <div class="diff-analysis">
+        <div class="diff-chip"><strong>${totalHrs}h</strong> total</div>
+        <div class="diff-chip"><strong>${avgMins}m</strong> avg/session</div>
+        <div class="diff-chip muted">${alarms.length} alarm${alarms.length>1?'s':''}</div>
+      </div>
+      <div class="chart-rec" style="margin-top:10px">
+        ${_qaInsight(cat, avgMins, alarms.length)}
+      </div>`;
+    wrapper.appendChild(card);
+  });
+
+  content.appendChild(wrapper);
+}
+
+function _qaInsight(cat, avgMins, count) {
+  const insights = {
+    'Studies': avgMins >= 60
+      ? `<strong>Great focus sessions!</strong> Averaging ${avgMins} minutes of study. Consistent sessions like this build deep learning habits.`
+      : `<strong>Short bursts of study</strong> (avg ${avgMins} min). Try extending to 45–60 min sessions for deeper focus.`,
+    'Sleep': avgMins >= 420
+      ? `<strong>Good sleep duration</strong> — averaging ${(avgMins/60).toFixed(1)} hours. Consistency is key; try keeping the same bedtime.`
+      : `<strong>Sleep may be short</strong> (avg ${(avgMins/60).toFixed(1)} hrs). Most adults need 7–9 hours for full recovery.`,
+    'Screen Use': avgMins <= 60
+      ? `<strong>Healthy screen time!</strong> Keeping it to ${avgMins} min average is great for eye health and sleep.`
+      : `<strong>Screen time is high</strong> (avg ${(avgMins/60).toFixed(1)} hrs). Consider screen-free windows, especially before bed.`,
+    'Exercise': avgMins >= 30
+      ? `<strong>Active lifestyle!</strong> ${avgMins} min sessions meet the WHO recommended 150 min/week goal.`
+      : `<strong>Keep building!</strong> Aim for 30+ min sessions. Even short workouts add up over ${count} sessions.`,
+    'Meals': avgMins <= 30
+      ? `<strong>Mindful meal timing.</strong> Logging meals helps you stay aware of eating patterns.`
+      : `<strong>Long meal windows</strong> (avg ${avgMins} min). Consider whether relaxed meals are intentional or distracted eating.`,
+  };
+  return insights[cat] || `<strong>${count} logged sessions</strong> for "${cat}". Keep tracking to reveal patterns over time.`;
+}
+
+/* Also extend History so Quick Alarm entries show their badge */
+const _origRenderHistory = renderHistory;
+renderHistory = function() {
+  _origRenderHistory();
+  // After rendering, add filter button for Quick Alarms if any exist
+  const ud = getUserData();
+  if(!ud || !ud.quickAlarms || !ud.quickAlarms.length) return;
+  const filterWrap = document.getElementById('history-filter');
+  if(!filterWrap) return;
+  // Check if a QA filter button already exists
+  if(filterWrap.querySelector('[data-qa-filter]')) return;
+  const btn = document.createElement('button');
+  btn.className = 'sound-btn' + (historyFilter === 'quickalarm' ? ' sel' : '');
+  btn.textContent = '⏰ Quick Alarm';
+  btn.setAttribute('data-qa-filter','1');
+  btn.onclick = () => { historyFilter = 'quickalarm'; renderHistory(); };
+  filterWrap.appendChild(btn);
+};
+/* ═══════════════════════════════════════
+   SCHEDULE TRACKER  –  new tracker tab
+═══════════════════════════════════════ */
+
+const SC_CAT_ICONS = {
+  'Sleep':'🌙','Work':'💻','Exercise':'🏃','Studies':'📚',
+  'Meals':'🍽','Screen Use':'📱','Reading':'📖','Meditation':'🧘','Other':'✍'
+};
+
+let _scSelectedCat = '';
+let _scEditId = null;   // null = new, else ID of schedule being edited
+
+/* ── Helpers ── */
+function _scFmt12(time24) {
+  const [h, m] = time24.split(':').map(Number);
+  const ampm = h < 12 ? 'AM' : 'PM';
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+function _scGet24(prefix) {
+  const hEl = document.getElementById(`sc-${prefix}-h`);
+  const mEl = document.getElementById(`sc-${prefix}-m`);
+  const amBtn = document.getElementById(`sc-${prefix}-am`);
+  let h = parseInt(hEl.value) || 12;
+  const m = parseInt(mEl.value) || 0;
+  const isAM = amBtn.classList.contains('sel');
+  if (isAM && h === 12) h = 0;
+  if (!isAM && h !== 12) h += 12;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+function _scSet12(prefix, time24) {
+  const [h, m] = time24.split(':').map(Number);
+  const isAM = h < 12;
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  document.getElementById(`sc-${prefix}-h`).value = h12;
+  document.getElementById(`sc-${prefix}-m`).value = String(m).padStart(2,'0');
+  document.getElementById(`sc-${prefix}-am`).classList.toggle('sel', isAM);
+  document.getElementById(`sc-${prefix}-pm`).classList.toggle('sel', !isAM);
+}
+function scSetAmPm(prefix, val) {
+  document.getElementById(`sc-${prefix}-am`).classList.toggle('sel', val==='AM');
+  document.getElementById(`sc-${prefix}-pm`).classList.toggle('sel', val==='PM');
+  _scUpdateDuration();
+}
+function _scUpdateDuration() {
+  const from = _scGet24('from');
+  const to   = _scGet24('to');
+  const disp = document.getElementById('sc-duration-display');
+  if (!disp) return;
+  const [h1,m1] = from.split(':').map(Number);
+  const [h2,m2] = to.split(':').map(Number);
+  let diff = (h2*60+m2) - (h1*60+m1);
+  if (diff < 0) diff += 1440;
+  const hrs = Math.floor(diff/60);
+  const mins = diff % 60;
+  disp.textContent = diff === 0 ? 'Total Duration: —'
+    : `Total Duration: ${hrs > 0 ? hrs+'h ' : ''}${mins > 0 ? mins+'m' : ''}`;
+}
+
+// Wire duration watchers after DOM
+document.addEventListener('DOMContentLoaded', function() {
+  ['sc-from-h','sc-from-m','sc-to-h','sc-to-m'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', _scUpdateDuration);
+  });
+});
+
+function scSelectCat(btn) {
+  document.querySelectorAll('#sc-categories .aa-cat-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  _scSelectedCat = btn.dataset.cat;
+  document.getElementById('sc-custom-activity').value = '';
+}
+function scClearCatIfTyping() {
+  document.querySelectorAll('#sc-categories .aa-cat-btn').forEach(b => b.classList.remove('sel'));
+  _scSelectedCat = '';
+}
+
+function scSetDate(rel) {
+  const d = new Date();
+  if (rel === 'tomorrow') d.setDate(d.getDate() + 1);
+  if (rel === 'next-week') d.setDate(d.getDate() + 7);
+  document.getElementById('sc-date').value = d.toISOString().split('T')[0];
+}
+
+/* ── Open / Close modal ── */
+function openScheduleModal(editId) {
+  _scEditId = editId || null;
+  const modal = document.getElementById('schedule-modal');
+  const titleEl = document.getElementById('schedule-modal-title');
+  const saveBtnEl = document.getElementById('sc-save-btn');
+
+  // Reset
+  document.querySelectorAll('#sc-categories .aa-cat-btn').forEach(b => b.classList.remove('sel'));
+  _scSelectedCat = '';
+  document.getElementById('sc-custom-activity').value = '';
+  _scTasks = [];
+  _scRenderChecklist();
+  document.getElementById('sc-task-input').value = '';
+  document.getElementById('sc-msg').textContent = '';
+  document.getElementById('sc-msg').className = 'auth-msg';
+
+  if (editId) {
+    // Load existing
+    titleEl.textContent = '✏️ Edit Schedule';
+    saveBtnEl.textContent = '💾 Update Schedule';
+    const ud = getUserData();
+    const sc = (ud.schedules || []).find(s => s.id === editId);
+    if (sc) {
+      document.getElementById('sc-date').value = sc.date;
+      _scSet12('from', sc.fromTime);
+      _scSet12('to', sc.toTime);
+      _scTasks = sc.tasks ? JSON.parse(JSON.stringify(sc.tasks)) : [];
+      _scRenderChecklist();
+      const customText = SC_CAT_ICONS[sc.category] ? '' : sc.category;
+      if (customText) {
+        document.getElementById('sc-custom-activity').value = sc.category;
+      } else {
+        const catBtn = document.querySelector(`#sc-categories .aa-cat-btn[data-cat="${sc.category}"]`);
+        if (catBtn) { catBtn.classList.add('sel'); _scSelectedCat = sc.category; }
+      }
+    }
+  } else {
+    titleEl.textContent = '📅 Add Schedule';
+    saveBtnEl.textContent = '💾 Save Schedule';
+    // default to today
+    document.getElementById('sc-date').value = new Date().toISOString().split('T')[0];
+    _scSet12('from', '08:00');
+    _scSet12('to', '09:00');
+  }
+  _scUpdateDuration();
+  modal.style.display = 'flex';
+}
+
+function closeScheduleModal() {
+  document.getElementById('schedule-modal').style.display = 'none';
+}
+
+/* ── Save / Update ── */
+function saveSchedule() {
+  const customText = document.getElementById('sc-custom-activity').value.trim();
+  const category = customText || _scSelectedCat;
+  const date = document.getElementById('sc-date').value;
+  const tasks = _scTasks.map(t => ({...t}));  // snapshot
+  const msgEl = document.getElementById('sc-msg');
+
+  if (!category) {
+    msgEl.textContent = 'Please select an activity or enter a custom one.';
+    msgEl.className = 'auth-msg err';
+    return;
+  }
+  if (!date) {
+    msgEl.textContent = 'Please choose a date.';
+    msgEl.className = 'auth-msg err';
+    return;
+  }
+
+  const from = _scGet24('from');
+  const to   = _scGet24('to');
+  const [h1,m1] = from.split(':').map(Number);
+  const [h2,m2] = to.split(':').map(Number);
+  let durationMins = (h2*60+m2) - (h1*60+m1);
+  if (durationMins < 0) durationMins += 1440;
+
+  const ud = getUserData();
+  if (!ud.schedules) ud.schedules = [];
+
+  if (_scEditId) {
+    // Update existing
+    const idx = ud.schedules.findIndex(s => s.id === _scEditId);
+    if (idx !== -1) {
+      ud.schedules[idx] = { ...ud.schedules[idx], category, date, fromTime: from, toTime: to, durationMins, tasks, updatedAt: new Date().toISOString() };
+    }
+    msgEl.textContent = '✅ Schedule updated!';
+  } else {
+    // New
+    const entry = {
+      id: Date.now(),
+      category,
+      date,
+      fromTime: from,
+      toTime: to,
+      durationMins,
+      tasks,
+      createdAt: new Date().toISOString()
+    };
+    ud.schedules.push(entry);
+    msgEl.textContent = '✅ Schedule saved!';
+  }
+
+  msgEl.className = 'auth-msg ok';
+  saveUserData();
+  renderTrackerSchedules();
+  setTimeout(() => closeScheduleModal(), 900);
+}
+
+/* ── Delete ── */
+function deleteSchedule(id) {
+  if (!confirm('Remove this schedule?')) return;
+  const ud = getUserData();
+  ud.schedules = (ud.schedules || []).filter(s => s.id !== id);
+  saveUserData();
+  renderTrackerSchedules();
+}
+
+/* ── Render ── */
+function renderTrackerSchedules() {
+  const ud = getUserData();
+  const schedules = (ud && ud.schedules) ? [...ud.schedules] : [];
+  const emptyState = document.getElementById('tracker-empty-state');
+  const listWrap = document.getElementById('tracker-schedules-wrap');
+  const listEl = document.getElementById('tracker-schedule-list');
+
+  if (!schedules.length) {
+    emptyState.style.display = 'flex';
+    listWrap.style.display = 'none';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+  listWrap.style.display = 'block';
+  listEl.innerHTML = '';
+
+  // Sort by date then time
+  schedules.sort((a, b) => (a.date + a.fromTime).localeCompare(b.date + b.fromTime));
+
+  // Group by date
+  const groups = {};
+  schedules.forEach(sc => {
+    if (!groups[sc.date]) groups[sc.date] = [];
+    groups[sc.date].push(sc);
+  });
+
+  const today = new Date().toISOString().split('T')[0];
+
+  Object.keys(groups).sort().forEach(date => {
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'schedule-date-group';
+
+    const d = new Date(date + 'T00:00:00');
+    const label = date === today ? 'Today'
+      : date > today ? _formatDateLabel(d)
+      : _formatDateLabel(d) + ' (past)';
+
+    groupDiv.innerHTML = `<div class="schedule-date-group-label">${label}</div>`;
+
+    groups[date].forEach(sc => {
+      const icon = SC_CAT_ICONS[sc.category] || '📌';
+      const fromDisp = _scFmt12(sc.fromTime);
+      const toDisp   = _scFmt12(sc.toTime);
+      const hrs = Math.floor(sc.durationMins/60);
+      const mins = sc.durationMins % 60;
+      const durStr = (hrs > 0 ? hrs+'h ' : '') + (mins > 0 ? mins+'m' : '');
+
+      const badgeClass = date > today ? 'future' : date === today ? 'today' : 'past';
+      const badgeText  = date > today ? '📆 Upcoming' : date === today ? '📍 Today' : '✔ Past';
+
+      const card = document.createElement('div');
+      card.className = 'schedule-card';
+      card.dataset.id = sc.id;
+
+      // Build tasks HTML
+      let tasksHtml = '';
+      const tasks = sc.tasks || [];
+      if (tasks.length) {
+        const done = tasks.filter(t => t.done).length;
+        tasksHtml = `<div class="sc-card-checklist" id="card-tasks-${sc.id}">
+          ${tasks.map((t,i) => `
+            <div class="sc-card-task">
+              <input type="checkbox" class="sc-card-task-cb" ${t.done?'checked':''} onchange="scToggleCardTask(${sc.id},${i},this)" title="Mark done">
+              <span class="sc-card-task-label${t.done?' done':''}" id="task-lbl-${sc.id}-${i}">${_escHtml(t.text)}</span>
+            </div>`).join('')}
+          <span class="sc-checklist-count">✓ ${done}/${tasks.length} done</span>
+        </div>`;
+      }
+
+      card.innerHTML = `
+        <div class="schedule-card-top">
+          <div class="schedule-card-icon">${icon}</div>
+          <div class="schedule-card-info">
+            <div class="schedule-card-cat">${sc.category}</div>
+            <div class="schedule-card-date">
+              <span class="schedule-date-badge ${badgeClass}">${badgeText}</span>
+              <span>${_niceDate(date)}</span>
+            </div>
+            <div class="schedule-card-time">⏰ ${fromDisp} → ${toDisp} · ${durStr || '—'}</div>
+            ${tasksHtml}
+          </div>
+        </div>
+        <div class="schedule-card-actions">
+          <button class="sc-edit-btn" onclick="openScheduleModal(${sc.id})">✏️ Edit</button>
+          <button class="sc-delete-btn" onclick="deleteSchedule(${sc.id})" title="Remove">🗑</button>
+        </div>`;
+      groupDiv.appendChild(card);
+    });
+
+    listEl.appendChild(groupDiv);
+  });
+}
+
+function _niceDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' });
+}
+function _formatDateLabel(d) {
+  return d.toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
+}
+
+/* Patch showTab to render schedules when tracker is opened */
+const _origShowTab = showTab;
+showTab = function(t) {
+  _origShowTab(t);
+  if (t === 'tracker') renderTrackerSchedules();
+};
+
+/* Also hide/show FAB based on active tab */
+const __origShowTab = showTab;
+showTab = function(t) {
+  __origShowTab(t);
+  const fab = document.getElementById('fab-add');
+  if (fab) fab.style.display = (t === 'tracker') ? 'none' : '';
+};
+
+/* On login, render schedules and hide FAB if on tracker */
+const _origLaunchApp = launchApp;
+// Patch launchApp to also init schedules
+document.addEventListener('DOMContentLoaded', function() {
+  // After app launches, renderTrackerSchedules is called via showTab override
+  // Ensure fab is visible by default (not tracker tab)
+  const fab = document.getElementById('fab-add');
+  if (fab) fab.style.display = '';
+});
+
+// Close schedule modal on overlay click
+document.addEventListener('DOMContentLoaded', function() {
+  const overlay = document.getElementById('schedule-modal');
+  if (overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) closeScheduleModal();
+    });
+  }
+});
+
+/* ═══════════════════════════════════════
+   PLAN-YOUR-DAY CHECKLIST (Schedule modal)
+═══════════════════════════════════════ */
+let _scTasks = [];   // [{text, done}]
+
+function _scRenderChecklist() {
+  const container = document.getElementById('sc-checklist');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!_scTasks.length) return;
+
+  _scTasks.forEach((task, i) => {
+    const row = document.createElement('div');
+    row.className = 'sc-task-row';
+    row.draggable = true;
+    row.dataset.idx = i;
+    row.innerHTML = `
+      <input type="checkbox" class="sc-task-cb" ${task.done ? 'checked' : ''}
+        onchange="_scToggleTask(${i}, this)" title="Mark done">
+      <span class="sc-task-text${task.done ? ' done' : ''}" id="sc-task-text-${i}">${_escHtml(task.text)}</span>
+      <button type="button" class="sc-task-del" onclick="_scDeleteTask(${i})" title="Remove">✕</button>`;
+    container.appendChild(row);
+  });
+}
+
+function _scToggleTask(i, cb) {
+  _scTasks[i].done = cb.checked;
+  const lbl = document.getElementById(`sc-task-text-${i}`);
+  if (lbl) lbl.classList.toggle('done', cb.checked);
+}
+
+function _scDeleteTask(i) {
+  _scTasks.splice(i, 1);
+  _scRenderChecklist();
+}
+
+function scAddTask() {
+  const inp = document.getElementById('sc-task-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  _scTasks.push({ text, done: false });
+  inp.value = '';
+  _scRenderChecklist();
+  inp.focus();
+}
+
+function scHandleTaskKey(e) {
+  if (e.key === 'Enter') { e.preventDefault(); scAddTask(); }
+}
+
+function scQuickAdd(btn) {
+  const text = btn.textContent.trim();
+  if (_scTasks.find(t => t.text === text)) return; // no dupes
+  _scTasks.push({ text, done: false });
+  _scRenderChecklist();
+}
+
+/* Toggle task done state directly on the schedule card (without opening modal) */
+function scToggleCardTask(scheduleId, taskIdx, cb) {
+  const ud = getUserData();
+  if (!ud || !ud.schedules) return;
+  const sc = ud.schedules.find(s => s.id === scheduleId);
+  if (!sc || !sc.tasks || !sc.tasks[taskIdx]) return;
+  sc.tasks[taskIdx].done = cb.checked;
+  saveUserData();
+
+  // Update label style + count inline without full re-render
+  const lbl = document.getElementById(`task-lbl-${scheduleId}-${taskIdx}`);
+  if (lbl) lbl.classList.toggle('done', cb.checked);
+
+  // Update the "X/Y done" count badge
+  const wrap = document.getElementById(`card-tasks-${scheduleId}`);
+  if (wrap) {
+    const countEl = wrap.querySelector('.sc-checklist-count');
+    if (countEl) {
+      const done = sc.tasks.filter(t => t.done).length;
+      countEl.textContent = `✓ ${done}/${sc.tasks.length} done`;
+    }
+  }
+}
+
+function _escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
