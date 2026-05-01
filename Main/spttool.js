@@ -442,9 +442,17 @@ function showResults() {
       <div class="stat"><div class="stat-val">${sc}<span style="font-size:12px;font-weight:400">/50</span></div><div class="stat-sub">Sleep score</div></div>
       <div class="stat"><div class="stat-val" style="font-size:13px">${answers.bedtime}</div><div class="stat-sub">Bedtime</div></div>
     </div>
-    ${contras.length>0?`<p class="sec-lbl">⚠️ Contradictions spotted</p>${contraHTML}`:''}
     <p class="sec-lbl">Tips just for you</p>
-    ${recs.map(r=>`<div class="rec ${r.l}"><h4>${r.t}</h4>${r.s?`<p class="rec-summary">${r.s}</p>`:''}<ul>${r.b.map(b=>`<li>${b}</li>`).join('')}</ul></div>`).join('')}
+    <div class="rec-box">
+      ${[...contras.map(c=>({l:'contra',t:c.t,s:c.b[0].replace(/<strong>[^<]*<\/strong>[\s:]*/g,'').replace(/<[^>]+>/g,'')})),...recs].map((r,i,arr)=>`
+        <div class="rec-row${i<arr.length-1?' rec-row-border':''}">
+          <span class="rec-icon">${r.l==='bad'?'🔴':r.l==='warn'?'⚠️':r.l==='contra'?'🔮':'✅'}</span>
+          <div class="rec-row-body">
+            <div class="rec-row-title">${r.t.replace(/^[\u{1F534}\u{26A0}\u{2705}\u{1F52E}\u{1FA91}\uFE0F\s]+/u,'')}</div>
+            <div class="rec-row-text">${(r.s||'').replace(/<[^>]+>/g,'')}</div>
+          </div>
+        </div>`).join('')}
+    </div>
     <button type="button" id="restart-btn" onclick="restartForm()">↩ Take the quiz again</button>
   `;
 }

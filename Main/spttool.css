@@ -230,3 +230,11 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--surf3);border-radius:2px}
+/* ── Single recommendations box ── */
+.rec-box{background:var(--surf);border:.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px}
+.rec-row{display:flex;align-items:flex-start;gap:10px;padding:12px 14px}
+.rec-row-border{border-bottom:.5px solid var(--border)}
+.rec-icon{font-size:14px;flex-shrink:0;margin-top:1px;line-height:1}
+.rec-row-body{flex:1;min-width:0}
+.rec-row-title{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:3px;line-height:1.4}
+.rec-row-text{font-size:12px;color:var(--muted);line-height:1.6}
