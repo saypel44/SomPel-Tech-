@@ -335,93 +335,100 @@ function showResults() {
     return `<strong>📊 Start tracking:</strong> Head to the <em>Habit Tracker</em> tab and log your ${habitLabel} each day. Even one week of data will show you patterns that are impossible to see in your head.`;
   };
 
-  // ── Recommendations: positive framing first, then growth edge ──────────
+  // ── Recommendations ────────────────────────────────────────────────────
+  // Format: { l: level, t: title, s: short summary + action sentence, b: [tracker nudge] }
   const recs=[];
 
-  if(outcomeGood&&late) recs.push({l:'',t:'✅ You feel good — your routine is working',b:[
-    `<strong>That's genuinely impressive.</strong> You go to bed ${answers.bedtime} and your body has adapted beautifully — you feel rested and energised. Not everyone can pull that off!`,
-    `<strong>Why it works:</strong> A consistent bedtime, even a late one, beats an irregular schedule every time. You've nailed the hardest part.`,
-    `<strong>Keep doing:</strong> Same bedtime every day including weekends — don't let the weekend slide undo your gains.`,
-    trackerNudge('sleep','sleep')
-  ]});
-  else if(outcomeGood) recs.push({l:'',t:'✅ Your habits are working — keep it up',b:[
-    `<strong>You're doing really well.</strong> Waking up rested and having good energy is the result of consistent, healthy choices — and that's all you.`,
-    `<strong>Keep doing:</strong> Consistent bedtime every night, even weekends.`,
-    trackerNudge('sleep','sleep')
-  ]});
+  const phoneHigh  = answers.phonetime==='1–2 hours'||answers.phonetime==='2–3 hours'||answers.phonetime==='more than 3 hours';
+  const phoneMed   = answers.phonetime==='30 min–1 hour';
+  const phoneHours = {'no phone before bed':'none','30 min–1 hour':'30 min–1 hr','1–2 hours':'1–2 hrs','2–3 hours':'2–3 hrs','more than 3 hours':'3+ hrs'}[answers.phonetime]||'some';
 
-  if(outcomePoor&&goodHours) recs.push({l:'warn',t:"⚠️ You're already putting in the time — now let's improve the quality",b:[
-    `<strong>Here's something positive:</strong> You're already committed to getting ${answers.sleep} of sleep. That dedication to rest is a real strength — many people don't even try.`,
-    `<strong>The opportunity:</strong> Duration alone isn't everything. Phone use, irregular timing, or stress can reduce sleep quality even with plenty of hours.`,
-    `<strong>One change to try:</strong> Phone away 30–60 min before bed. Same wake time every day. Darker, quieter room. You're close — these small tweaks can unlock the rest you're already investing in.`,
-    trackerNudge('sleep','sleep hours')
-  ]});
+  // ── Outcome-good cards ──
+  if(outcomeGood&&late) recs.push({l:'',t:'✅ You feel great — your late routine is actually working',
+    s:`You've adapted well to a ${answers.bedtime} bedtime and your energy shows it — that consistency is genuinely impressive. Based on your inputs, keeping the same bedtime every day (including weekends) will protect those gains long-term.`,
+    b:[trackerNudge('sleep','sleep')]});
+  else if(outcomeGood) recs.push({l:'',t:'✅ Your habits are paying off — you feel rested and energised',
+    s:`You're sleeping well, waking up refreshed, and staying alert through the day — that's the result of real healthy choices. Based on your inputs, staying consistent with your current routine is all you need to maintain this.`,
+    b:[trackerNudge('sleep','sleep')]});
 
-  if(outcomePoor&&shortSleep) recs.push({l:'bad',t:"🔴 You're showing up every day — now let's give your body more recovery time",b:[
-    `<strong>First, respect:</strong> You're getting through your days on ${answers.sleep} — that takes real grit and resilience.`,
-    `<strong>The honest truth:</strong> Your body needs 7–8 hours to fully rest and repair. The tiredness you feel is your body asking for a little more.`,
-    `<strong>Tiny first step:</strong> Go to bed just 15–20 minutes earlier this week. No caffeine after 2 pm. No phone in bed. Small shifts, real results.`,
-    trackerNudge('sleep','sleep')
-  ]});
+  // ── Sleep quality poor but hours are fine ──
+  if(outcomePoor&&goodHours) recs.push({l:'warn',t:"⚠️ You're putting in the hours — the quality just needs a tune-up",
+    s:`You're already committing ${answers.sleep} to sleep, which is a real strength. Based on your inputs, putting your phone away 30–60 min before bed and keeping a consistent wake time will likely unlock the restful sleep those hours deserve.`,
+    b:[trackerNudge('sleep','sleep hours')]});
 
-  if(hardToSleep) recs.push({l:'warn',t:"⚠️ Your mind is active — let's channel that into a wind-down ritual",b:[
-    `<strong>A busy mind at bedtime often means you're a thinker and a doer</strong> — someone whose brain doesn't switch off easily. That energy is a gift during the day.`,
-    `<strong>The reframe:</strong> A 30-minute calm buffer before bed isn't wasted time — it's the investment that makes your whole next day sharper.`,
-    `<strong>Try:</strong> No phone, dim lights, light reading. Same wake time every morning. You're not fighting your brain — you're giving it a gentle cue to shift gears.`,
-    trackerNudge('sleep','sleep')
-  ]});
+  // ── Short sleep + poor outcome ──
+  if(outcomePoor&&shortSleep&&!overwork&&!phoneHigh) recs.push({l:'bad',t:"🔴 Your body is asking for a little more recovery time",
+    s:`Getting through days on ${answers.sleep} takes real resilience. Based on your inputs, adding just 1–1.5 hrs of sleep — even by going to bed 20 min earlier each week — will likely bring a noticeable lift in your energy and mood.`,
+    b:[trackerNudge('sleep','sleep')]});
 
+  // ── Hard to fall asleep ──
+  if(hardToSleep) recs.push({l:'warn',t:"⚠️ Your active mind is a strength — it just needs a gentle wind-down cue",
+    s:`The fact that your brain stays switched on at bedtime means you're a thinker and a doer — that energy is an asset during the day. Based on your inputs, a 20–30 min screen-free wind-down (dim lights, light reading) before bed will likely help you fall asleep faster and sleep deeper.`,
+    b:[trackerNudge('sleep','sleep')]});
+
+  // ── Daytime sleepiness ──
   if(daySleepy) recs.push({
     l:(daySleepy&&poorRested)?'bad':'warn',
-    t:(daySleepy&&poorRested)
-      ? "🔴 You're pushing through — let's make it easier on yourself"
-      : "⚠️ You have the drive to keep going — your sleep just needs a tune-up",
-    b:[
-      (daySleepy&&poorRested)
-        ? `<strong>The fact that you keep going despite feeling drained shows real determination.</strong> But you shouldn't have to white-knuckle your afternoons — let's fix the root cause.`
-        : `<strong>You're still functioning and showing up</strong> — but you deserve to feel genuinely alert, not just functional.`,
-      `<strong>Why this happens:</strong> Your night sleep isn't fully refreshing you, so your body borrows energy and pays it back as afternoon fog.`,
-      `<strong>Quick wins:</strong> Same wake time every day. A 10–20 min nap before 3 pm can help. No phone for the last 30 min before bed.`,
-      trackerNudge('sleep','sleep quality')
-    ]
-  });
+    t:(daySleepy&&poorRested)?"🔴 You're pushing through — you deserve to feel genuinely alert":"⚠️ You're still showing up — your sleep just needs a small adjustment",
+    s:(daySleepy&&poorRested)
+      ?`The determination it takes to keep going while feeling drained is real — but you shouldn't have to white-knuckle your afternoons. Based on your inputs, a consistent wake time and cutting phone use 30 min before bed will likely reduce afternoon fog significantly within days.`
+      :`You're functioning and showing up, which counts for a lot. Based on your inputs, anchoring your wake time to the same hour every day — even weekends — is the single fastest way to stop daytime sleepiness.`,
+    b:[trackerNudge('sleep','sleep quality')]});
 
-  if(pr>=2&&outcomePoor) recs.push({l:'warn',t:"⚠️ You're aware of your phone habit — that self-awareness is your superpower",b:[
-    `<strong>Noticing your own patterns is the first step most people never take.</strong> The fact that you're honest about using your phone ${answers.phonetime} before sleeping means you're already ahead.`,
-    `<strong>What's happening:</strong> Screens signal your brain it's still daytime, quietly reducing your deep sleep — even when you feel like it doesn't bother you.`,
-    `<strong>Experiment:</strong> Try phone away 30 min before bed for just 5 days. Replace it with reading or gentle stretching. The difference often surprises people.`,
-    trackerNudge('screen','screen time')
-  ]});
+  // ── Phone only (no short sleep) ──
+  if(pr>=2&&outcomePoor&&!shortSleep) recs.push({l:'warn',t:"⚠️ You're honest about your screen habit — that awareness is the first step",
+    s:`Recognising you use your phone ${answers.phonetime} before bed puts you ahead of most people. Based on your inputs, cutting screen time to under 30 min before bed for just 5 nights will likely improve your sleep depth noticeably — even without changing your bedtime.`,
+    b:[trackerNudge('screen','screen time')]});
 
-  if(overwork&&outcomePoor) recs.push({l:'bad',t:"🔴 Your work ethic is clear — now let's protect your recovery",b:[
-    `<strong>Working ${answers.workhours} a day takes serious commitment and discipline.</strong> That drive is admirable — and it's also why protecting your downtime matters even more.`,
-    `<strong>The gap:</strong> Without real recovery, sustained output becomes unsustainable. Your best work happens when your brain has had a chance to reset.`,
-    `<strong>Boundary to try:</strong> A short walk after work to decompress. Stop all work at least 1 hour before bed. Protect your evenings like you protect your calendar.`,
-    trackerNudge('work','work hours')
-  ]});
+  // ── Overwork only (no short sleep, no late) ──
+  if(overwork&&outcomePoor&&!shortSleep&&!late) recs.push({l:'bad',t:"🔴 Your work ethic is real — now let's protect your recovery",
+    s:`Working ${answers.workhours} a day shows serious discipline and commitment. Based on your inputs, stopping all work at least 1 hour before bed and taking a short walk to decompress will likely bring your evening cortisol down and improve both your sleep and your next-day focus.`,
+    b:[trackerNudge('work','work hours')]});
 
-  if(sedentary&&lowEnergy) recs.push({l:'',t:"🪑 You're focused and productive — let's add fuel to the engine",b:[
-    `<strong>Deep focus work takes real mental energy</strong> — and it's something to be proud of. The trade-off is that long sitting quietly slows circulation, making you feel heavier and less sharp over time.`,
-    `<strong>The fix is tiny:</strong> A 2-minute movement break every hour. A short walk after lunch. These don't interrupt deep work — they actually make it better.`,
-    trackerNudge('exercise','movement')
-  ]});
+  // ── COMBINED-FACTORS ──
 
-  if(late&&outcomePoor) recs.push({l:'bad',t:"🔴 You're a night owl — let's work with your rhythm, not against it",b:[
-    `<strong>Night owls are often the most creative and focused late-night thinkers.</strong> That's a real advantage. The challenge is that the hours after midnight reduce the restorative quality of sleep, even if you get enough total time.`,
-    `<strong>Gentle shift:</strong> Move your bedtime 15 min earlier each week. Aim for 11 pm as a first milestone — not a punishment, just an experiment.`,
-    `<strong>You don't have to become a morning person</strong> — just nudge your window slightly earlier and feel the difference.`,
-    trackerNudge('sleep','sleep')
-  ]});
+  // Scenario A: overwork + short sleep + high phone
+  if(overwork&&shortSleep&&phoneHigh) recs.push({l:'bad',t:'🔴 Three things are quietly stacking against your recovery',
+    s:`You're working ${answers.workhours}, sleeping ${answers.sleep}, and spending ${phoneHours} on your phone before bed — each one is manageable alone, but together they're draining your energy every day. Based on your inputs, sleeping 1–2 hrs more <em>and</em> cutting screen time to under 30 min before bed will likely make you feel significantly better within a week — set a reminder in the Habit Tracker to log your sleep nightly and we'll track your progress.`,
+    b:[`<strong>📊 Set a reminder:</strong> Open the <em>Habit Tracker</em> tab, enable Sleep and Screen Time, and set a nightly log reminder. One week of data will show you the change.`]});
+
+  // Scenario B: overwork + short sleep, phone is fine
+  else if(overwork&&shortSleep&&!phoneHigh&&!phoneMed) recs.push({l:'bad',t:'🔴 Long workdays are shrinking your recovery window',
+    s:`Working ${answers.workhours} and sleeping only ${answers.sleep} leaves your body too little time to repair itself overnight. Based on your inputs, moving your bedtime 45–60 min earlier on work nights will likely recover most of that deficit and noticeably improve your energy within days.`,
+    b:[trackerNudge('sleep','sleep')]});
+
+  // Scenario C: short sleep + high phone, no overwork
+  else if(!overwork&&shortSleep&&phoneHigh) recs.push({l:'warn',t:'⚠️ Late-night screens are quietly borrowing time from your sleep',
+    s:`You sleep ${answers.sleep} and spend ${phoneHours} on your phone before bed — those two are directly connected, since screen light delays when your brain is actually ready for sleep. Based on your inputs, swapping the last 30 min of phone time for something screen-free will likely add 20–40 min of real sleep without changing your bedtime at all.`,
+    b:[trackerNudge('screen','screen time')]});
+
+  // Scenario D: good hours + high phone + feeling poor
+  if(!shortSleep&&goodHours&&phoneHigh&&outcomePoor) recs.push({l:'warn',t:'⚠️ You have the hours — screens are reducing the quality',
+    s:`You sleep ${answers.sleep}, which should be enough — yet you're still not feeling your best. Based on your inputs, ${phoneHours} of screen time before bed is likely fragmenting your deep sleep cycles. Cutting screens to under 30 min before bed for one week will likely show you a clear difference in how rested you wake up.`,
+    b:[trackerNudge('screen','screen time')]});
+
+  // Scenario E: overwork + late bedtime + poor outcome
+  if(overwork&&late&&outcomePoor) recs.push({l:'bad',t:'🔴 Long workdays + a late bedtime = very little recovery time',
+    s:`Working ${answers.workhours} and going to bed ${answers.bedtime} means your body barely starts recovering before morning arrives. Based on your inputs, finishing all work tasks 1 hr before your target bedtime — even with a short walk to decompress — will likely improve both sleep depth and next-day energy noticeably.`,
+    b:[trackerNudge('work','work hours')]});
+
+  // Scenario F: sedentary + low energy
+  if(sedentary&&lowEnergy) recs.push({l:'',t:"🪑 You're focused and mentally sharp — let's add some physical fuel",
+    s:`Deep focus work takes real cognitive energy, and you clearly have that. Based on your inputs, a 2-minute movement break every hour and a short walk after lunch will likely improve your afternoon energy without interrupting your concentration — it actually sharpens it.`,
+    b:[trackerNudge('exercise','movement')]});
+
+  // Scenario G: night owl + poor outcome
+  if(late&&outcomePoor) recs.push({l:'bad',t:"🔴 You're a natural night owl — let's just nudge the window slightly",
+    s:`Late-night thinkers are often the most creative — and you clearly function in that mode. Based on your inputs, moving your bedtime just 15 min earlier each week (aiming for 11 pm as a first milestone) will likely improve your sleep quality without forcing you to become a morning person.`,
+    b:[trackerNudge('sleep','sleep')]});
 
   // Contradictions
   const contras=detectContradictions();
   const contraHTML=contras.map(c=>`<div class="rec contra"><h4>${c.t}</h4><ul>${c.b.map(b=>`<li>${b}</li>`).join('')}</ul></div>`).join('');
 
-  if(recs.length===0&&contras.length===0) recs.push({l:'',t:'✅ Everything looks good',b:[
-    `<strong>What's happening:</strong> Your habits and how you feel are both in good shape.`,
-    `<strong>Keep doing:</strong> Same bedtime every day. Check in again in a few weeks.`,
-    trackerNudge('sleep','sleep')
-  ]});
+  if(recs.length===0&&contras.length===0) recs.push({l:'',t:'✅ Everything looks good — keep doing what you\'re doing',
+    s:`Your habits and how you feel are both in a healthy place — that's genuinely great to see. Based on your inputs, staying consistent with your current routine and checking in again in a few weeks is all you need.`,
+    b:[trackerNudge('sleep','sleep')]});
 
   rd.innerHTML=`
     <div class="res-hero">
@@ -437,7 +444,7 @@ function showResults() {
     </div>
     ${contras.length>0?`<p class="sec-lbl">⚠️ Contradictions spotted</p>${contraHTML}`:''}
     <p class="sec-lbl">Tips just for you</p>
-    ${recs.map(r=>`<div class="rec ${r.l}"><h4>${r.t}</h4><ul>${r.b.map(b=>`<li>${b}</li>`).join('')}</ul></div>`).join('')}
+    ${recs.map(r=>`<div class="rec ${r.l}"><h4>${r.t}</h4>${r.s?`<p class="rec-summary">${r.s}</p>`:''}<ul>${r.b.map(b=>`<li>${b}</li>`).join('')}</ul></div>`).join('')}
     <button type="button" id="restart-btn" onclick="restartForm()">↩ Take the quiz again</button>
   `;
 }
