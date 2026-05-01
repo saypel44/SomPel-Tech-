@@ -195,6 +195,51 @@ body::before {
   
 }
 
+
+/* ── QUESTION CARDS ── */
+.q-card{background:var(--surf);border:.5px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:10px;transition:border-color .2s}
+.q-card:hover{border-color:var(--borderf)}
+.q-num{font-size:10px;color:var(--hint);font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+.q-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:14px;line-height:1.5}
+.opts{display:flex;flex-wrap:wrap;gap:7px}
+.opt{display:flex;align-items:center;gap:6px;border:1px solid var(--borderf);border-radius:20px;padding:8px 15px;font-size:13px;cursor:pointer;background:var(--surf2);color:var(--muted);font-family:'Sora',sans-serif;transition:all .15s;line-height:1.2}
+.opt:hover{border-color:var(--green);color:var(--text);background:var(--green-lt);transform:translateY(-1px)}
+.opt.sel{background:var(--green-lt);border-color:var(--green);border-width:1.5px;color:var(--green-dk);font-weight:500}
+.opt.sel::after{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);margin-left:2px}
+.opt-em{font-size:14px}
+.lik-row{display:flex;flex-direction:column;gap:16px}
+.lik-item{display:flex;flex-direction:column;gap:8px;padding-bottom:14px;border-bottom:.5px solid var(--border)}
+.lik-item:last-child{border-bottom:none;padding-bottom:0}
+.lik-label{font-size:13px;color:var(--text);line-height:1.45}
+.lik-btns{display:flex;gap:6px;flex-wrap:wrap}
+.lbtn{border:1px solid var(--borderf);border-radius:20px;padding:6px 12px;font-size:12px;cursor:pointer;background:var(--surf2);color:var(--muted);font-family:'Sora',sans-serif;transition:all .15s;white-space:nowrap}
+.lbtn:hover{border-color:var(--green);color:var(--green);background:var(--green-lt)}
+.lbtn.sel{background:var(--green-lt);border-color:var(--green);border-width:1.5px;color:var(--green-dk);font-weight:500}
+#submit-btn{width:100%;padding:14px;margin-top:16px;background:var(--green);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;letter-spacing:.01em}
+#submit-btn:hover:not(:disabled){background:var(--green-dk);transform:translateY(-1px)}
+#submit-btn:disabled{background:var(--surf3);color:var(--hint);cursor:not-allowed}
+
+/* ── RESULTS ── */
+.res-hero{background:var(--green-lt);border:1px solid rgba(29,158,117,0.2);border-radius:var(--r);padding:24px 20px;margin-bottom:12px;text-align:center}
+.res-emoji{font-size:32px;margin-bottom:10px}
+.res-hero h3{font-family:'Fraunces',serif;font-size:20px;color:var(--green-dk);margin-bottom:8px}
+.res-hero p{font-size:13px;color:var(--muted);line-height:1.65;max-width:400px;margin:0 auto}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--surf);border:.5px solid var(--border);border-radius:var(--rsm);padding:14px;text-align:center}
+.stat-val{font-size:18px;font-weight:600;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--hint);margin-top:3px}
+.rec{background:var(--surf);border:.5px solid var(--border);border-left:3px solid var(--green);border-radius:var(--rsm);padding:14px 16px;margin-bottom:10px}
+.rec.warn{border-left-color:var(--amber);background:var(--amber-lt)}
+.rec.bad{border-left-color:var(--red);background:var(--red-lt)}
+.rec.contra{border-left-color:var(--purple);background:var(--purple-lt)}
+.rec h4{font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text)}
+.rec ul{margin:0 0 0 16px;padding:0;display:flex;flex-direction:column;gap:6px}
+.rec li{font-size:12.5px;color:var(--muted);line-height:1.6}
+.sec-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);font-weight:500;margin:14px 0 8px}
+#restart-btn{width:100%;padding:12px;margin-top:16px;background:transparent;border:.5px solid var(--borderf);border-radius:var(--rsm);font-size:13px;cursor:pointer;font-family:'Sora',sans-serif;color:var(--muted);transition:background .15s}
+#restart-btn:hover{background:var(--surf2)}
+
+
 /* ══════════════════════════════════════
    MAIN CONTENT
 ══════════════════════════════════════ */
