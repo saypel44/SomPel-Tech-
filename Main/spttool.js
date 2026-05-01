@@ -321,23 +321,107 @@ function showResults() {
   else if(outcomePoor&&shortSleep){intro=`You sleep ${answers.sleep} and your energy shows it. Small changes to your bedtime routine can make a big difference very quickly.`;emoji='💤';}
   else{intro='Some things are going well and some could improve. The tips below are based on how you actually feel.';emoji='🔍';}
 
+  // ── Helper: context-aware Habit Tracker nudge ──────────────────────────
+  const ud_recs = getUserData();
+  const hasLogs = ud_recs && ud_recs.logs && ud_recs.logs.length > 0;
+  const trackerNudge = (habitId, habitLabel) => {
+    if (hasLogs) {
+      const habitLogs = ud_recs.logs.filter(l => l.habitId === habitId);
+      if (habitLogs.length >= 3) {
+        return `<strong>📊 Your tracker data:</strong> You've already logged ${habitLabel} ${habitLogs.length} time${habitLogs.length > 1 ? 's' : ''}! Keep that streak going — consistent logging helps you spot patterns and celebrate real progress.`;
+      }
+      return `<strong>📊 Track it:</strong> You've started logging in the Habit Tracker — amazing first step! Adding your ${habitLabel} daily will reveal patterns you can't see from memory alone.`;
+    }
+    return `<strong>📊 Start tracking:</strong> Head to the <em>Habit Tracker</em> tab and log your ${habitLabel} each day. Even one week of data will show you patterns that are impossible to see in your head.`;
+  };
+
+  // ── Recommendations: positive framing first, then growth edge ──────────
   const recs=[];
-  if(outcomeGood&&late) recs.push({l:'',t:'✅ You feel good — your routine is working',b:[`<strong>What's happening:</strong> You go to bed ${answers.bedtime} and your body has adapted — you feel rested and energised.`,`<strong>Why it works:</strong> A consistent bedtime, even a late one, beats an irregular schedule.`,`<strong>Keep doing:</strong> Same bedtime every day including weekends.`]});
-  else if(outcomeGood) recs.push({l:'',t:'✅ Your habits are working — keep it up',b:[`<strong>What's happening:</strong> You wake up rested and have good energy.`,`<strong>Keep doing:</strong> Consistent bedtime every night, even weekends. Check in again in a few weeks.`]});
-  if(outcomePoor&&goodHours) recs.push({l:'warn',t:'⚠️ Enough hours but still tired',b:[`<strong>What's happening:</strong> You sleep ${answers.sleep} but still wake up drained.`,`<strong>Why:</strong> Phone use, irregular timing, or stress reduce sleep quality even with enough hours.`,`<strong>Try:</strong> Phone away 30–60 min before bed. Same wake time every day. Darker, quieter room.`]});
-  if(outcomePoor&&shortSleep) recs.push({l:'bad',t:'🔴 Not enough sleep — your body feels it',b:[`<strong>What's happening:</strong> You sleep ${answers.sleep} and feel tired and low on energy — directly linked.`,`<strong>Why:</strong> Your body needs 7–8 hours to rest and repair.`,`<strong>Try:</strong> Go to bed 15–20 min earlier this week. No caffeine after 2 pm. No phone in bed.`]});
-  if(hardToSleep) recs.push({l:'warn',t:'⚠️ Hard to fall asleep',b:[`<strong>What's happening:</strong> Your mind stays active when you try to sleep.`,`<strong>Try:</strong> 30 minutes of calm before bed — no phone, dim lights, light reading. Same wake time every morning.`]});
-  if(daySleepy) recs.push({l:(daySleepy&&poorRested)?'bad':'warn',t:(daySleepy&&poorRested)?'🔴 Very tired during the day':'⚠️ Sleepy during the day',b:[`<strong>What's happening:</strong> You feel sleepy through the day — your night sleep isn't fully refreshing you.`,`<strong>Try:</strong> Same wake time every day. A 10–20 min nap before 3 pm can help. No phone for the last 30 min before bed.`]});
-  if(pr>=2&&outcomePoor) recs.push({l:'warn',t:'⚠️ Phone use before bed is hurting your sleep',b:[`<strong>What's happening:</strong> You use your phone ${answers.phonetime} before sleeping — these are connected.`,`<strong>Why:</strong> Screens signal your brain it's still daytime, reducing deep sleep.`,`<strong>Try:</strong> Phone away 30 min before bed. Replace with reading or gentle stretching.`]});
-  if(overwork&&outcomePoor) recs.push({l:'bad',t:'🔴 Too many work hours is draining you',b:[`<strong>What's happening:</strong> You work ${answers.workhours} a day and feel drained.`,`<strong>Try:</strong> A short walk after work to decompress. Stop all work at least 1 hour before bed.`]});
-  if(sedentary&&lowEnergy) recs.push({l:'',t:'🪑 Sitting all day could be making you sluggish',b:[`<strong>Why:</strong> Long sitting slows circulation, making you feel heavy and unfocused.`,`<strong>Try:</strong> 2-minute movement break every hour. A short walk after lunch.`]});
-  if(late&&outcomePoor) recs.push({l:'bad',t:'🔴 Very late bedtime is reducing sleep quality',b:[`<strong>Why:</strong> Your deepest sleep happens earlier in the night.`,`<strong>Try:</strong> Move your bedtime 15 min earlier each week. Aim for 11 pm as a first goal.`]});
+
+  if(outcomeGood&&late) recs.push({l:'',t:'✅ You feel good — your routine is working',b:[
+    `<strong>That's genuinely impressive.</strong> You go to bed ${answers.bedtime} and your body has adapted beautifully — you feel rested and energised. Not everyone can pull that off!`,
+    `<strong>Why it works:</strong> A consistent bedtime, even a late one, beats an irregular schedule every time. You've nailed the hardest part.`,
+    `<strong>Keep doing:</strong> Same bedtime every day including weekends — don't let the weekend slide undo your gains.`,
+    trackerNudge('sleep','sleep')
+  ]});
+  else if(outcomeGood) recs.push({l:'',t:'✅ Your habits are working — keep it up',b:[
+    `<strong>You're doing really well.</strong> Waking up rested and having good energy is the result of consistent, healthy choices — and that's all you.`,
+    `<strong>Keep doing:</strong> Consistent bedtime every night, even weekends.`,
+    trackerNudge('sleep','sleep')
+  ]});
+
+  if(outcomePoor&&goodHours) recs.push({l:'warn',t:"⚠️ You're already putting in the time — now let's improve the quality",b:[
+    `<strong>Here's something positive:</strong> You're already committed to getting ${answers.sleep} of sleep. That dedication to rest is a real strength — many people don't even try.`,
+    `<strong>The opportunity:</strong> Duration alone isn't everything. Phone use, irregular timing, or stress can reduce sleep quality even with plenty of hours.`,
+    `<strong>One change to try:</strong> Phone away 30–60 min before bed. Same wake time every day. Darker, quieter room. You're close — these small tweaks can unlock the rest you're already investing in.`,
+    trackerNudge('sleep','sleep hours')
+  ]});
+
+  if(outcomePoor&&shortSleep) recs.push({l:'bad',t:"🔴 You're showing up every day — now let's give your body more recovery time",b:[
+    `<strong>First, respect:</strong> You're getting through your days on ${answers.sleep} — that takes real grit and resilience.`,
+    `<strong>The honest truth:</strong> Your body needs 7–8 hours to fully rest and repair. The tiredness you feel is your body asking for a little more.`,
+    `<strong>Tiny first step:</strong> Go to bed just 15–20 minutes earlier this week. No caffeine after 2 pm. No phone in bed. Small shifts, real results.`,
+    trackerNudge('sleep','sleep')
+  ]});
+
+  if(hardToSleep) recs.push({l:'warn',t:"⚠️ Your mind is active — let's channel that into a wind-down ritual",b:[
+    `<strong>A busy mind at bedtime often means you're a thinker and a doer</strong> — someone whose brain doesn't switch off easily. That energy is a gift during the day.`,
+    `<strong>The reframe:</strong> A 30-minute calm buffer before bed isn't wasted time — it's the investment that makes your whole next day sharper.`,
+    `<strong>Try:</strong> No phone, dim lights, light reading. Same wake time every morning. You're not fighting your brain — you're giving it a gentle cue to shift gears.`,
+    trackerNudge('sleep','sleep')
+  ]});
+
+  if(daySleepy) recs.push({
+    l:(daySleepy&&poorRested)?'bad':'warn',
+    t:(daySleepy&&poorRested)
+      ? "🔴 You're pushing through — let's make it easier on yourself"
+      : "⚠️ You have the drive to keep going — your sleep just needs a tune-up",
+    b:[
+      (daySleepy&&poorRested)
+        ? `<strong>The fact that you keep going despite feeling drained shows real determination.</strong> But you shouldn't have to white-knuckle your afternoons — let's fix the root cause.`
+        : `<strong>You're still functioning and showing up</strong> — but you deserve to feel genuinely alert, not just functional.`,
+      `<strong>Why this happens:</strong> Your night sleep isn't fully refreshing you, so your body borrows energy and pays it back as afternoon fog.`,
+      `<strong>Quick wins:</strong> Same wake time every day. A 10–20 min nap before 3 pm can help. No phone for the last 30 min before bed.`,
+      trackerNudge('sleep','sleep quality')
+    ]
+  });
+
+  if(pr>=2&&outcomePoor) recs.push({l:'warn',t:"⚠️ You're aware of your phone habit — that self-awareness is your superpower",b:[
+    `<strong>Noticing your own patterns is the first step most people never take.</strong> The fact that you're honest about using your phone ${answers.phonetime} before sleeping means you're already ahead.`,
+    `<strong>What's happening:</strong> Screens signal your brain it's still daytime, quietly reducing your deep sleep — even when you feel like it doesn't bother you.`,
+    `<strong>Experiment:</strong> Try phone away 30 min before bed for just 5 days. Replace it with reading or gentle stretching. The difference often surprises people.`,
+    trackerNudge('screen','screen time')
+  ]});
+
+  if(overwork&&outcomePoor) recs.push({l:'bad',t:"🔴 Your work ethic is clear — now let's protect your recovery",b:[
+    `<strong>Working ${answers.workhours} a day takes serious commitment and discipline.</strong> That drive is admirable — and it's also why protecting your downtime matters even more.`,
+    `<strong>The gap:</strong> Without real recovery, sustained output becomes unsustainable. Your best work happens when your brain has had a chance to reset.`,
+    `<strong>Boundary to try:</strong> A short walk after work to decompress. Stop all work at least 1 hour before bed. Protect your evenings like you protect your calendar.`,
+    trackerNudge('work','work hours')
+  ]});
+
+  if(sedentary&&lowEnergy) recs.push({l:'',t:"🪑 You're focused and productive — let's add fuel to the engine",b:[
+    `<strong>Deep focus work takes real mental energy</strong> — and it's something to be proud of. The trade-off is that long sitting quietly slows circulation, making you feel heavier and less sharp over time.`,
+    `<strong>The fix is tiny:</strong> A 2-minute movement break every hour. A short walk after lunch. These don't interrupt deep work — they actually make it better.`,
+    trackerNudge('exercise','movement')
+  ]});
+
+  if(late&&outcomePoor) recs.push({l:'bad',t:"🔴 You're a night owl — let's work with your rhythm, not against it",b:[
+    `<strong>Night owls are often the most creative and focused late-night thinkers.</strong> That's a real advantage. The challenge is that the hours after midnight reduce the restorative quality of sleep, even if you get enough total time.`,
+    `<strong>Gentle shift:</strong> Move your bedtime 15 min earlier each week. Aim for 11 pm as a first milestone — not a punishment, just an experiment.`,
+    `<strong>You don't have to become a morning person</strong> — just nudge your window slightly earlier and feel the difference.`,
+    trackerNudge('sleep','sleep')
+  ]});
 
   // Contradictions
   const contras=detectContradictions();
   const contraHTML=contras.map(c=>`<div class="rec contra"><h4>${c.t}</h4><ul>${c.b.map(b=>`<li>${b}</li>`).join('')}</ul></div>`).join('');
 
-  if(recs.length===0&&contras.length===0) recs.push({l:'',t:'✅ Everything looks good',b:[`<strong>What's happening:</strong> Your habits and how you feel are both in good shape.`,`<strong>Keep doing:</strong> Same bedtime every day. Check in again in a few weeks.`]});
+  if(recs.length===0&&contras.length===0) recs.push({l:'',t:'✅ Everything looks good',b:[
+    `<strong>What's happening:</strong> Your habits and how you feel are both in good shape.`,
+    `<strong>Keep doing:</strong> Same bedtime every day. Check in again in a few weeks.`,
+    trackerNudge('sleep','sleep')
+  ]});
 
   rd.innerHTML=`
     <div class="res-hero">
@@ -497,14 +581,11 @@ function uploadSound(habitId,input){
   const reader=new FileReader();
   reader.onload=e=>{
     ud.customSounds[habitId]=e.target.result;
-    // Mark "my sound" as selected
     ud.selectedSounds[habitId]='custom';
     saveUserData();
-    const container=input.previousElementSibling;
     const card=document.getElementById('habit-card-'+habitId);
     if(card){
       card.querySelectorAll('.sound-btn').forEach(b=>b.classList.remove('sel'));
-      // show file name on upload btn
       const upBtn=input.previousElementSibling;
       if(upBtn){upBtn.textContent='✅ '+file.name.substring(0,16);}
     }
@@ -519,7 +600,6 @@ function setAlarm(id){
   const to=document.getElementById('to-'+id).value;
   ud.alarms[id]={from,to,active:true};
   saveUserData();
-  // Rebuild just that card
   buildHabitCards();
 }
 
@@ -545,12 +625,10 @@ function logHabit(id){
   };
   ud.logs.push(entry);
   saveUserData();
-  // Clear fields
   document.getElementById('dur-'+id).value='';
   document.getElementById('start-'+id).value='';
   document.getElementById('end-'+id).value='';
   document.getElementById('note-'+id).value='';
-  // Flash confirmation
   const btn=document.querySelector(`#habit-card-${id} .log-btn`);
   if(btn){const orig=btn.textContent;btn.textContent='✅ Saved!';btn.style.background='var(--green-dk)';setTimeout(()=>{btn.textContent=orig;btn.style.background='';},1500);}
   renderCalendar();
@@ -584,7 +662,6 @@ function checkAlarms(){
     const key=h.id+'_'+todayKey;
     if(firedToday[key])return;
     if(hm>=alarm.from&&hm<=alarm.to){
-      // Only fire once per day per habit
       firedToday[key]=true;
       triggerAlarm(h,ud.selectedSounds[h.id]||'bell',ud.customSounds[h.id]);
     }
@@ -742,19 +819,16 @@ function renderTrends(){
     content.innerHTML=`<div class="no-data-msg"><div class="no-data-icon">📊</div><div>No habit logs yet.</div><div style="margin-top:6px;font-size:12px">Log your habits in the Tracker tab to see trends here.</div></div>`;
     return;
   }
-  // Destroy old charts
   Object.values(chartInstances).forEach(c=>{try{c.destroy();}catch(e){}});
   chartInstances={};
   content.innerHTML='';
 
-  // Group by habit
   const byHabit={};
   ud.logs.forEach(l=>{
     if(!byHabit[l.habitId])byHabit[l.habitId]={name:l.habitName,icon:l.habitIcon,unit:l.unit,data:[]};
     byHabit[l.habitId].data.push({date:l.date,duration:l.duration});
   });
 
-  // Check-in score trend
   if(ud.checkInHistory.length>0){
     const scoreCard=buildScoreChart(ud.checkInHistory);
     content.appendChild(scoreCard);
@@ -763,7 +837,6 @@ function renderTrends(){
   HABITS.forEach(h=>{
     const hData=byHabit[h.id];
     if(!hData)return;
-    // Aggregate by date
     const aggr={};
     hData.data.forEach(d=>{
       if(!aggr[d.date])aggr[d.date]=0;
@@ -775,7 +848,6 @@ function renderTrends(){
     content.appendChild(card);
   });
 
-  // Correlation insight
   const ins=buildInsight(ud.logs,ud.checkInHistory);
   if(ins)content.appendChild(ins);
 }
@@ -814,7 +886,6 @@ function buildHabitChart(habit,dates,vals,unit){
   const labels=dates.map(d=>new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'}));
   const canvasId='chart-'+habit.id;
   const avgVal=trend.avg.toFixed(1);
-  // Recommendation based on trend
   const rec=getHabitRec(habit.id,trend,unit);
   card.innerHTML=`
     <div class="chart-title">${habit.icon} ${habit.name}</div>
@@ -898,7 +969,6 @@ function renderSettings() {
   const u = users[currentUser.username];
   if (!u) return;
 
-  // Fill profile card
   document.getElementById('settings-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
   document.getElementById('settings-name-display').textContent = currentUser.name;
   document.getElementById('settings-user-display').textContent = '@' + currentUser.username;
@@ -910,7 +980,6 @@ function renderSettings() {
   document.getElementById('settings-msg').className = 'auth-msg';
   document.getElementById('settings-msg').textContent = '';
 
-  // Account record
   const ud = getUserData();
   const logCount = ud ? ud.logs.length : 0;
   const checkCount = ud ? ud.checkInHistory.length : 0;
@@ -962,10 +1031,8 @@ function saveSettings() {
   const u = users[currentUser.username];
   if (!u || u.pass !== currentPass) return err('Current password is incorrect.');
 
-  // Check new username isn't taken by someone else
   if (newUsername !== currentUser.username && users[newUsername]) return err('That username is already taken.');
 
-  // Validate new password if provided
   if (newPass || newPass2) {
     if (newPass.length < 6) return err('New password must be at least 6 characters.');
     if (newPass !== newPass2) return err('New passwords do not match.');
@@ -973,7 +1040,6 @@ function saveSettings() {
 
   const finalPass = newPass || u.pass;
 
-  // If username changed: migrate the data key
   if (newUsername !== currentUser.username) {
     const existingData = localStorage.getItem('qt_data_' + currentUser.username);
     if (existingData) {
@@ -983,7 +1049,6 @@ function saveSettings() {
     delete users[currentUser.username];
   }
 
-  // Save updated user record
   users[newUsername] = {
     name: newName,
     pass: finalPass,
@@ -992,11 +1057,9 @@ function saveSettings() {
   };
   _saveUsers(users);
 
-  // Update session
   currentUser = { username: newUsername, name: newName };
   localStorage.setItem('qt_session', JSON.stringify({ username: newUsername }));
 
-  // Update header UI
   document.getElementById('hdr-avatar').textContent = newName.charAt(0).toUpperCase();
   document.getElementById('hdr-name').textContent = newName;
   document.getElementById('greeting-name').textContent = newName.split(' ')[0];
@@ -1016,7 +1079,6 @@ function deleteAccount() {
     alert('Incorrect password. Account not deleted.');
     return;
   }
-  // Remove all data
   localStorage.removeItem('qt_data_' + currentUser.username);
   localStorage.removeItem('qt_session');
   delete users[currentUser.username];
@@ -1043,7 +1105,6 @@ function renderHistory() {
     return;
   }
 
-  // Build filter buttons
   const habitIds = [...new Set(ud.logs.map(l => l.habitId))];
   filterWrap.innerHTML = '';
   const allBtn = document.createElement('button');
@@ -1059,13 +1120,11 @@ function renderHistory() {
     filterWrap.appendChild(btn);
   });
 
-  // Filter + sort logs newest first
   const logs = ud.logs
     .filter(l => historyFilter === 'all' || l.habitId === historyFilter)
     .slice()
     .sort((a, b) => b.id - a.id);
 
-  // Group by date
   const byDate = {};
   logs.forEach(l => {
     if (!byDate[l.date]) byDate[l.date] = [];
@@ -1074,7 +1133,6 @@ function renderHistory() {
 
   content.innerHTML = '';
   Object.keys(byDate).sort((a,b) => b.localeCompare(a)).forEach(dateStr => {
-    // Date heading
     const heading = document.createElement('div');
     const d = new Date(dateStr + 'T12:00:00');
     const isToday = dateStr === new Date().toISOString().split('T')[0];
@@ -1083,7 +1141,6 @@ function renderHistory() {
     heading.innerHTML = `<div style="font-size:11px;font-weight:600;color:var(--hint);letter-spacing:.07em;text-transform:uppercase;padding:16px 0 8px;border-top:.5px solid var(--border);margin-top:4px">${label}</div>`;
     content.appendChild(heading);
 
-    // Entries for this date
     byDate[dateStr].forEach(l => {
       const item = document.createElement('div');
       item.className = 'log-entry-item';
@@ -1135,7 +1192,6 @@ function exportCSV(){
 function exportExcel(){
   const ud=getUserData();
   if(!ud||!ud.logs.length){alert('No logs to export yet.');return;}
-  // Build simple HTML table that Excel can open
   const rows=[['Date','Habit','Duration','Unit','Start Time','End Time','Note']];
   ud.logs.forEach(l=>rows.push([l.date,l.habitName,l.duration,l.unit,l.startTime||'',l.endTime||'',l.note||'']));
   const header=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><style>td{font-family:Calibri,sans-serif;font-size:11pt;padding:4px 8px;border:1px solid #ccc}th{background:#1D9E75;color:#fff;font-weight:600}</style></head><body><table>`;
