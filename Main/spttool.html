@@ -15,7 +15,7 @@
 <div id="auth-screen" class="screen active">
   <div class="auth-card">
     <div class="auth-top">
-      <div class="auth-top-icon">🌿</div>
+      <div class="auth-top-icon">SPT</div>
       <h1>Quick Tracker</h1>
       <p>Personalised wellness check-ins, just for you</p>
     </div>
@@ -45,7 +45,7 @@
 <div id="app-screen" class="screen">
   <div class="app-header">
     <div class="app-logo">
-      <div class="app-logo-icon">🌿</div>
+      <div class="app-logo-icon">SPT</div>
       <span>Quick Tracker</span>
     </div>
     <div class="user-pill" onclick="doLogout()">
@@ -56,19 +56,19 @@
   </div>
 
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showTab('check-in')">📋 Check-In</button>
+    <button class="nav-tab active" onclick="showTab('check-in')">Check-In</button>
     <button class="nav-tab" onclick="showTab('tracker')">⏰ Habit Tracker</button>
-    <button class="nav-tab" onclick="showTab('history')">📖 History</button>
-    <button class="nav-tab" onclick="showTab('calendar')">📅 Calendar</button>
-    <button class="nav-tab" onclick="showTab('trends')">📈 Trends</button>
+    <button class="nav-tab" onclick="showTab('history')">History</button>
+    <button class="nav-tab" onclick="showTab('calendar')">Calendar</button>
+    <button class="nav-tab" onclick="showTab('trends')">Trends</button>
   </div>
 
   <!-- ── CHECK-IN TAB ── -->
   <div id="tab-check-in" class="tab-pane active">
     <div class="hero">
-      <div class="hero-icon">🌿</div>
+      <div class="hero-icon">SPT</div>
       <h2>Hello, <span id="greeting-name"></span> 👋</h2>
-      <p>A few gentle questions about your day — and we'll share honest, personalised tips.</p>
+      <p>A few gentle questions about your day — and we'll share what's happening within you, and personalised tips.</p>
       <div class="prog-wrap">
         <div class="prog-meta"><span>Your progress</span><span id="prog-txt">0 of 12</span></div>
         <div class="prog-bar"><div class="prog-fill" id="prog-bar" style="width:0%"></div></div>
@@ -81,29 +81,28 @@
       <div class="q-card">
         <div class="q-num">Question 1</div><p class="q-title">How old are you?</p>
         <div class="opts" data-q="age">
-          <button type="button" class="opt" data-v="Under 18"><span class="opt-em">🌱</span> Under 18</button>
-          <button type="button" class="opt" data-v="18–25"><span class="opt-em">☀️</span> 18 – 25</button>
-          <button type="button" class="opt" data-v="26–35"><span class="opt-em">🌤</span> 26 – 35</button>
-          <button type="button" class="opt" data-v="36–50"><span class="opt-em">🍂</span> 36 – 50</button>
-          <button type="button" class="opt" data-v="50+"><span class="opt-em">🌾</span> Over 50</button>
+          <button type="button" class="opt" data-v="Under 18"><span class="opt-em"></span> Under 18</button>
+          <button type="button" class="opt" data-v="18–25"><span class="opt-em"></span> 18 – 25</button>
+          <button type="button" class="opt" data-v="26–35"><span class="opt-em"></span> 26 – 35</button>
+          <button type="button" class="opt" data-v="36–50"><span class="opt-em"></span> 36 – 50</button>
+          <button type="button" class="opt" data-v="50+"><span class="opt-em"></span> Over 50</button>
         </div>
       </div>
 
       <div class="q-card">
         <div class="q-num">Question 2</div><p class="q-title">Where do you live?</p>
         <div class="opts" data-q="location">
-          <button type="button" class="opt" data-v="Urban"><span class="opt-em">🏙️</span> City</button>
-          <button type="button" class="opt" data-v="Semi-urban"><span class="opt-em">🏘️</span> Town</button>
-          <button type="button" class="opt" data-v="Rural"><span class="opt-em">🌳</span> Village / countryside</button>
+          <button type="button" class="opt" data-v="Urban"><span class="opt-em"></span> City</button>
+          <button type="button" class="opt" data-v="Semi-urban"><span class="opt-em"></span> Town</button>
         </div>
       </div>
 
       <div class="q-card">
         <div class="q-num">Question 3</div><p class="q-title">What kind of work do you do most of the time?</p>
         <div class="opts" data-q="worktype">
-          <button type="button" class="opt" data-v="Sitting"><span class="opt-em">💻</span> Mostly sitting</button>
-          <button type="button" class="opt" data-v="Physical"><span class="opt-em">🚶</span> Mostly moving</button>
-          <button type="button" class="opt" data-v="Both"><span class="opt-em">🔄</span> A mix</button>
+          <button type="button" class="opt" data-v="Sitting"><span class="opt-em"></span> Mental </button>
+          <button type="button" class="opt" data-v="Physical"><span class="opt-em"></span> Physical</button>
+          <button type="button" class="opt" data-v="Both"><span class="opt-em"></span> Both </button>
         </div>
       </div>
 
@@ -112,43 +111,43 @@
       <div class="q-card">
         <div class="q-num">Question 4</div><p class="q-title">How many hours do you work on a normal day?</p>
         <div class="opts" data-q="workhours">
-          <button type="button" class="opt" data-v="0–4 hours"><span class="opt-em">🌙</span> 0–4 hrs</button>
-          <button type="button" class="opt" data-v="5–6 hours"><span class="opt-em">🌤</span> 5–6 hrs</button>
-          <button type="button" class="opt" data-v="7–8 hours"><span class="opt-em">☀️</span> 7–8 hrs</button>
-          <button type="button" class="opt" data-v="9 or more hours"><span class="opt-em">🔥</span> 9+ hrs</button>
+          <button type="button" class="opt" data-v="0–4 hours"><span class="opt-em"></span> 0–4 hrs</button>
+          <button type="button" class="opt" data-v="5–6 hours"><span class="opt-em"></span> 5–6 hrs</button>
+          <button type="button" class="opt" data-v="7–8 hours"><span class="opt-em"></span> 7–8 hrs</button>
+          <button type="button" class="opt" data-v="9 or more hours"><span class="opt-em"></span> 9+ hrs</button>
         </div>
       </div>
 
       <div class="q-card">
         <div class="q-num">Question 5</div><p class="q-title">How many hours do you sleep most nights?</p>
         <div class="opts" data-q="sleep">
-          <button type="button" class="opt" data-v="0–4 hours"><span class="opt-em">😴</span> 0–4 hrs</button>
-          <button type="button" class="opt" data-v="5–6 hours"><span class="opt-em">🌛</span> 5–6 hrs</button>
-          <button type="button" class="opt" data-v="7–8 hours"><span class="opt-em">🌟</span> 7–8 hrs</button>
-          <button type="button" class="opt" data-v="9 or more hours"><span class="opt-em">💤</span> 9+ hrs</button>
+          <button type="button" class="opt" data-v="0–4 hours"><span class="opt-em"></span> 0–4 hrs</button>
+          <button type="button" class="opt" data-v="5–6 hours"><span class="opt-em"></span> 5–6 hrs</button>
+          <button type="button" class="opt" data-v="7–8 hours"><span class="opt-em"></span> 7–8 hrs</button>
+          <button type="button" class="opt" data-v="9 or more hours"><span class="opt-em"></span> 9+ hrs</button>
         </div>
       </div>
 
       <div class="q-card">
         <div class="q-num">Question 6</div><p class="q-title">How long do you use your phone before going to sleep?</p>
         <div class="opts" data-q="phonetime">
-          <button type="button" class="opt" data-v="no phone before bed"><span class="opt-em">🚫</span> No phone</button>
-          <button type="button" class="opt" data-v="less than 30 minutes"><span class="opt-em">⏱️</span> Under 30 min</button>
-          <button type="button" class="opt" data-v="30 min–1 hour"><span class="opt-em">📱</span> 30 min – 1 hr</button>
-          <button type="button" class="opt" data-v="1–2 hours"><span class="opt-em">📲</span> 1–2 hrs</button>
-          <button type="button" class="opt" data-v="2–3 hours"><span class="opt-em">😬</span> 2–3 hrs</button>
-          <button type="button" class="opt" data-v="more than 3 hours"><span class="opt-em">😵</span> 3+ hrs</button>
+          <button type="button" class="opt" data-v="no phone before bed"><span class="opt-em"></span> No phone</button>
+          <!-- <button type="button" class="opt" data-v="less than 30 minutes"><span class="opt-em"></span> Under 30 min</button> -->
+          <button type="button" class="opt" data-v="30 min–1 hour"><span class="opt-em"></span> 30 min – 1 hr</button>
+          <button type="button" class="opt" data-v="1–2 hours"><span class="opt-em"></span> 1–2 hrs</button>
+          <button type="button" class="opt" data-v="2–3 hours"><span class="opt-em"></span> 2–3 hrs</button>
+          <button type="button" class="opt" data-v="more than 3 hours"><span class="opt-em"></span> 3+ hrs</button>
         </div>
       </div>
 
       <div class="q-card">
         <div class="q-num">Question 7</div><p class="q-title">What time do you usually go to sleep?</p>
         <div class="opts" data-q="bedtime">
-          <button type="button" class="opt" data-v="before 9 PM"><span class="opt-em">🌅</span> Before 9 pm</button>
-          <button type="button" class="opt" data-v="9–10 PM"><span class="opt-em">🌆</span> 9–10 pm</button>
-          <button type="button" class="opt" data-v="10–11 PM"><span class="opt-em">🌃</span> 10–11 pm</button>
-          <button type="button" class="opt" data-v="11 PM–12 AM"><span class="opt-em">🌉</span> 11 pm–midnight</button>
-          <button type="button" class="opt" data-v="after 12 AM"><span class="opt-em">🌑</span> After midnight</button>
+          <!-- <button type="button" class="opt" data-v="before 9 PM"><span class="opt-em"></span> Before 9 pm</button> -->
+          <button type="button" class="opt" data-v="9–10 PM"><span class="opt-em"></span> 9–10 pm</button>
+          <button type="button" class="opt" data-v="10–11 PM"><span class="opt-em"></span> 10–11 pm</button>
+          <button type="button" class="opt" data-v="11 PM–12 AM"><span class="opt-em"></span> 11 pm–midnight</button>
+          <button type="button" class="opt" data-v="after 12 AM"><span class="opt-em"></span> After midnight</button>
         </div>
       </div>
 
