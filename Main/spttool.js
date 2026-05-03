@@ -432,7 +432,7 @@ function showResults() {
   rd.innerHTML=`
     <div class="res-hero">
       <div class="res-emoji">${emoji}</div>
-      <h3>Here is what we found…</h3>
+      <h3>Here is what we found\u2026</h3>
       <p>${intro}</p>
     </div>
     <div class="stat-grid">
@@ -441,29 +441,19 @@ function showResults() {
       <div class="stat"><div class="stat-val">${sc}<span style="font-size:12px;font-weight:400">/50</span></div><div class="stat-sub">Sleep score</div></div>
       <div class="stat"><div class="stat-val" style="font-size:13px">${answers.bedtime}</div><div class="stat-sub">Bedtime</div></div>
     </div>
-    <p class="sec-lbl">Tips just for you</p>
-    <div class="rec-box">
-      ${[...contras.map(c=>({l:'contra',t:c.t,s:c.b[0].replace(/<strong>[^<]*<\/strong>[\s:]*/g,'').replace(/<[^>]+>/g,'')})),...recs].map((r,i,arr)=>`
-        <div class="rec-row${i<arr.length-1?' rec-row-border':''}">
-          <span class="rec-icon">${r.l==='bad'?'🔴':r.l==='warn'?'⚠️':r.l==='contra'?'🔮':'✅'}</span>
-          <div class="rec-row-body">
-            <div class="rec-row-title">${r.t.replace(/^[\u{1F534}\u{26A0}\u{2705}\u{1F52E}\u{1FA91}\uFE0F\s]+/u,'')}</div>
-            <div class="rec-row-text">${(r.s||'').replace(/<[^>]+>/g,'')}</div>
-          </div>
-        </div>`).join('')}
-    </div>
-    <button type="button" id="restart-btn" onclick="restartForm()">↩ Take the quiz again</button>
     <div id="ai-feedback-section"></div>
+    <button type="button" id="restart-btn" onclick="restartForm()">&#8617; Take the quiz again</button>
   `;
 
   // Trigger AI feedback asynchronously
-  generateAIFeedback({ answers, lAnswers, sc, recs, contras });
+  generateAIFeedback({ answers: {...answers}, lAnswers: {...lAnswers}, sc });
 }
+
 
 /* ═══════════════════════════════════════
    AI-POWERED FEEDBACK (Claude API)
 ═══════════════════════════════════════ */
-async function generateAIFeedback({ answers, lAnswers, sc, recs, contras }) {
+async function generateAIFeedback({ answers, lAnswers, sc }) {
   const section = document.getElementById('ai-feedback-section');
   if (!section) return;
 
@@ -471,13 +461,12 @@ async function generateAIFeedback({ answers, lAnswers, sc, recs, contras }) {
   section.innerHTML = `
     <div class="ai-feedback-card ai-loading">
       <div class="ai-feedback-header">
-        <span class="ai-feedback-badge">✨ AI Analysis</span>
+        <span class="ai-feedback-badge">✨ Tips just for you</span>
         <span class="ai-loading-dots"><span>.</span><span>.</span><span>.</span></span>
       </div>
       <p class="ai-loading-text">Generating your personalised wellness insight…</p>
     </div>`;
 
-  // Build a rich prompt from the user's quiz answers
   const likertLabels = {
     l1: 'Can fall asleep easily',
     l2: 'Sleeps well most nights',
@@ -489,38 +478,54 @@ async function generateAIFeedback({ answers, lAnswers, sc, recs, contras }) {
     .map(([k, v]) => `- ${likertLabels[k] || k}: ${v}`)
     .join('\n');
 
-  const prompt = `You are a wellness coach providing a brief, empathetic, evidence-based sleep and lifestyle analysis. A user has just completed a wellness check-in quiz. Here are their responses:
+  const SOURCES = `Use ONLY these exact sources and links when citing research (cite by short name inline, e.g. "(AASM, 2015)"):
+1. AASM (2015) – American Academy of Sleep Medicine. Sleep Health, 1(1), 40–43. https://doi.org/10.1016/j.sleh.2014.12.010
+2. BMC Public Health (2024) – Sleep duration and mental health outcomes. https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-024-18725-1
+3. Statistics Canada (2022) – Sleep duration and health in Canada. https://www150.statcan.gc.ca/n1/pub/82-003-x/2022003/article/00001-eng.htm
+4. Springer (2024) – Sleep duration and cognitive/health outcomes. https://link.springer.com/article/10.1186/s41606-024-00109-4
+5. The Guardian (2024) – Irregular sleep patterns raise risk of stroke and heart attack. https://www.theguardian.com/society/2024/nov/26/irregular-sleep-pattern-raises-risk-of-stroke-and-heart-attack-uk-study-finds`;
 
-**Demographics**
-- Age: ${answers.age || 'Not specified'}
-- Location type: ${answers.location || 'Not specified'}
-- Work type: ${answers.worktype || 'Not specified'}
+  const prompt = `You are a compassionate wellness coach providing a brief, evidence-based sleep and lifestyle analysis. A user completed a wellness check-in. Here are their responses:
 
-**Daily habits**
-- Work hours per day: ${answers.workhours || 'Not specified'}
-- Sleep hours per night: ${answers.sleep || 'Not specified'}
-- Phone use before bed: ${answers.phonetime || 'Not specified'}
-- Usual bedtime: ${answers.bedtime || 'Not specified'}
-- Physical activity: ${answers.activity || 'Not specified'}
-- Meal regularity: ${answers.meals || 'Not specified'}
-- Hydration: ${answers.water || 'Not specified'}
+Age: ${answers.age || 'Not specified'} | Location: ${answers.location || 'Not specified'} | Work type: ${answers.worktype || 'Not specified'}
+Work hours/day: ${answers.workhours || 'Not specified'} | Sleep hours/night: ${answers.sleep || 'Not specified'}
+Phone before bed: ${answers.phonetime || 'Not specified'} | Bedtime: ${answers.bedtime || 'Not specified'}
+Sleep score: ${sc}/50
 
-**Self-reported sleep quality (Likert scale)**
+Self-reported (Likert):
 ${likertSummary}
 
-**Calculated sleep score: ${sc}/50**
+${SOURCES}
 
-Please generate a concise, personalised wellness summary in this EXACT JSON format (no markdown fences, raw JSON only):
+Return ONLY raw JSON (no markdown, no fences) in this exact shape:
 {
-  "whatsGoingWell": "1–2 sentences about genuine positives from their data",
-  "areaOfImprovement": "1–2 sentences identifying the most impactful area to improve",
-  "researchInsights": ["one evidence-based insight", "one evidence-based insight", "one evidence-based insight"],
-  "balancedApproach": "2–3 sentences describing a practical 8-8-8 or balanced daily rhythm recommendation",
-  "whyItMatters": ["one sentence on why this matters", "one sentence on why this matters"],
-  "gentleReminder": "1 encouraging sentence closing the analysis"
+  "whatsGoingWell": "1–2 warm sentences about genuine positives. Cite 1 source inline if relevant.",
+  "areaOfImprovement": "1–2 sentences on the single most impactful area. Cite 1 source inline if relevant.",
+  "researchInsights": [
+    "Insight 1 with inline citation e.g. (Statistics Canada, 2022)",
+    "Insight 2 with inline citation",
+    "Insight 3 with inline citation"
+  ],
+  "balancedApproach": {
+    "pillars": ["8 hrs Sleep", "8 hrs Work", "8 hrs Personal Time"],
+    "actions": ["→ action based on their sleep data", "→ action based on their screen/phone habit", "→ action for wind-down routine"]
+  },
+  "whyItMatters": [
+    "One sentence on sleep quality vs duration (cite source)",
+    "One sentence on sleep hygiene and wellbeing (cite source)",
+    "One sentence on consistent sleep timing (cite source)"
+  ],
+  "gentleReminder": "1 encouraging sentence about adjusting timing/routine, not eliminating habits.",
+  "sources": [
+    {"short": "AASM, 2015", "full": "American Academy of Sleep Medicine. (2015). National Sleep Foundation's sleep time duration recommendations. Sleep Health, 1(1), 40–43.", "url": "https://doi.org/10.1016/j.sleh.2014.12.010"},
+    {"short": "BMC Public Health, 2024", "full": "BMC Public Health. (2024). Sleep duration and mental health outcomes in adolescents.", "url": "https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-024-18725-1"},
+    {"short": "Statistics Canada, 2022", "full": "Statistics Canada. (2022). Sleep duration and health in Canada. Health Reports.", "url": "https://www150.statcan.gc.ca/n1/pub/82-003-x/2022003/article/00001-eng.htm"},
+    {"short": "Springer, 2024", "full": "Springer. (2024). Sleep duration and cognitive/health outcomes in adults: A systematic review.", "url": "https://link.springer.com/article/10.1186/s41606-024-00109-4"},
+    {"short": "The Guardian, 2024", "full": "The Guardian. (2024, November 26). Irregular sleep patterns raise risk of stroke and heart attack.", "url": "https://www.theguardian.com/society/2024/nov/26/irregular-sleep-pattern-raises-risk-of-stroke-and-heart-attack-uk-study-finds"}
+  ]
 }
 
-Keep the tone warm, non-judgmental, and evidence-informed. Reference credible sources (Statistics Canada, Springer, BMC Public Health, The Guardian, AASM) where relevant. Do not fabricate statistics.`;
+Only include sources that you actually cite in the text above. Personalise all text to the user's actual answers.`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -528,7 +533,7 @@ Keep the tone warm, non-judgmental, and evidence-informed. Reference credible so
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        max_tokens: 1200,
         messages: [{ role: 'user', content: prompt }]
       })
     });
@@ -536,28 +541,51 @@ Keep the tone warm, non-judgmental, and evidence-informed. Reference credible so
     if (!response.ok) throw new Error('API error ' + response.status);
     const data = await response.json();
     const raw = data.content?.find(b => b.type === 'text')?.text || '';
-
-    // Strip any accidental markdown fences
     const clean = raw.replace(/```json|```/gi, '').trim();
     const fb = JSON.parse(clean);
     renderAIFeedback(section, fb);
   } catch (err) {
     console.error('AI feedback error:', err);
-    section.innerHTML = '';  // Silently hide on error — static tips still show
+    section.innerHTML = `
+      <div class="ai-feedback-card">
+        <div class="ai-feedback-header">
+          <span class="ai-feedback-badge">✨ Tips just for you</span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);padding:8px 0">Could not load personalised tips right now. Please try again.</p>
+      </div>`;
   }
 }
 
 function renderAIFeedback(section, fb) {
+  // ── Research insights with citations
   const insightsHtml = (fb.researchInsights || [])
     .map(i => `<li>${i}</li>`).join('');
+
+  // ── Balanced approach pillars + actions
+  const ba = fb.balancedApproach || {};
+  const pillarsHtml = (ba.pillars || [])
+    .map(p => `<span class="ai-pillar">${p}</span>`).join('');
+  const actionsHtml = (ba.actions || [])
+    .map(a => `<p class="ai-action">${a}</p>`).join('');
+
+  // ── Why it matters bullets
   const whyHtml = (fb.whyItMatters || [])
-    .map(i => `<p class="ai-why-item">💡 ${i}</p>`).join('');
+    .map(i => `<p class="ai-why-item">${i}</p>`).join('');
+
+  // ── Sources list (only cited ones)
+  const citedSources = fb.sources || [];
+  const sourcesHtml = citedSources.length ? `
+    <div class="ai-sources">
+      <div class="ai-sources-label">📚 References</div>
+      <ol class="ai-sources-list">
+        ${citedSources.map(s => `<li>${s.full} <a href="${s.url}" target="_blank" rel="noopener">${s.url}</a></li>`).join('')}
+      </ol>
+    </div>` : '';
 
   section.innerHTML = `
     <div class="ai-feedback-card">
       <div class="ai-feedback-header">
-        <span class="ai-feedback-badge">✨ AI Analysis</span>
-        <span class="ai-feedback-sub">Personalised insight from Claude</span>
+        <span class="ai-feedback-badge">✨ Tips just for you</span>
       </div>
 
       <div class="ai-block ai-block-green">
@@ -566,7 +594,7 @@ function renderAIFeedback(section, fb) {
       </div>
 
       <div class="ai-block ai-block-amber">
-        <div class="ai-block-label">⚠️ Gentle area of improvement</div>
+        <div class="ai-block-label">⚠️ A gentle area for improvement</div>
         <p>${fb.areaOfImprovement || ''}</p>
       </div>
 
@@ -576,23 +604,25 @@ function renderAIFeedback(section, fb) {
         <ul class="ai-insights-list">${insightsHtml}</ul>
       </div>` : ''}
 
-      ${fb.balancedApproach ? `
+      ${(pillarsHtml || actionsHtml) ? `
       <div class="ai-block ai-block-purple">
-        <div class="ai-block-label">🎯 Balanced 8–8–8 approach</div>
-        <p>${fb.balancedApproach}</p>
+        <div class="ai-block-label">🎯 A balanced approach: 8–8–8</div>
+        ${pillarsHtml ? `<div class="ai-pillars">${pillarsHtml}</div>` : ''}
+        <div class="ai-actions">${actionsHtml}</div>
       </div>` : ''}
 
       ${whyHtml ? `
       <div class="ai-block ai-block-plain">
-        <div class="ai-block-label">🌿 Why this matters</div>
+        <div class="ai-block-label">🌿 A small, thoughtful adjustment</div>
         ${whyHtml}
       </div>` : ''}
 
       ${fb.gentleReminder ? `
-      <div class="ai-block ai-block-red">
-        <div class="ai-block-label">🔴 Gentle reminder</div>
+      <div class="ai-block ai-block-reminder">
         <p>${fb.gentleReminder}</p>
       </div>` : ''}
+
+      ${sourcesHtml}
     </div>`;
 }
 
