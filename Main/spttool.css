@@ -1358,3 +1358,5 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .ai-sources-list li{font-size:11px;line-height:1.6;color:var(--muted)}
 .ai-sources-list a{color:var(--green-dk);word-break:break-all;text-decoration:none}
 .ai-sources-list a:hover{text-decoration:underline}
+
+.ai-cite{font-size:10.5px;color:var(--green-dk);font-weight:500;white-space:nowrap;background:var(--green-lt);border-radius:4px;padding:1px 5px;margin-left:2px;}
