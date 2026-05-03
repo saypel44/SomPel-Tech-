@@ -469,7 +469,7 @@ const SOURCES_DB = {
   guardian:{ short:'The Guardian, 2024',      full:'The Guardian. (2024, November 26). Irregular sleep patterns raise risk of stroke and heart attack, study finds.',                                                          url:'https://www.theguardian.com/society/2024/nov/26/irregular-sleep-pattern-raises-risk-of-stroke-and-heart-attack-uk-study-finds' }
 };
 
-function cite(key){ return `<span class="ai-cite">(${SOURCES_DB[key].short})</span>`; }
+function cite(key){ return ''; } // kept for safety; inline citations removed
 
 function buildLocalFeedback(a, la, sc) {
   /* ── Flags ── */
@@ -505,146 +505,130 @@ function buildLocalFeedback(a, la, sc) {
   const outcomePoor = poorRested || lowEnergy || sleepyDay;
 
   const usedSources = new Set();
-  function useCite(key){ usedSources.add(key); return cite(key); }
+  function track(key){ usedSources.add(key); }
 
   /* ══════════════════════════════════
      1. WHAT'S GOING WELL
+     — one friendly sentence, no inline citation
   ══════════════════════════════════ */
   let whatsGoingWell = '';
   if (goodSleep && outcomeGood) {
-    whatsGoingWell = `You sleep ${sleep} every night — right in the healthy range ${useCite('aasm')}. You feel rested, full of energy, and alert all day. That's a great result. Keep it up!`;
+    track('aasm');
+    whatsGoingWell = `You sleep ${sleep} every night and feel rested and alert all day. That's exactly what healthy sleep looks like. Keep it up! 🎉`;
   } else if (goodSleep && !outcomeGood) {
-    whatsGoingWell = `You sleep ${sleep} every night, which is the healthy amount ${useCite('aasm')}. That's a great start. Now let's work on making that sleep feel more restful.`;
+    track('aasm');
+    whatsGoingWell = `You sleep ${sleep} every night — that's the healthy amount. You've got the foundation right. Now let's make that sleep feel more restful.`;
   } else if (longSleep && outcomeGood) {
-    whatsGoingWell = `You make time for lots of sleep, and it's paying off — you feel rested and full of energy. Getting enough sleep is one of the best things you can do for your health ${useCite('springer')}.`;
+    track('springer');
+    whatsGoingWell = `You make time for sleep, and it shows — you feel rested and full of energy. That's a great habit to protect.`;
   } else if (shortSleep && feelEnergy) {
-    whatsGoingWell = `You keep your energy up even with only ${sleep} — that shows real strength. But getting a bit more sleep will help you feel even better ${useCite('aasm')}.`;
+    track('aasm');
+    whatsGoingWell = `You manage to keep your energy up even on ${sleep}. Getting just a little more rest will help you feel even better.`;
   } else if (noPhone) {
-    whatsGoingWell = `You don't use your phone before bed — that's one of the best sleep habits you can have. Studies show it leads to deeper, more restful sleep ${useCite('statcan')}.`;
+    track('statcan');
+    whatsGoingWell = `You keep your phone away before bed — that's one of the best things you can do for sleep. Well done!`;
   } else if (earlyBed) {
-    whatsGoingWell = `Going to bed at ${bedtime} gives your body great recovery time. It lines up with your body's natural sleep pattern, which helps both your body and mind ${useCite('guardian')}.`;
+    track('guardian');
+    whatsGoingWell = `Going to bed at ${bedtime} gives your body great recovery time. Early bedtimes are really good for your health.`;
   } else if (!overwork && !shortSleep) {
-    whatsGoingWell = `You're not overworking, and you get enough sleep — that's a good balance. Your body has time to rest and recover ${useCite('aasm')}.`;
+    track('aasm');
+    whatsGoingWell = `You're not overworking and you get enough sleep — that's a healthy balance. Your body has time to rest and recover.`;
   } else {
-    whatsGoingWell = `You're paying attention to your habits by tracking them. That's the first step to making real improvements ${useCite('bmc')}.`;
+    track('bmc');
+    whatsGoingWell = `You're tracking your habits, and that's the first step. Awareness is how real change starts.`;
   }
 
   /* ══════════════════════════════════
-     2. AREA OF IMPROVEMENT
+     2. ONE THING TO WORK ON
+     — specific, kind, no inline citation
   ══════════════════════════════════ */
   let areaOfImprovement = '';
   if (highPhone && (outcomePoor || !feelRested)) {
-    areaOfImprovement = `You use your phone ${phone} before bed. Phone screens make your brain think it's still daytime, which makes it harder to fall asleep and get deep rest — even if you don't notice it ${useCite('statcan')}.`;
+    track('statcan');
+    areaOfImprovement = `You use your phone ${phone} before bed. Phone screens trick your brain into thinking it's still daytime — making it harder to fall into deep sleep, even if you don't notice it.`;
   } else if (medPhone && outcomePoor) {
-    areaOfImprovement = `Using your phone ${phone} before bed may be quietly affecting your sleep. Even a moderate amount of screen time at night can make sleep lighter and leave you feeling more tired the next day ${useCite('statcan')}.`;
+    track('statcan');
+    areaOfImprovement = `Using your phone ${phone} before bed is likely making your sleep lighter. Cutting that down — even by 30 minutes — can make a real difference to how rested you feel.`;
   } else if (shortSleep && outcomePoor) {
-    areaOfImprovement = `You only sleep ${sleep} most nights. Your body needs sleep to repair itself and store memories. People who sleep less than 7 hours regularly tend to feel more tired and less well ${useCite('aasm')}.`;
+    track('aasm');
+    areaOfImprovement = `You sleep ${sleep} most nights. Your body needs more time to repair and recharge. Even one extra hour of sleep can noticeably improve your energy and mood.`;
   } else if (overwork && outcomePoor) {
-    areaOfImprovement = `Working ${workhours} a day can make it hard for your body to relax at night. When you work a lot without breaks, stress builds up and can stop you sleeping well ${useCite('springer')}.`;
+    track('springer');
+    areaOfImprovement = `Working ${workhours} a day makes it hard for your body to switch off at night. Try stopping all work at least 1 hour before bed — even a short walk helps your body wind down.`;
   } else if (lateNight && outcomePoor) {
-    areaOfImprovement = `Going to bed ${bedtime} may not match your body's natural sleep rhythm. Sleeping at irregular or very late times is linked to lower sleep quality and can affect your health over time ${useCite('guardian')}.`;
+    track('guardian');
+    areaOfImprovement = `Going to bed ${bedtime} is quite late. Your body sleeps best within a regular window. Try shifting your bedtime just 15 minutes earlier each week.`;
   } else if (hardSleep) {
-    areaOfImprovement = `You find it hard to fall asleep. This often happens when the body hasn't had a chance to wind down before bed. Without a calm bedtime routine, your brain stays switched on when it should be switching off ${useCite('statcan')}.`;
+    track('statcan');
+    areaOfImprovement = `You find it hard to fall asleep. Your brain needs a signal that it's time to rest. Try a calm, screen-free wind-down for 20 minutes before bed — reading, stretching, or just dim lights.`;
   } else if (highPhone && outcomeGood) {
-    areaOfImprovement = `Even though you feel okay now, using your phone ${phone} before bed is slowly affecting the quality of your sleep. Phone light reduces your body's sleep signals, even when you don't feel it ${useCite('statcan')}.`;
+    track('statcan');
+    areaOfImprovement = `You feel okay now, but ${phone} of phone use before bed is slowly affecting your sleep depth. Moving phone time earlier in the evening is the easiest win.`;
   } else if (longSleep && !feelEnergy) {
-    areaOfImprovement = `You sleep ${sleep} but still feel low on energy. Sleeping too long can sometimes be a sign that your sleep isn't deep enough — more hours alone won't always fix the problem ${useCite('springer')}.`;
+    track('springer');
+    areaOfImprovement = `You sleep ${sleep} but still feel low on energy. More hours in bed isn't always the fix — sleep quality matters too. A consistent bedtime and less screen time can help.`;
   } else {
-    areaOfImprovement = `Try to go to bed and wake up at the same time every day — even on weekends. This is one of the simplest things you can do to feel more rested ${useCite('guardian')}.`;
+    track('guardian');
+    areaOfImprovement = `Try going to bed and waking up at the same time every day — even on weekends. It's one of the simplest habits that makes a real difference.`;
   }
 
   /* ══════════════════════════════════
-     3. RESEARCH INSIGHTS
+     3. YOUR 3 STEPS  (replaces research bullets + 8-8-8 actions)
+     — plain, personal, no citations inline
   ══════════════════════════════════ */
-  const allInsights = [
-    { text: `Using your phone before sleep can make it harder to fall asleep and reduce sleep quality ${useCite('statcan')}`, relevant: !noPhone },
-    { text: `Adults who sleep 7–8 hours most nights report better physical and mental health ${useCite('aasm')}`, relevant: true },
-    { text: `Going to bed at irregular times or very late can disrupt your body's natural sleep rhythm ${useCite('guardian')}`, relevant: lateNight || hardSleep || !fallsAsleep },
-    { text: `Good sleep quality — not just the number of hours — is important for how you feel and think ${useCite('springer')}`, relevant: !noPhone && !shortSleep },
-    { text: `Better sleep habits like a consistent bedtime are linked to better mental health and focus ${useCite('bmc')}`, relevant: outcomePoor || hardSleep },
-    { text: `Going to bed and waking up at the same time each day is linked to better health for all ages ${useCite('statcan')}`, relevant: lateNight || sleepyDay },
-    { text: `Working very long hours without enough rest is linked to poor sleep and lower energy ${useCite('springer')}`, relevant: overwork },
-    { text: `Sitting all day without movement breaks is linked to lower energy and poorer sleep ${useCite('bmc')}`, relevant: sitting && lowEnergy },
-  ];
-
-  // Pick 3: prioritise relevant ones, pad with always-relevant if needed
-  const relevant  = allInsights.filter(i => i.relevant);
-  const fallback  = allInsights.filter(i => !i.relevant);
-  const picked    = [...relevant, ...fallback].slice(0, 3);
-  const researchInsights = picked.map(i => i.text);
-
-  /* ══════════════════════════════════
-     4. BALANCED 8–8–8 APPROACH
-  ══════════════════════════════════ */
-  const pillars = ['🛌 8 hrs Sleep', '💼 8 hrs Work', '🌿 8 hrs Personal Time'];
   const actions = [];
 
-  // Sleep action — based on their sleep hours
-  if (goodSleep) actions.push(`→ Keep your current ${sleep} of sleep — you're in the healthy range ${useCite('aasm')}`);
-  else if (shortSleep) actions.push(`→ Try going to bed 15 minutes earlier each week until you reach 7–8 hours of sleep ${useCite('aasm')}`);
-  else if (longSleep) actions.push(`→ Aim for 7–8 hours of sleep; good quality sleep often matters more than sleeping longer ${useCite('springer')}`);
-  else actions.push(`→ Try to sleep 7–8 hours each night ${useCite('aasm')}`);
+  if (goodSleep)       { track('aasm');     actions.push(`🛌 Keep sleeping ${sleep} — you're right in the healthy range`); }
+  else if (shortSleep) { track('aasm');     actions.push(`🛌 Go to bed 15 minutes earlier each week until you reach 7–8 hours`); }
+  else if (longSleep)  { track('springer'); actions.push(`🛌 Try a steady 7–8 hour window — sleep quality often matters more than extra hours`); }
+  else                 { track('aasm');     actions.push(`🛌 Aim for 7–8 hours of sleep each night`); }
 
-  if (noPhone) actions.push(`→ Keep your phone away before bed — it's one of your best habits ${useCite('statcan')}`);
-  else if (lowPhone) actions.push(`→ Try to reduce your phone time before bed from ${phone} to under 30 minutes for better sleep ${useCite('statcan')}`);
-  else if (medPhone || highPhone) actions.push(`→ Move your ${phone} of phone use to earlier in the evening, away from bedtime ${useCite('statcan')}`);
-  else actions.push(`→ Put your phone away 30–60 minutes before you go to sleep ${useCite('statcan')}`);
+  if (noPhone)              { track('statcan'); actions.push(`📵 Keep your phone away before bed — that habit is working`); }
+  else if (lowPhone)        { track('statcan'); actions.push(`📵 Try cutting your pre-bed phone time from ${phone} to under 30 minutes`); }
+  else if (medPhone||highPhone) { track('statcan'); actions.push(`📵 Use your phone earlier in the evening — keep the last 30 minutes before bed screen-free`); }
+  else                      {                   actions.push(`📵 Put your phone away 30 minutes before you sleep`); }
 
-  if (lateNight) actions.push(`→ Try going to bed 15 minutes earlier each week to help your body get used to a better sleep time ${useCite('guardian')}`);
-  else if (overwork) actions.push(`→ Stop working at least 1 hour before bed so your body has time to relax ${useCite('springer')}`);
-  else if (hardSleep) actions.push(`→ Spend the last 30–60 minutes before bed doing something calm with no screens — like reading or stretching`);
-  else actions.push(`→ Spend the last 30–60 minutes before bed doing something calm and screen-free`);
-
-  /* ══════════════════════════════════
-     5. WHY IT MATTERS
-  ══════════════════════════════════ */
-  const whyItMatters = [
-    `It's not just about how many hours you sleep — the quality of your sleep matters just as much for how you feel and think ${useCite('springer')}.`,
-    `Going to bed at the same time every night and using your phone less before bed can help you sleep better and feel more focused ${useCite('bmc')}.`,
-    `Sleeping at a consistent time each night is linked to better health for people of all ages ${useCite('statcan')}.`,
-  ];
+  if (lateNight)      { track('guardian'); actions.push(`🌙 Move your bedtime 15 minutes earlier each week — small shifts are easier to stick to`); }
+  else if (overwork)  { track('springer'); actions.push(`💼 Stop work at least 1 hour before bed — your brain needs that gap to switch off`); }
+  else if (hardSleep) {                    actions.push(`🌙 Spend 20–30 minutes before bed doing something calm with no screens`); }
+  else                {                    actions.push(`🌙 Keep a consistent wake-up time — even on weekends`); }
 
   /* ══════════════════════════════════
-     6. GENTLE REMINDER
+     4. CLOSING NOTE  (replaces whyItMatters + gentleReminder)
+     — warm, one sentence, no citation
   ══════════════════════════════════ */
   let gentleReminder = '';
   if (outcomeGood) {
-    gentleReminder = `You don't need to make big changes — just keep the good habits you already have and stay consistent.`;
+    gentleReminder = `You're already doing the important things right — consistency is all you need to keep feeling this good.`;
   } else if (highPhone) {
-    gentleReminder = `You don't need to stop using your phone — just use it earlier in the evening, away from bedtime. That one small change can make a big difference.`;
+    gentleReminder = `You don't need to stop using your phone — just move it earlier in your evening. One small shift, big result.`;
   } else if (shortSleep) {
-    gentleReminder = `You don't need to change everything at once — just go to bed 15 minutes earlier each week. Small steps add up to real change.`;
+    gentleReminder = `You don't need to overhaul your whole schedule — just 15 minutes earlier each week adds up to real, lasting change.`;
   } else if (overwork) {
-    gentleReminder = `It's not about working less — it's about having a clear boundary between work time and rest time, so you can do both well.`;
+    gentleReminder = `Rest isn't the opposite of being productive — it's what makes productivity possible. Protect your wind-down time.`;
+  } else if (lateNight) {
+    gentleReminder = `You don't have to become a morning person — just nudge your bedtime a little earlier and your body will do the rest.`;
   } else {
-    gentleReminder = `Small changes to when you sleep and how you wind down before bed can make a real difference to how you feel each day ${useCite('guardian')}.`;
+    gentleReminder = `Small, consistent changes to your sleep routine tend to have a much bigger impact than you'd expect.`;
   }
 
   /* ── Collect only the sources actually cited ── */
   const sources = [...usedSources].map(k => SOURCES_DB[k]);
 
-  return { whatsGoingWell, areaOfImprovement, researchInsights, pillars, actions, whyItMatters, gentleReminder, sources };
+  return { whatsGoingWell, areaOfImprovement, actions, gentleReminder, sources };
 }
 
 function renderAIFeedback(section, fb) {
-  const insightsHtml = (fb.researchInsights || [])
-    .map(i => `<li>${i}</li>`).join('');
-
-  const pillarsHtml = (fb.pillars || [])
-    .map(p => `<span class="ai-pillar">${p}</span>`).join('');
   const actionsHtml = (fb.actions || [])
-    .map(a => `<p class="ai-action">${a}</p>`).join('');
-
-  const whyHtml = (fb.whyItMatters || [])
-    .map(i => `<p class="ai-why-item">${i}</p>`).join('');
+    .map(a => `<div class="ai-action">${a}</div>`).join('');
 
   const sourcesHtml = (fb.sources && fb.sources.length) ? `
-    <div class="ai-sources">
-      <div class="ai-sources-label">📚 References</div>
+    <details class="ai-sources-toggle">
+      <summary>📚 View sources</summary>
       <ol class="ai-sources-list">
-        ${fb.sources.map(s => `<li>${s.full} <a href="${s.url}" target="_blank" rel="noopener">${s.url}</a></li>`).join('')}
+        ${fb.sources.map(s => `<li>${s.full} <a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.url}</a></li>`).join('')}
       </ol>
-    </div>` : '';
+    </details>` : '';
 
   section.innerHTML = `
     <div class="ai-feedback-card">
@@ -658,27 +642,14 @@ function renderAIFeedback(section, fb) {
       </div>
 
       <div class="ai-block ai-block-amber">
-        <div class="ai-block-label">⚠️ A gentle area for improvement</div>
+        <div class="ai-block-label">⚠️ One thing to work on</div>
         <p>${fb.areaOfImprovement || ''}</p>
       </div>
 
-      ${insightsHtml ? `
-      <div class="ai-block ai-block-plain">
-        <div class="ai-block-label">📌 Research shows that:</div>
-        <ul class="ai-insights-list">${insightsHtml}</ul>
-      </div>` : ''}
-
-      ${(pillarsHtml || actionsHtml) ? `
+      ${actionsHtml ? `
       <div class="ai-block ai-block-purple">
-        <div class="ai-block-label">🎯 A balanced approach: 8–8–8</div>
-        ${pillarsHtml ? `<div class="ai-pillars">${pillarsHtml}</div>` : ''}
+        <div class="ai-block-label">🎯 Your 3 steps</div>
         <div class="ai-actions">${actionsHtml}</div>
-      </div>` : ''}
-
-      ${whyHtml ? `
-      <div class="ai-block ai-block-plain">
-        <div class="ai-block-label">🌿 A small, thoughtful adjustment</div>
-        ${whyHtml}
       </div>` : ''}
 
       ${fb.gentleReminder ? `

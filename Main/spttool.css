@@ -1345,18 +1345,14 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .ai-block-plain .ai-block-label{color:var(--muted)}
 .ai-block-reminder{background:var(--surf2);border-left:3px solid var(--green);border-radius:var(--rsm);padding:12px 14px;margin-bottom:12px}
 .ai-block-reminder p{font-size:13px;line-height:1.7;color:var(--muted);font-style:italic;margin:0}
-.ai-insights-list{padding-left:18px;display:flex;flex-direction:column;gap:5px}
-.ai-insights-list li{font-size:13px;line-height:1.6;color:var(--text)}
-.ai-pillars{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.ai-pillar{background:rgba(83,74,183,0.12);color:var(--purple);border:1px solid rgba(83,74,183,0.2);border-radius:20px;padding:4px 11px;font-size:12px;font-weight:500}
-.ai-actions{display:flex;flex-direction:column;gap:5px}
-.ai-action{font-size:13px;line-height:1.6;color:var(--text);margin:0;padding-left:4px}
-.ai-why-item{font-size:13px;line-height:1.7;color:var(--text);margin:0 0 5px}
-.ai-sources{margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
-.ai-sources-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--hint);margin-bottom:8px}
-.ai-sources-list{padding-left:16px;display:flex;flex-direction:column;gap:6px}
+.ai-actions{display:flex;flex-direction:column;gap:8px}
+.ai-action{font-size:13.5px;line-height:1.6;color:var(--text);background:var(--surf);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 14px}
+.ai-sources-toggle{margin-top:14px;border-top:1px solid var(--border);padding-top:12px}
+.ai-sources-toggle summary{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--hint);cursor:pointer;list-style:none;display:flex;align-items:center;gap:5px;user-select:none}
+.ai-sources-toggle summary::-webkit-details-marker{display:none}
+.ai-sources-toggle summary::after{content:'›';font-size:14px;transition:transform .2s;display:inline-block}
+.ai-sources-toggle[open] summary::after{transform:rotate(90deg)}
+.ai-sources-list{padding-left:16px;display:flex;flex-direction:column;gap:6px;margin-top:10px}
 .ai-sources-list li{font-size:11px;line-height:1.6;color:var(--muted)}
 .ai-sources-list a{color:var(--green-dk);word-break:break-all;text-decoration:none}
 .ai-sources-list a:hover{text-decoration:underline}
-
-.ai-cite{font-size:10.5px;color:var(--green-dk);font-weight:500;white-space:nowrap;background:var(--green-lt);border-radius:4px;padding:1px 5px;margin-left:2px;}
