@@ -453,7 +453,147 @@ function showResults() {
         </div>`).join('')}
     </div>
     <button type="button" id="restart-btn" onclick="restartForm()">↩ Take the quiz again</button>
+    <div id="ai-feedback-section"></div>
   `;
+
+  // Trigger AI feedback asynchronously
+  generateAIFeedback({ answers, lAnswers, sc, recs, contras });
+}
+
+/* ═══════════════════════════════════════
+   AI-POWERED FEEDBACK (Claude API)
+═══════════════════════════════════════ */
+async function generateAIFeedback({ answers, lAnswers, sc, recs, contras }) {
+  const section = document.getElementById('ai-feedback-section');
+  if (!section) return;
+
+  // Show loading state
+  section.innerHTML = `
+    <div class="ai-feedback-card ai-loading">
+      <div class="ai-feedback-header">
+        <span class="ai-feedback-badge">✨ AI Analysis</span>
+        <span class="ai-loading-dots"><span>.</span><span>.</span><span>.</span></span>
+      </div>
+      <p class="ai-loading-text">Generating your personalised wellness insight…</p>
+    </div>`;
+
+  // Build a rich prompt from the user's quiz answers
+  const likertLabels = {
+    l1: 'Can fall asleep easily',
+    l2: 'Sleeps well most nights',
+    l3: 'Wakes up feeling rested',
+    l4: 'Stays alert during the day',
+    l5: 'Has good energy during the day'
+  };
+  const likertSummary = Object.entries(lAnswers)
+    .map(([k, v]) => `- ${likertLabels[k] || k}: ${v}`)
+    .join('\n');
+
+  const prompt = `You are a wellness coach providing a brief, empathetic, evidence-based sleep and lifestyle analysis. A user has just completed a wellness check-in quiz. Here are their responses:
+
+**Demographics**
+- Age: ${answers.age || 'Not specified'}
+- Location type: ${answers.location || 'Not specified'}
+- Work type: ${answers.worktype || 'Not specified'}
+
+**Daily habits**
+- Work hours per day: ${answers.workhours || 'Not specified'}
+- Sleep hours per night: ${answers.sleep || 'Not specified'}
+- Phone use before bed: ${answers.phonetime || 'Not specified'}
+- Usual bedtime: ${answers.bedtime || 'Not specified'}
+- Physical activity: ${answers.activity || 'Not specified'}
+- Meal regularity: ${answers.meals || 'Not specified'}
+- Hydration: ${answers.water || 'Not specified'}
+
+**Self-reported sleep quality (Likert scale)**
+${likertSummary}
+
+**Calculated sleep score: ${sc}/50**
+
+Please generate a concise, personalised wellness summary in this EXACT JSON format (no markdown fences, raw JSON only):
+{
+  "whatsGoingWell": "1–2 sentences about genuine positives from their data",
+  "areaOfImprovement": "1–2 sentences identifying the most impactful area to improve",
+  "researchInsights": ["one evidence-based insight", "one evidence-based insight", "one evidence-based insight"],
+  "balancedApproach": "2–3 sentences describing a practical 8-8-8 or balanced daily rhythm recommendation",
+  "whyItMatters": ["one sentence on why this matters", "one sentence on why this matters"],
+  "gentleReminder": "1 encouraging sentence closing the analysis"
+}
+
+Keep the tone warm, non-judgmental, and evidence-informed. Reference credible sources (Statistics Canada, Springer, BMC Public Health, The Guardian, AASM) where relevant. Do not fabricate statistics.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!response.ok) throw new Error('API error ' + response.status);
+    const data = await response.json();
+    const raw = data.content?.find(b => b.type === 'text')?.text || '';
+
+    // Strip any accidental markdown fences
+    const clean = raw.replace(/```json|```/gi, '').trim();
+    const fb = JSON.parse(clean);
+    renderAIFeedback(section, fb);
+  } catch (err) {
+    console.error('AI feedback error:', err);
+    section.innerHTML = '';  // Silently hide on error — static tips still show
+  }
+}
+
+function renderAIFeedback(section, fb) {
+  const insightsHtml = (fb.researchInsights || [])
+    .map(i => `<li>${i}</li>`).join('');
+  const whyHtml = (fb.whyItMatters || [])
+    .map(i => `<p class="ai-why-item">💡 ${i}</p>`).join('');
+
+  section.innerHTML = `
+    <div class="ai-feedback-card">
+      <div class="ai-feedback-header">
+        <span class="ai-feedback-badge">✨ AI Analysis</span>
+        <span class="ai-feedback-sub">Personalised insight from Claude</span>
+      </div>
+
+      <div class="ai-block ai-block-green">
+        <div class="ai-block-label">✅ What's going well</div>
+        <p>${fb.whatsGoingWell || ''}</p>
+      </div>
+
+      <div class="ai-block ai-block-amber">
+        <div class="ai-block-label">⚠️ Gentle area of improvement</div>
+        <p>${fb.areaOfImprovement || ''}</p>
+      </div>
+
+      ${insightsHtml ? `
+      <div class="ai-block ai-block-plain">
+        <div class="ai-block-label">📌 Research shows that:</div>
+        <ul class="ai-insights-list">${insightsHtml}</ul>
+      </div>` : ''}
+
+      ${fb.balancedApproach ? `
+      <div class="ai-block ai-block-purple">
+        <div class="ai-block-label">🎯 Balanced 8–8–8 approach</div>
+        <p>${fb.balancedApproach}</p>
+      </div>` : ''}
+
+      ${whyHtml ? `
+      <div class="ai-block ai-block-plain">
+        <div class="ai-block-label">🌿 Why this matters</div>
+        ${whyHtml}
+      </div>` : ''}
+
+      ${fb.gentleReminder ? `
+      <div class="ai-block ai-block-red">
+        <div class="ai-block-label">🔴 Gentle reminder</div>
+        <p>${fb.gentleReminder}</p>
+      </div>` : ''}
+    </div>`;
 }
 
 function restartForm() {
