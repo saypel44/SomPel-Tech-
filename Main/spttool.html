@@ -64,6 +64,7 @@
     <button class="nav-tab" onclick="showTab('tracker')">📋 Tracker</button>
     <button class="nav-tab" onclick="showTab('history')">📅 History</button>
     <button class="nav-tab" onclick="showTab('trends')">📈 Trends</button>
+    <button class="nav-tab" onclick="showTab('tools')">🛠 Tools</button>
   </div>
 
   <!-- ── CHECK-IN TAB ── -->
@@ -207,11 +208,6 @@
         <button class="cal-nav" onclick="changeMonth(1)">›</button>
       </div>
       <div class="cal-grid" id="cal-grid"></div>
-      <div class="cal-legend">
-        <span class="cal-legend-item"><span class="cal-legend-dot green"></span> Logged</span>
-        <span class="cal-legend-item"><span class="cal-legend-dot purple"></span> Planned</span>
-        <span class="cal-legend-item"><span class="cal-legend-dot orange"></span> Missed</span>
-      </div>
     </div>
 
     <!-- Day detail panel -->
@@ -245,6 +241,83 @@
       <button class="export-btn" onclick="exportCSV()">📄 Export CSV</button>
     </div>
     <div id="trends-content"></div>
+  </div>
+
+  <!-- ── TOOLS TAB ── -->
+  <div id="tab-tools" class="tab-pane">
+    <p class="tracker-page-title">🛠 Tools</p>
+    <p class="tracker-page-sub">Quick utilities for your day.</p>
+
+    <!-- ── SINGLE ALARM ── -->
+    <div class="tool-card">
+      <div class="tool-card-title">⏰ Single Alarm</div>
+      <p class="tool-card-sub">Set a one-time alarm for any time today.</p>
+
+      <div class="add-alarm-row" style="margin-bottom:8px">
+        <div class="ampm-field" style="flex:1">
+          <label>Time</label>
+          <div class="ampm-wrap">
+            <select class="ampm-hour" id="sa-h"></select>
+            <span class="ampm-sep">:</span>
+            <select class="ampm-min" id="sa-m"></select>
+            <div class="ampm-toggle">
+              <button type="button" class="ampm-btn sel" id="sa-am" onclick="saSetAmPm('AM')">AM</button>
+              <button type="button" class="ampm-btn" id="sa-pm" onclick="saSetAmPm('PM')">PM</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:10px">
+        <label style="font-size:11px;color:var(--hint);font-weight:500">Label (optional)</label>
+        <input type="text" id="sa-label" class="aa-custom-input" placeholder="e.g. Take medicine, Call back…">
+      </div>
+
+      <div class="sound-opts" style="margin-bottom:12px">
+        <button class="sound-btn sel" data-sound="bell" onclick="saSelectSound(this)">🔔 Bell</button>
+        <button class="sound-btn" data-sound="chime" onclick="saSelectSound(this)">🎵 Chime</button>
+        <button class="sound-btn" data-sound="nature" onclick="saSelectSound(this)">🌿 Nature</button>
+        <button class="sound-btn" data-sound="soft" onclick="saSelectSound(this)">🎶 Soft</button>
+      </div>
+
+      <button class="auth-btn" onclick="setSingleAlarm()" id="sa-set-btn">⏰ Set Alarm</button>
+      <div id="sa-msg" class="auth-msg" style="margin-top:8px"></div>
+
+      <!-- Active alarms list -->
+      <div id="sa-list" style="margin-top:14px"></div>
+    </div>
+
+    <!-- ── STOPWATCH ── -->
+    <div class="tool-card" style="margin-top:16px">
+      <div class="tool-card-title">⏱ Stopwatch</div>
+      <p class="tool-card-sub">Track how long an activity takes.</p>
+
+      <div class="sw-display" id="sw-display">00:00:00</div>
+
+      <div class="sw-btns">
+        <button class="sw-btn start" id="sw-start-btn" onclick="swStartStop()">▶ Start</button>
+        <button class="sw-btn lap" id="sw-lap-btn" onclick="swLap()" disabled>⊕ Lap</button>
+        <button class="sw-btn reset" id="sw-reset-btn" onclick="swReset()" disabled>↺ Reset</button>
+      </div>
+
+      <!-- Log to habit after stopping -->
+      <div id="sw-log-section" style="display:none;margin-top:14px">
+        <div class="add-alarm-section-lbl" style="margin-bottom:8px">📝 Log this time to a habit?</div>
+        <div class="aa-categories" id="sw-categories">
+          <button type="button" class="aa-cat-btn" data-cat="Work" onclick="swSelectCat(this)">💻 Work</button>
+          <button type="button" class="aa-cat-btn" data-cat="Studies" onclick="swSelectCat(this)">📚 Studies</button>
+          <button type="button" class="aa-cat-btn" data-cat="Exercise" onclick="swSelectCat(this)">🏃 Exercise</button>
+          <button type="button" class="aa-cat-btn" data-cat="Meditation" onclick="swSelectCat(this)">🧘 Meditation</button>
+          <button type="button" class="aa-cat-btn" data-cat="Reading" onclick="swSelectCat(this)">📖 Reading</button>
+          <button type="button" class="aa-cat-btn" data-cat="Other" onclick="swSelectCat(this)">✍ Other</button>
+        </div>
+        <button class="log-btn" style="margin-top:10px;width:100%" onclick="swLogTime()">💾 Save to History</button>
+        <div id="sw-log-msg" class="auth-msg" style="margin-top:6px"></div>
+      </div>
+
+      <!-- Lap list -->
+      <div id="sw-laps" style="margin-top:10px"></div>
+    </div>
   </div>
 </div>
 
@@ -289,9 +362,9 @@
         <div class="ampm-field" style="flex:1">
           <label>From</label>
           <div class="ampm-wrap">
-            <select class="ampm-hour" id="sc-from-h"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8" selected>8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+            <input class="ampm-hour" id="sc-from-h" type="number" min="1" max="12" value="8" placeholder="8">
             <span class="ampm-sep">:</span>
-            <select class="ampm-min" id="sc-from-m"><option value="0" selected>00</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option><option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option></select>
+            <input class="ampm-min" id="sc-from-m" type="number" min="0" max="59" value="00" placeholder="00">
             <div class="ampm-toggle">
               <button type="button" class="ampm-btn sel" id="sc-from-am" onclick="scSetAmPm('from','AM')">AM</button>
               <button type="button" class="ampm-btn" id="sc-from-pm" onclick="scSetAmPm('from','PM')">PM</button>
@@ -302,9 +375,9 @@
         <div class="ampm-field" style="flex:1">
           <label>Until</label>
           <div class="ampm-wrap">
-            <select class="ampm-hour" id="sc-to-h"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9" selected>9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+            <input class="ampm-hour" id="sc-to-h" type="number" min="1" max="12" value="9" placeholder="9">
             <span class="ampm-sep">:</span>
-            <select class="ampm-min" id="sc-to-m"><option value="0" selected>00</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option><option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option></select>
+            <input class="ampm-min" id="sc-to-m" type="number" min="0" max="59" value="00" placeholder="00">
             <div class="ampm-toggle">
               <button type="button" class="ampm-btn sel" id="sc-to-am" onclick="scSetAmPm('to','AM')">AM</button>
               <button type="button" class="ampm-btn" id="sc-to-pm" onclick="scSetAmPm('to','PM')">PM</button>
@@ -378,9 +451,9 @@
         <div class="ampm-field" style="flex:1">
           <label>From</label>
           <div class="ampm-wrap">
-            <select class="ampm-hour" id="aa-from-h"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8" selected>8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+            <input class="ampm-hour" id="aa-from-h" type="number" min="1" max="12" value="8" placeholder="8">
             <span class="ampm-sep">:</span>
-            <select class="ampm-min" id="aa-from-m"><option value="0" selected>00</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option><option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option></select>
+            <input class="ampm-min" id="aa-from-m" type="number" min="0" max="59" value="00" placeholder="00">
             <div class="ampm-toggle">
               <button type="button" class="ampm-btn sel" id="aa-from-am" onclick="aaSetAmPm('from','AM')">AM</button>
               <button type="button" class="ampm-btn" id="aa-from-pm" onclick="aaSetAmPm('from','PM')">PM</button>
@@ -391,9 +464,9 @@
         <div class="ampm-field" style="flex:1">
           <label>Until</label>
           <div class="ampm-wrap">
-            <select class="ampm-hour" id="aa-to-h"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9" selected>9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+            <input class="ampm-hour" id="aa-to-h" type="number" min="1" max="12" value="9" placeholder="9">
             <span class="ampm-sep">:</span>
-            <select class="ampm-min" id="aa-to-m"><option value="0" selected>00</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option><option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option></select>
+            <input class="ampm-min" id="aa-to-m" type="number" min="0" max="59" value="00" placeholder="00">
             <div class="ampm-toggle">
               <button type="button" class="ampm-btn sel" id="aa-to-am" onclick="aaSetAmPm('to','AM')">AM</button>
               <button type="button" class="ampm-btn" id="aa-to-pm" onclick="aaSetAmPm('to','PM')">PM</button>

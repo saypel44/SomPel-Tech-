@@ -261,8 +261,9 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .ampm-field{display:flex;flex-direction:column;gap:4px}
 .ampm-field label{font-size:11px;color:var(--hint);font-weight:500}
 .ampm-wrap{display:flex;align-items:center;gap:4px;background:var(--surf2);border:1px solid var(--border);border-radius:var(--rsm);padding:6px 8px}
-.ampm-hour,.ampm-min{border:none;background:transparent;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--text);text-align:center;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;padding:0 2px}
-.ampm-hour{width:36px}.ampm-min{width:40px}
+.ampm-hour,.ampm-min{width:32px;border:none;background:transparent;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--text);text-align:center;outline:none;-moz-appearance:textfield;appearance:none}
+.ampm-hour::-webkit-outer-spin-button,.ampm-hour::-webkit-inner-spin-button,
+.ampm-min::-webkit-outer-spin-button,.ampm-min::-webkit-inner-spin-button{-webkit-appearance:none;appearance:none}
 .ampm-sep{font-size:14px;font-weight:700;color:var(--text)}
 .ampm-toggle{display:flex;border-radius:6px;overflow:hidden;border:1px solid var(--border);margin-left:4px}
 .ampm-btn{padding:3px 7px;font-size:11px;font-weight:600;border:none;background:transparent;color:var(--hint);cursor:pointer;font-family:'Sora',sans-serif;transition:background .12s,color .12s}
@@ -1231,14 +1232,6 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 /* ── PLANNED future days on calendar ── */
 .cal-day.has-plan::after{background:var(--purple)!important}
 .cal-day.has-plan{font-weight:500}
-.cal-day.has-missed::after{content:'';position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:var(--orange,#f59e0b)!important}
-.cal-day.has-missed{color:var(--hint)}
-.cal-legend{display:flex;gap:12px;justify-content:center;margin-top:8px;flex-wrap:wrap}
-.cal-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--hint);font-weight:500}
-.cal-legend-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
-.cal-legend-dot.green{background:var(--green)}
-.cal-legend-dot.purple{background:var(--purple,#8b5cf6)}
-.cal-legend-dot.orange{background:var(--orange,#f59e0b)}
 
 /* ── LOG FORM CARD (new Tracker tab) ── */
 .log-form-card{background:var(--surf);border:.5px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:4px}
@@ -1363,3 +1356,30 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .ai-sources-list li{font-size:11px;line-height:1.6;color:var(--muted)}
 .ai-sources-list a{color:var(--green-dk);word-break:break-all;text-decoration:none}
 .ai-sources-list a:hover{text-decoration:underline}
+/* ═══════════════════════════════════════
+   TOOLS TAB
+═══════════════════════════════════════ */
+.tool-card{background:var(--surf);border:.5px solid var(--border);border-radius:var(--r);padding:18px 16px;margin-bottom:4px}
+.tool-card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px}
+.tool-card-sub{font-size:12.5px;color:var(--hint);margin-bottom:14px}
+
+/* Single alarm list */
+.sa-alarm-row{display:flex;align-items:center;gap:8px;background:var(--surf2);border:.5px solid var(--border);border-radius:var(--rsm);padding:8px 12px;margin-bottom:6px}
+.sa-alarm-time{font-size:13px;font-weight:700;color:var(--green);min-width:72px}
+.sa-alarm-label{font-size:12.5px;color:var(--text);flex:1}
+.sa-cancel-btn{background:none;border:none;color:var(--hint);font-size:15px;cursor:pointer;padding:2px 4px;border-radius:4px;line-height:1}
+.sa-cancel-btn:hover{color:var(--red,#ef4444)}
+
+/* Stopwatch */
+.sw-display{font-size:48px;font-weight:700;color:var(--text);text-align:center;letter-spacing:.04em;font-variant-numeric:tabular-nums;padding:20px 0 16px;font-family:'Sora',sans-serif}
+.sw-btns{display:flex;gap:8px;justify-content:center;margin-bottom:4px}
+.sw-btn{padding:10px 22px;border-radius:var(--rsm);border:none;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,opacity .15s}
+.sw-btn:disabled{opacity:.4;cursor:not-allowed}
+.sw-btn.start{background:var(--green);color:#fff}
+.sw-btn.pause{background:var(--orange,#f59e0b);color:#fff}
+.sw-btn.lap{background:var(--surf2);color:var(--text);border:.5px solid var(--border)}
+.sw-btn.reset{background:var(--surf2);color:var(--hint);border:.5px solid var(--border)}
+.sw-lap-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:.5px solid var(--border);font-size:12.5px}
+.sw-lap-num{color:var(--hint);min-width:44px;font-weight:600}
+.sw-lap-split{flex:1;color:var(--text);font-weight:600}
+.sw-lap-total{color:var(--hint)}
