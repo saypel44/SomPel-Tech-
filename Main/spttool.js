@@ -2759,133 +2759,199 @@ function saCancelAlarm(id) {
 /* ═══════════════════════════════════════
    STOPWATCH
 ═══════════════════════════════════════ */
-let _swRunning = false;
+/* ═══════════════════════════════════════
+   STOPWATCH
+   Paste this block anywhere in spttool.js
+   (replace the old STOPWATCH section entirely)
+═══════════════════════════════════════ */
+let _swRunning  = false;
 let _swStartTime = 0;
-let _swElapsed = 0;      // ms accumulated before last pause
+let _swElapsed  = 0;      // ms accumulated before last pause
 let _swInterval = null;
-let _swLaps = [];
-let _swCat = '';
-let _swFinalMs = 0;      // saved when stopped, for logging
+let _swLaps     = [];
+let _swCat      = '';
+let _swFinalMs  = 0;      // saved when stopped, for logging
 
+/* ── Start / Pause / Resume ── */
 function swStartStop() {
-  const btn = document.getElementById('sw-start-btn');
-  const lapBtn = document.getElementById('sw-lap-btn');
+  const btn      = document.getElementById('sw-start-btn');
+  const stopBtn  = document.getElementById('sw-stop-btn');
   const resetBtn = document.getElementById('sw-reset-btn');
-  const logSection = document.getElementById('sw-log-section');
 
   if (!_swRunning) {
-    // Start
+    // ▶ Start (or Resume)
     _swStartTime = Date.now();
-    _swInterval = setInterval(_swTick, 100);
-    _swRunning = true;
+    _swInterval  = setInterval(_swTick, 100);
+    _swRunning   = true;
     btn.textContent = '⏸ Pause';
     btn.classList.remove('start'); btn.classList.add('pause');
-    lapBtn.disabled = false;
+    stopBtn.disabled  = false;
     resetBtn.disabled = false;
-    logSection.style.display = 'none';
+    document.getElementById('sw-log-section').style.display = 'none';
     document.getElementById('sw-log-msg').textContent = '';
   } else {
-    // Pause
+    // ⏸ Pause
     _swElapsed += Date.now() - _swStartTime;
     clearInterval(_swInterval);
-    _swRunning = false;
-    _swFinalMs = _swElapsed;
+    _swRunning  = false;
+    _swFinalMs  = _swElapsed;
     btn.textContent = '▶ Resume';
     btn.classList.remove('pause'); btn.classList.add('start');
-    // Show log section when paused
-    logSection.style.display = 'block';
   }
 }
 
+/* ── Stop — freezes timer, shows activity picker ── */
+function swStop() {
+  if (_swRunning) {
+    _swElapsed += Date.now() - _swStartTime;
+    clearInterval(_swInterval);
+    _swRunning = false;
+  }
+  _swFinalMs = _swElapsed;
+
+  // Reset start button to ▶ Start
+  const btn = document.getElementById('sw-start-btn');
+  btn.textContent = '▶ Start';
+  btn.classList.remove('pause'); btn.classList.add('start');
+
+  // Disable Stop, keep Reset enabled
+  document.getElementById('sw-stop-btn').disabled = true;
+
+  // Show activity picker with recorded time
+  document.getElementById('sw-log-section').style.display = 'block';
+  const timedEl = document.getElementById('sw-timed-display');
+  if (timedEl) timedEl.textContent = `⏱ Time recorded: ${_swFmt(_swFinalMs)}`;
+
+  // Clear previous selection
+  document.getElementById('sw-log-msg').textContent = '';
+  document.querySelectorAll('#sw-categories .sw-act-btn').forEach(b => b.classList.remove('sel'));
+  _swCat = '';
+  const customInput = document.getElementById('sw-custom-activity');
+  if (customInput) customInput.value = '';
+}
+
+/* ── Reset — clears everything back to zero ── */
+function swReset() {
+  clearInterval(_swInterval);
+  _swRunning   = false;
+  _swElapsed   = 0;
+  _swStartTime = 0;
+  _swFinalMs   = 0;
+  _swLaps      = [];
+  _swCat       = '';
+
+  document.getElementById('sw-display').textContent = '00:00:00';
+
+  const btn = document.getElementById('sw-start-btn');
+  btn.textContent = '▶ Start';
+  btn.classList.remove('pause'); btn.classList.add('start');
+
+  const stopBtn = document.getElementById('sw-stop-btn');
+  if (stopBtn) stopBtn.disabled = true;
+  document.getElementById('sw-reset-btn').disabled = true;
+
+  document.getElementById('sw-log-section').style.display = 'none';
+  document.getElementById('sw-laps').innerHTML = '';
+  document.getElementById('sw-log-msg').textContent = '';
+  document.querySelectorAll('#sw-categories .sw-act-btn').forEach(b => b.classList.remove('sel'));
+  const customInput = document.getElementById('sw-custom-activity');
+  if (customInput) customInput.value = '';
+}
+
+/* ── Internal tick ── */
 function _swTick() {
   const total = _swElapsed + (Date.now() - _swStartTime);
   document.getElementById('sw-display').textContent = _swFmt(total);
 }
 
+/* ── Time formatter  HH:MM:SS ── */
 function _swFmt(ms) {
-  const s = Math.floor(ms / 1000);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
+  const s   = Math.floor(ms / 1000);
+  const h   = Math.floor(s / 3600);
+  const m   = Math.floor((s % 3600) / 60);
   const sec = s % 60;
   return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
-function swLap() {
-  const total = _swElapsed + (Date.now() - _swStartTime);
-  _swLaps.push(total);
-  _swRenderLaps();
-}
-
-function swReset() {
-  clearInterval(_swInterval);
-  _swRunning = false;
-  _swElapsed = 0;
-  _swStartTime = 0;
-  _swFinalMs = 0;
-  _swLaps = [];
-  _swCat = '';
-  document.getElementById('sw-display').textContent = '00:00:00';
-  const btn = document.getElementById('sw-start-btn');
-  btn.textContent = '▶ Start';
-  btn.classList.remove('pause'); btn.classList.add('start');
-  document.getElementById('sw-lap-btn').disabled = true;
-  document.getElementById('sw-reset-btn').disabled = true;
-  document.getElementById('sw-log-section').style.display = 'none';
-  document.getElementById('sw-laps').innerHTML = '';
-  document.getElementById('sw-log-msg').textContent = '';
-  document.querySelectorAll('#sw-categories .aa-cat-btn').forEach(b => b.classList.remove('sel'));
-}
-
-function _swRenderLaps() {
-  const el = document.getElementById('sw-laps');
-  if (!el) return;
-  let prev = 0;
-  el.innerHTML = `<div style="font-size:11px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Laps</div>` +
-    _swLaps.map((t, i) => {
-      const split = t - prev; prev = t;
-      return `<div class="sw-lap-row"><span class="sw-lap-num">Lap ${i+1}</span><span class="sw-lap-split">${_swFmt(split)}</span><span class="sw-lap-total">${_swFmt(t)}</span></div>`;
-    }).join('');
-}
-
+/* ── Activity selection ── */
 function swSelectCat(btn) {
-  document.querySelectorAll('#sw-categories .aa-cat-btn').forEach(b => b.classList.remove('sel'));
+  document.querySelectorAll('#sw-categories .sw-act-btn').forEach(b => b.classList.remove('sel'));
   btn.classList.add('sel');
   _swCat = btn.dataset.cat;
+  const customInput = document.getElementById('sw-custom-activity');
+  if (customInput) customInput.value = '';
 }
 
+function swClearCatIfTyping() {
+  _swCat = '';
+  document.querySelectorAll('#sw-categories .sw-act-btn').forEach(b => b.classList.remove('sel'));
+}
+
+/* ── Save to History ── */
 function swLogTime() {
-  if (!_swCat) {
+  const customText = (document.getElementById('sw-custom-activity')?.value || '').trim();
+  const cat = customText || _swCat;
+  if (!cat) {
     const msg = document.getElementById('sw-log-msg');
-    msg.textContent = 'Please select a category first.';
+    msg.textContent = 'Please select an activity or type one.';
     msg.className = 'auth-msg err';
     return;
   }
   const ud = getUserData();
   if (!ud) return;
-  const ms = _swFinalMs || _swElapsed;
-  const mins = ms / 60000;
-  const hrs = +(mins / 60).toFixed(4);
-  const catIcons = { 'Work':'💻','Studies':'📚','Exercise':'🏃','Meditation':'🧘','Reading':'📖','Other':'✍' };
-  // Use the same habitId keys as the log form so durations merge correctly in trends
-  const habitId = LF_CAT_HABIT_MAP[_swCat] || _swCat.toLowerCase().replace(/\s+/g,'-');
+
+  const ms  = _swFinalMs || _swElapsed;
+  const hrs = +((ms / 60000) / 60).toFixed(4);
+
+  const catIcons = {
+    'Activity':'🎯','Sleep':'🌙','Work':'💻','Exercise':'🏃','Studies':'📚',
+    'Meals':'🍽','Screen Use':'📱','Reading':'📖','Meditation':'🧘'
+  };
+  const icon    = customText ? '✍' : (catIcons[cat] || '⏱');
+  const habitId = (typeof LF_CAT_HABIT_MAP !== 'undefined' && LF_CAT_HABIT_MAP[cat])
+                  || cat.toLowerCase().replace(/\s+/g, '-');
+
   ud.logs.push({
-    id: Date.now(),
+    id:         Date.now(),
     habitId,
-    habitName: _swCat,
-    habitIcon: catIcons[_swCat] || '⏱',
-    date: new Date().toISOString().split('T')[0],
-    duration: hrs,      // always stored in hrs for consistent aggregation
-    unit: 'hrs',
-    startTime: '',
-    endTime: '',
-    note: `Stopwatch · ${_swFmt(ms)}`
+    habitName:  cat,
+    habitIcon:  icon,
+    date:       new Date().toISOString().split('T')[0],
+    duration:   hrs,
+    unit:       'hrs',
+    startTime:  '',
+    endTime:    '',
+    note:       `Stopwatch · ${_swFmt(ms)}`
   });
+
   saveUserData();
-  renderHistory();
-  renderCalendar();
-  renderCalendar2();
-  renderTrends();
+  if (typeof renderHistory      === 'function') renderHistory();
+  if (typeof renderCalendar     === 'function') renderCalendar();
+  if (typeof renderCalendar2    === 'function') renderCalendar2();
+  if (typeof renderTrends       === 'function') renderTrends();
+  if (typeof renderTodayTracker === 'function') renderTodayTracker();
+
   const msg = document.getElementById('sw-log-msg');
-  msg.textContent = `✅ Saved ${_swFmt(ms)} of ${_swCat} to History!`;
+  msg.textContent = `✅ Saved ${_swFmt(ms)} of ${cat} to History!`;
   msg.className = 'auth-msg ok';
+}
+
+/* ── Lap (kept for internal use, not shown in UI) ── */
+function swLap() {
+  const total = _swElapsed + (Date.now() - _swStartTime);
+  _swLaps.push(total);
+  _swRenderLaps();
+}
+function _swRenderLaps() {
+  const el = document.getElementById('sw-laps');
+  if (!el) return;
+  let prev = 0;
+  el.innerHTML = _swLaps.map((t, i) => {
+    const split = t - prev; prev = t;
+    return `<div class="sw-lap-row">
+      <span class="sw-lap-num">Lap ${i+1}</span>
+      <span class="sw-lap-split">${_swFmt(split)}</span>
+      <span class="sw-lap-total">${_swFmt(t)}</span>
+    </div>`;
+  }).join('');
 }

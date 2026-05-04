@@ -230,30 +230,6 @@
     <p class="tracker-page-title">History & Planning</p>
     <p class="tracker-page-sub">Tap any day to see logs — or plan ahead by tapping a future date.</p>
 
-    <!-- Full calendar -->
-    <div class="calendar-wrap" style="margin-bottom:16px">
-      <div class="cal-header">
-        <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
-        <span class="cal-month" id="cal-month-label"></span>
-        <button class="cal-nav" onclick="changeMonth(1)">›</button>
-      </div>
-      <div class="cal-grid" id="cal-grid"></div>
-    </div>
-
-    <!-- Day detail panel -->
-    <div class="day-log-panel" id="day-log-panel">
-      <div class="day-log-title" id="day-log-title">Select a day to view or plan</div>
-      <div id="day-log-entries"></div>
-    </div>
-
-    <!-- Upload ICS -->
-    <div style="margin-top:12px">
-      <label class="upload-cal-btn" style="display:block;text-align:center;cursor:pointer">
-        📂 Upload calendar (.ics)
-        <input type="file" accept=".ics" style="display:none" onchange="uploadCalendar(this)">
-      </label>
-    </div>
-
     <!-- History list -->
     <div style="margin-top:20px">
       <div class="lf-section-lbl" style="font-size:13px;color:var(--text);font-weight:600;text-transform:none;letter-spacing:0;margin-bottom:10px">All Logs</div>
