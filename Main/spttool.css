@@ -1392,7 +1392,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .sw-btn:disabled{opacity:.4;cursor:not-allowed}
 .sw-btn.start{background:var(--green);color:#fff}
 .sw-btn.pause{background:var(--orange,#f59e0b);color:#fff}
-.sw-btn.lap{background:var(--surf2);color:var(--text);border:.5px solid var(--border)}
+.sw-btn.stop{background:var(--surf2);color:var(--text);border:.5px solid var(--border)}
 .sw-btn.reset{background:var(--surf2);color:var(--hint);border:.5px solid var(--border)}
 .sw-lap-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:.5px solid var(--border);font-size:12.5px}
 .sw-lap-num{color:var(--hint);min-width:44px;font-weight:600}
