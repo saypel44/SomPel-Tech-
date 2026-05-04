@@ -257,9 +257,9 @@
         <div class="ampm-field" style="flex:1">
           <label>Time</label>
           <div class="ampm-wrap">
-            <select class="ampm-hour" id="sa-h"></select>
+            <input class="ampm-hour" id="sa-h" type="number" min="1" max="12" value="8" placeholder="8">
             <span class="ampm-sep">:</span>
-            <select class="ampm-min" id="sa-m"></select>
+            <input class="ampm-min" id="sa-m" type="number" min="0" max="59" value="00" placeholder="00">
             <div class="ampm-toggle">
               <button type="button" class="ampm-btn sel" id="sa-am" onclick="saSetAmPm('AM')">AM</button>
               <button type="button" class="ampm-btn" id="sa-pm" onclick="saSetAmPm('PM')">PM</button>

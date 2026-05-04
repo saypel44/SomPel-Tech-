@@ -2669,33 +2669,30 @@ function _escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 /* ═══════════════════════════════════════
-   TOOLS TAB — init selects on load
+   SINGLE ALARM
 ═══════════════════════════════════════ */
+
+// Clamp single alarm inputs on blur (same behaviour as schedule modal)
 document.addEventListener('DOMContentLoaded', function() {
-  // Populate single alarm selects
   const saH = document.getElementById('sa-h');
   const saM = document.getElementById('sa-m');
   if (saH) {
-    for (let h = 1; h <= 12; h++) {
-      const o = document.createElement('option');
-      o.value = h; o.textContent = h;
-      if (h === 8) o.selected = true;
-      saH.appendChild(o);
-    }
+    saH.addEventListener('blur', () => {
+      let v = parseInt(saH.value);
+      if (isNaN(v) || v < 1) v = 1;
+      if (v > 12) v = 12;
+      saH.value = v;
+    });
   }
   if (saM) {
-    for (let m = 0; m < 60; m++) {
-      const o = document.createElement('option');
-      o.value = m; o.textContent = String(m).padStart(2,'0');
-      if (m === 0) o.selected = true;
-      saM.appendChild(o);
-    }
+    saM.addEventListener('blur', () => {
+      let v = parseInt(saM.value);
+      if (isNaN(v) || v < 0) v = 0;
+      if (v > 59) v = 59;
+      saM.value = String(v).padStart(2, '0');
+    });
   }
 });
-
-/* ═══════════════════════════════════════
-   SINGLE ALARM
-═══════════════════════════════════════ */
 let _saSound = 'bell';
 let _saTimers = [];  // {id, timeout, time, label}
 
