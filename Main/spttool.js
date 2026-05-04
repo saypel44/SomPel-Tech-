@@ -744,14 +744,23 @@ function calcDiff(t1,t2){
   return hrs>0?(mins>0?`${hrs}h ${mins}m`:`${hrs}h`):(mins>0?`${mins}m`:null);
 }
 
+function _makeHourOpts(sel){
+  return Array.from({length:12},(_,i)=>i+1).map(h=>`<option value="${h}"${h===sel?' selected':''}>${h}</option>`).join('');
+}
+function _makeMinOpts(sel){
+  return Array.from({length:60},(_,i)=>i).map(m=>`<option value="${m}"${m===sel?' selected':''}>${String(m).padStart(2,'0')}</option>`).join('');
+}
+
 function ampmPicker(prefix,label,defaultVal){
   const f=fmt12(defaultVal);
+  const selH=parseInt(f.h)||12;
+  const selM=parseInt(f.m)||0;
   return `<div class="ampm-field">
     <label>${label}</label>
     <div class="ampm-wrap">
-      <input class="ampm-hour" id="${prefix}-h" type="number" min="1" max="12" value="${f.h}" placeholder="12">
+      <select class="ampm-hour" id="${prefix}-h">${_makeHourOpts(selH)}</select>
       <span class="ampm-sep">:</span>
-      <input class="ampm-min" id="${prefix}-m" type="number" min="0" max="59" value="${f.m}" placeholder="00">
+      <select class="ampm-min" id="${prefix}-m">${_makeMinOpts(selM)}</select>
       <div class="ampm-toggle">
         <button type="button" class="ampm-btn${f.ampm==='AM'?' sel':''}" id="${prefix}-am" onclick="setAmPm('${prefix}','AM')" tabindex="-1">AM</button>
         <button type="button" class="ampm-btn${f.ampm==='PM'?' sel':''}" id="${prefix}-pm" onclick="setAmPm('${prefix}','PM')" tabindex="-1">PM</button>
@@ -2322,7 +2331,9 @@ function _scSet12(prefix, time24) {
   const isAM = h < 12;
   const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
   document.getElementById(`sc-${prefix}-h`).value = h12;
-  document.getElementById(`sc-${prefix}-m`).value = String(m).padStart(2,'0');
+  // minute select options use numeric values (0,5,10…); snap to nearest 5
+  const mSnap = Math.round(m / 5) * 5 % 60;
+  document.getElementById(`sc-${prefix}-m`).value = mSnap;
   document.getElementById(`sc-${prefix}-am`).classList.toggle('sel', isAM);
   document.getElementById(`sc-${prefix}-pm`).classList.toggle('sel', !isAM);
 }
