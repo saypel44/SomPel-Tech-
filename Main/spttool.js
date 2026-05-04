@@ -2672,27 +2672,7 @@ function _escHtml(str) {
    SINGLE ALARM
 ═══════════════════════════════════════ */
 
-// Clamp single alarm inputs on blur (same behaviour as schedule modal)
-document.addEventListener('DOMContentLoaded', function() {
-  const saH = document.getElementById('sa-h');
-  const saM = document.getElementById('sa-m');
-  if (saH) {
-    saH.addEventListener('blur', () => {
-      let v = parseInt(saH.value);
-      if (isNaN(v) || v < 1) v = 1;
-      if (v > 12) v = 12;
-      saH.value = v;
-    });
-  }
-  if (saM) {
-    saM.addEventListener('blur', () => {
-      let v = parseInt(saM.value);
-      if (isNaN(v) || v < 0) v = 0;
-      if (v > 59) v = 59;
-      saM.value = String(v).padStart(2, '0');
-    });
-  }
-});
+
 let _saSound = 'bell';
 let _saTimers = [];  // {id, timeout, time, label}
 
