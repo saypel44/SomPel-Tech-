@@ -1313,12 +1313,13 @@ function lfInit(){
   // Set today's date
   const dateEl=document.getElementById('lf-date');
   if(dateEl) dateEl.value=new Date().toISOString().split('T')[0];
-  // Wire live diff
+  // Wire live diff — guard: elements may not exist on this page
   ['lf-start-h','lf-start-m','lf-end-h','lf-end-m'].forEach(id=>{
     const el=document.getElementById(id);
-    if(el)el.addEventListener('input',lfUpdateDiff);
+    if(el) el.addEventListener('input',lfUpdateDiff);
   });
-  lfUpdateDiff();
+  // Only call lfUpdateDiff if the required elements actually exist
+  if(document.getElementById('lf-start-h')) lfUpdateDiff();
 }
 
 document.addEventListener('DOMContentLoaded', lfInit);
@@ -1329,17 +1330,19 @@ function lfSetAmPm(side,val){
   lfUpdateDiff();
 }
 function _lfGetTime(side){
-  const h=document.getElementById(`lf-${side}-h`).value||'8';
-  const m=document.getElementById(`lf-${side}-m`).value||'00';
-  const isAM=document.getElementById(`lf-${side}-am`).classList.contains('sel');
-  return to24(h,m,isAM?'AM':'PM');
+  const hEl=document.getElementById(`lf-${side}-h`);
+  const mEl=document.getElementById(`lf-${side}-m`);
+  const amEl=document.getElementById(`lf-${side}-am`);
+  if(!hEl||!mEl||!amEl) return '08:00';
+  return to24(hEl.value||'8', mEl.value||'00', amEl.classList.contains('sel')?'AM':'PM');
 }
 function lfUpdateDiff(){
+  if(!document.getElementById('lf-start-h')) return;
   const from=_lfGetTime('start');
   const to=_lfGetTime('end');
   const diff=calcDiff(from,to);
   const el=document.getElementById('lf-diff');
-  if(el) el.textContent=diff?`⏱ Duration: ${diff}`:'';
+  if(el) el.textContent=diff?`₱ Duration: ${diff}`:'';
 }
 function lfSelectCat(btn){
   document.getElementById('lf-cats').querySelectorAll('.lf-cat-btn').forEach(b=>b.classList.remove('sel'));
@@ -1819,6 +1822,17 @@ function lfGoToDate(dateStr){
 }
 let historyFilter = 'all';
 
+/* Format a log entry's duration for display — always readable */
+function _fmtLogDuration(l) {
+  const hrs = l.unit === 'mins' ? l.duration / 60 : Number(l.duration) || 0;
+  const totalMins = Math.round(hrs * 60);
+  if (totalMins < 1) return '< 1m';
+  if (totalMins < 60) return totalMins + 'min';
+  const h = Math.floor(totalMins / 60);
+  const m = totalMins % 60;
+  return m > 0 ? h + 'h ' + m + 'min' : h + 'h';
+}
+
 function renderHistory() {
   const content = document.getElementById('history-content');
   const filterWrap = document.getElementById('history-filter');
@@ -1839,9 +1853,9 @@ function renderHistory() {
   allBtn.onclick = () => { historyFilter = 'all'; renderHistory(); };
   filterWrap.appendChild(allBtn);
 
-  // Build unique categories from logs (not from old HABITS array)
+  // Build unique categories from logs — exclude quick alarms
   const seen = new Set();
-  ud.logs.forEach(l => {
+  ud.logs.filter(l => !l.isQuickAlarm).forEach(l => {
     if(seen.has(l.habitId)) return;
     seen.add(l.habitId);
     const btn = document.createElement('button');
@@ -1852,7 +1866,7 @@ function renderHistory() {
   });
 
   const logs = ud.logs
-    .filter(l => historyFilter === 'all' || l.habitId === historyFilter)
+    .filter(l => !l.isQuickAlarm && (historyFilter === 'all' || l.habitId === historyFilter))
     .slice()
     .sort((a, b) => b.id - a.id);
 
@@ -1863,6 +1877,9 @@ function renderHistory() {
   });
 
   content.innerHTML = '';
+  /* ── Summary first, then dated entries below ── */
+  _renderActivitySummary(content, ud);
+
   Object.keys(byDate).sort((a,b) => b.localeCompare(a)).forEach(dateStr => {
     const heading = document.createElement('div');
     const d = new Date(dateStr + 'T12:00:00');
@@ -1879,17 +1896,75 @@ function renderHistory() {
       item.innerHTML = `
         <div class="log-entry-icon" style="flex-shrink:0">${l.habitIcon}</div>
         <div class="log-entry-meta" style="flex:1;min-width:0">
-          <div class="log-entry-habit">${l.habitName}</div>
+          <div class="log-entry-habit">
+            ${l.habitName}
+            ${l.isSchedule ? '<span class="sc-history-badge">📅 Schedule</span>' : ''}
+            ${l.note && l.note.startsWith('Stopwatch') ? '<span class="sc-history-badge sw-badge">⏱ Stopwatch</span>' : ''}
+          </div>
           <div class="log-entry-dur">
-            <strong>${l.duration} ${l.unit}</strong>
+            <strong>${_fmtLogDuration(l)}</strong>
             ${l.startTime ? `<span style="color:var(--hint)"> · ${l.startTime}${l.endTime ? '–'+l.endTime : ''}</span>` : ''}
           </div>
-          ${l.note ? `<div class="log-entry-note" style="margin-top:4px">💬 ${l.note}</div>` : ''}
         </div>
         <button onclick="deleteLog(${l.id})" title="Delete this entry" style="background:none;border:none;cursor:pointer;color:var(--hint);font-size:16px;padding:2px 4px;flex-shrink:0;line-height:1" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--hint)'">🗑</button>`;
       content.appendChild(item);
     });
   });
+}
+
+function _renderActivitySummary(container, ud) {
+  // Always aggregate ALL logs (ignore current historyFilter) so summary is always complete
+  const allLogs = ud.logs.filter(l => !l.isQuickAlarm);
+  if (!allLogs.length) return;
+
+  // Also pull durations from schedules (planned time), stored separately
+  // Aggregate by habitId → { name, icon, totalHrs, sessions }
+  const byActivity = {};
+
+  allLogs.forEach(l => {
+    const key = l.habitId || l.habitName;
+    if (!byActivity[key]) {
+      byActivity[key] = { name: l.habitName, icon: l.habitIcon || '📋', totalHrs: 0, sessions: 0 };
+    }
+    // Normalise to hours
+    const hrs = l.unit === 'mins' ? l.duration / 60 : Number(l.duration) || 0;
+    byActivity[key].totalHrs += hrs;
+    byActivity[key].sessions += 1;
+  });
+
+  const entries = Object.values(byActivity).sort((a, b) => b.totalHrs - a.totalHrs);
+  if (!entries.length) return;
+
+  // Helper: format hours nicely
+  function _fmtHrs(hrs) {
+    if (hrs < 1/60) return '< 1m';
+    const totalMins = Math.round(hrs * 60);
+    if (totalMins < 60) return `${totalMins}m`;
+    const h = Math.floor(totalMins / 60);
+    const m = totalMins % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  }
+
+  const section = document.createElement('div');
+  section.className = 'hist-summary-section';
+  section.innerHTML = `
+    <div class="hist-summary-header">
+      <span class="hist-summary-title">📊 Total by Activity</span>
+      <span class="hist-summary-sub">All-time · across all logs</span>
+    </div>
+    <div class="hist-summary-grid">
+      ${entries.map(e => `
+        <div class="hist-summary-card">
+          <div class="hist-summary-icon">${e.icon}</div>
+          <div class="hist-summary-info">
+            <div class="hist-summary-name">${e.name}</div>
+            <div class="hist-summary-sessions">${e.sessions} session${e.sessions !== 1 ? 's' : ''}</div>
+          </div>
+          <div class="hist-summary-total">${_fmtHrs(e.totalHrs)}</div>
+        </div>`).join('')}
+    </div>`;
+
+  container.appendChild(section);
 }
 
 function deleteLog(logId) {
@@ -2404,21 +2479,39 @@ function saveSchedule() {
   const [h2,m2] = to.split(':').map(Number);
   let durationMins = (h2*60+m2) - (h1*60+m1);
   if (durationMins < 0) durationMins += 1440;
+  const durationHrs = +(durationMins / 60).toFixed(4);
+
+  const icon = SC_CAT_ICONS[category] || '📌';
+  const habitId = LF_CAT_HABIT_MAP[category] || category.toLowerCase().replace(/\s+/g, '-');
+  const fromDisp = _scFmt12(from);
+  const toDisp   = _scFmt12(to);
 
   const ud = getUserData();
   if (!ud.schedules) ud.schedules = [];
 
   if (_scEditId) {
-    // Update existing
+    // Update existing schedule entry
     const idx = ud.schedules.findIndex(s => s.id === _scEditId);
     if (idx !== -1) {
       ud.schedules[idx] = { ...ud.schedules[idx], category, date, fromTime: from, toTime: to, durationMins, tasks, updatedAt: new Date().toISOString() };
     }
+    // Update matching log entry
+    const logIdx = ud.logs.findIndex(l => l.scheduleId === _scEditId);
+    if (logIdx !== -1) {
+      ud.logs[logIdx] = {
+        ...ud.logs[logIdx],
+        habitId, habitName: category, habitIcon: icon,
+        date, duration: durationHrs, unit: 'hrs',
+        startTime: fromDisp, endTime: toDisp,
+        note: `Schedule · ${fromDisp} → ${toDisp}`
+      };
+    }
     msgEl.textContent = '✅ Schedule updated!';
   } else {
-    // New
+    // New schedule entry
+    const schedId = Date.now();
     const entry = {
-      id: Date.now(),
+      id: schedId,
       category,
       date,
       fromTime: from,
@@ -2428,12 +2521,31 @@ function saveSchedule() {
       createdAt: new Date().toISOString()
     };
     ud.schedules.push(entry);
+
+    // Also push into logs so it appears in History and summary totals
+    ud.logs.push({
+      id: schedId,
+      scheduleId: schedId,
+      habitId,
+      habitName: category,
+      habitIcon: icon,
+      date,
+      duration: durationHrs,
+      unit: 'hrs',
+      startTime: fromDisp,
+      endTime: toDisp,
+      note: `Schedule · ${fromDisp} → ${toDisp}`,
+      isSchedule: true
+    });
+
     msgEl.textContent = '✅ Schedule saved!';
   }
 
   msgEl.className = 'auth-msg ok';
   saveUserData();
   renderTrackerSchedules();
+  renderHistory();
+  renderTrends();
   setTimeout(() => closeScheduleModal(), 900);
 }
 
@@ -2442,8 +2554,12 @@ function deleteSchedule(id) {
   if (!confirm('Remove this schedule?')) return;
   const ud = getUserData();
   ud.schedules = (ud.schedules || []).filter(s => s.id !== id);
+  // Also remove the matching log entry
+  ud.logs = ud.logs.filter(l => l.scheduleId !== id);
   saveUserData();
   renderTrackerSchedules();
+  renderHistory();
+  renderTrends();
 }
 
 /* ── Render ── */
@@ -2539,6 +2655,58 @@ function renderTrackerSchedules() {
 
     listEl.appendChild(groupDiv);
   });
+
+  /* ── Activity summary inside tracker ── */
+  _renderTrackerSummary(listEl, ud);
+}
+
+function _renderTrackerSummary(container, ud) {
+  if (!ud || !ud.logs) return;
+  const allLogs = ud.logs.filter(l => !l.isQuickAlarm);
+  if (!allLogs.length) return;
+
+  function _fmtHrs(hrs) {
+    if (hrs < 1/60) return '< 1m';
+    const totalMins = Math.round(hrs * 60);
+    if (totalMins < 60) return totalMins + 'm';
+    const h = Math.floor(totalMins / 60);
+    const m = totalMins % 60;
+    return m > 0 ? h + 'h ' + m + 'm' : h + 'h';
+  }
+
+  const byActivity = {};
+  allLogs.forEach(l => {
+    const key = l.habitId || l.habitName;
+    if (!byActivity[key]) {
+      byActivity[key] = { name: l.habitName, icon: l.habitIcon || '📋', totalHrs: 0, sessions: 0 };
+    }
+    const hrs = l.unit === 'mins' ? l.duration / 60 : Number(l.duration) || 0;
+    byActivity[key].totalHrs += hrs;
+    byActivity[key].sessions += 1;
+  });
+
+  const entries = Object.values(byActivity).sort((a, b) => b.totalHrs - a.totalHrs);
+  if (!entries.length) return;
+
+  const section = document.createElement('div');
+  section.className = 'hist-summary-section';
+  section.innerHTML = `
+    <div class="hist-summary-header">
+      <span class="hist-summary-title">📊 Total by Activity</span>
+      <span class="hist-summary-sub">All-time · across all logs</span>
+    </div>
+    <div class="hist-summary-grid">
+      ${entries.map(e => `
+        <div class="hist-summary-card">
+          <div class="hist-summary-icon">${e.icon}</div>
+          <div class="hist-summary-info">
+            <div class="hist-summary-name">${e.name}</div>
+            <div class="hist-summary-sessions">${e.sessions} session${e.sessions !== 1 ? 's' : ''}</div>
+          </div>
+          <div class="hist-summary-total">${_fmtHrs(e.totalHrs)}</div>
+        </div>`).join('')}
+    </div>`;
+  container.appendChild(section);
 }
 
 function _niceDate(dateStr) {
@@ -2925,11 +3093,12 @@ function swLogTime() {
   });
 
   saveUserData();
-  if (typeof renderHistory      === 'function') renderHistory();
-  if (typeof renderCalendar     === 'function') renderCalendar();
-  if (typeof renderCalendar2    === 'function') renderCalendar2();
-  if (typeof renderTrends       === 'function') renderTrends();
-  if (typeof renderTodayTracker === 'function') renderTodayTracker();
+  if (typeof renderHistory         === 'function') renderHistory();
+  if (typeof renderCalendar        === 'function') renderCalendar();
+  if (typeof renderCalendar2       === 'function') renderCalendar2();
+  if (typeof renderTrends          === 'function') renderTrends();
+  if (typeof renderTodayTracker    === 'function') renderTodayTracker();
+  if (typeof renderTrackerSchedules === 'function') renderTrackerSchedules();
 
   const msg = document.getElementById('sw-log-msg');
   msg.textContent = `✅ Saved ${_swFmt(ms)} of ${cat} to History!`;
