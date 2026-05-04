@@ -1275,10 +1275,15 @@ function showDayLogs2(dateStr){
   dayLogs.forEach(l=>{
     const item=document.createElement('div');
     item.className='log-entry-item';
+    // For display: prefer displayUnit; convert hrs→mins when displayUnit was mins
+    const dispUnit=l.displayUnit||l.unit||'hrs';
+    const dispDur=dispUnit==='mins'&&l.unit==='hrs'
+      ? Math.round(l.duration*60)
+      : l.duration;
     item.innerHTML=`<div class="log-entry-icon">${l.habitIcon}</div>
       <div class="log-entry-meta">
         <div class="log-entry-habit">${l.habitName}</div>
-        <div class="log-entry-dur">${l.startTime?`${l.startTime}–${l.endTime||'?'} · `:''}${l.duration} ${l.unit}</div>
+        <div class="log-entry-dur">${l.startTime?`${l.startTime}–${l.endTime||'?'} · `:''}${dispDur} ${dispUnit}</div>
         ${l.note?`<div class="log-entry-note">💬 ${l.note}</div>`:''}
       </div>
       <button onclick="deleteLog(${l.id})" style="background:none;border:none;cursor:pointer;color:var(--hint);font-size:16px;padding:2px 4px;flex-shrink:0" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--hint)'">🗑</button>`;
@@ -1384,7 +1389,7 @@ function lfSaveLog(){
   let durationMins=(h2*60+m2)-(h1*60+m1);
   if(durationMins<0)durationMins+=1440;
   const unit=LF_CAT_UNIT_MAP[cat]||'hrs';
-  const duration=unit==='hrs'?+(durationMins/60).toFixed(2):durationMins;
+  const duration=unit==='hrs'?+(durationMins/60).toFixed(4):durationMins;
   const habitId=LF_CAT_HABIT_MAP[cat]||cat.toLowerCase().replace(/\s+/g,'-');
 
   const ud=getUserData();if(!ud)return;
@@ -1395,8 +1400,9 @@ function lfSaveLog(){
     habitName:cat,
     habitIcon:icon,
     date:dateVal,
-    duration,
-    unit,
+    duration: +(durationMins/60).toFixed(4),  // always hrs — consistent with stopwatch
+    unit: 'hrs',                               // unified unit for trend aggregation
+    displayUnit: unit,                         // keep original unit for display in history
     startTime:_aaFmtDisplay?_aaFmtDisplay(from):from,
     endTime:_aaFmtDisplay?_aaFmtDisplay(to):to,
     note:document.getElementById('lf-note').value.trim()
@@ -1464,14 +1470,16 @@ function renderTrends(){
   chartInstances={};
   content.innerHTML='';
 
-  /* ── 1. Build per-activity daily aggregates ── */
-  const byActivity={};   // { activityKey: { name, icon, unit, byDate:{date->totalDuration} } }
+  /* ── 1. Build per-activity daily aggregates (all in hrs) ── */
+  const byActivity={};   // { activityKey: { name, icon, byDate:{date->totalHrs} } }
   ud.logs.forEach(l=>{
     const key=l.habitId||l.habitName.toLowerCase().replace(/\s+/g,'-');
     if(!byActivity[key]){
-      byActivity[key]={name:l.habitName,icon:l.habitIcon||'📋',unit:l.unit||'hrs',byDate:{}};
+      byActivity[key]={name:l.habitName,icon:l.habitIcon||'📋',byDate:{}};
     }
-    byActivity[key].byDate[l.date]=(byActivity[key].byDate[l.date]||0)+l.duration;
+    // Normalise legacy entries saved in mins to hrs
+    const durationHrs = l.unit==='mins' ? l.duration/60 : l.duration;
+    byActivity[key].byDate[l.date]=(byActivity[key].byDate[l.date]||0)+durationHrs;
   });
 
   const activityKeys=Object.keys(byActivity);
@@ -1486,13 +1494,13 @@ function renderTrends(){
   const allDates=[...allDatesSet].sort();
   const dateLabels=allDates.map(d=>new Date(d+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}));
 
-  /* ── 3. Build datasets — one per activity ── */
+  /* ── 3. Build datasets — one per activity, all in hrs ── */
   const datasets=activityKeys.map((key,idx)=>{
     const act=byActivity[key];
     const color=TREND_PALETTE[idx%TREND_PALETTE.length];
     const data=allDates.map(d=>act.byDate[d]!=null?+act.byDate[d].toFixed(2):null);
     return{
-      label:`${act.icon} ${act.name} (${act.unit})`,
+      label:`${act.icon} ${act.name}`,
       data,
       borderColor:color,
       backgroundColor:color+'22',
@@ -1502,7 +1510,6 @@ function renderTrends(){
       tension:.35,
       fill:false,
       spanGaps:true,
-      _unit:act.unit,
       _key:key
     };
   });
@@ -1529,13 +1536,13 @@ function renderTrends(){
     return `<div class="trend-act-badge" style="border-left:3px solid ${color}">
       <span class="trend-act-name">${act.icon} ${act.name}</span>
       <span class="trend-act-arrow ${trend.dir}">${arrow} ${label}</span>
-      <span class="trend-act-avg">avg ${trend.avg.toFixed(1)} ${act.unit}</span>
+      <span class="trend-act-avg">avg ${trend.avg.toFixed(2)} hrs/day</span>
     </div>`;
   }).join('');
 
   card.innerHTML=`
     <div class="chart-title" style="margin-bottom:4px">📈 Activity Trends</div>
-    <div class="chart-sub" style="margin-bottom:14px">Daily time logged per activity — all in one view</div>
+    <div class="chart-sub" style="margin-bottom:14px">Daily hours per activity — log + stopwatch combined · Y-axis in hours</div>
     <div class="trend-legend-row">${legendHTML}</div>
     <div style="position:relative;width:100%;height:260px;margin-top:12px">
       <canvas id="chart-combined-trends" role="img" aria-label="Combined activity trends chart"></canvas>
@@ -1561,7 +1568,7 @@ function renderTrends(){
             callbacks:{
               label:ctx=>{
                 if(ctx.parsed.y===null)return null;
-                return ` ${ctx.dataset.label}: ${ctx.parsed.y}`;
+                return ` ${ctx.dataset.label}: ${ctx.parsed.y} hrs`;
               }
             }
           }
@@ -1574,7 +1581,7 @@ function renderTrends(){
           y:{
             min:0,
             grid:{color:'rgba(0,0,0,0.04)'},
-            ticks:{font:{size:11},color:'#a09c96',maxTicksLimit:6}
+            ticks:{font:{size:11},color:'#a09c96',maxTicksLimit:6,callback:v=>v+' h'}
           }
         }
       }
@@ -2880,15 +2887,17 @@ function swLogTime() {
   if (!ud) return;
   const ms = _swFinalMs || _swElapsed;
   const mins = ms / 60000;
-  const hrs = +(mins / 60).toFixed(2);
+  const hrs = +(mins / 60).toFixed(4);
   const catIcons = { 'Work':'💻','Studies':'📚','Exercise':'🏃','Meditation':'🧘','Reading':'📖','Other':'✍' };
+  // Use the same habitId keys as the log form so durations merge correctly in trends
+  const habitId = LF_CAT_HABIT_MAP[_swCat] || _swCat.toLowerCase().replace(/\s+/g,'-');
   ud.logs.push({
     id: Date.now(),
-    habitId: 'stopwatch',
+    habitId,
     habitName: _swCat,
     habitIcon: catIcons[_swCat] || '⏱',
     date: new Date().toISOString().split('T')[0],
-    duration: hrs,
+    duration: hrs,      // always stored in hrs for consistent aggregation
     unit: 'hrs',
     startTime: '',
     endTime: '',
