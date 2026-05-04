@@ -213,6 +213,21 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .no-data-msg{text-align:center;padding:40px 20px;color:var(--hint);font-size:13px}
 .no-data-icon{font-size:32px;margin-bottom:10px}
 
+/* ── Combined trend chart: legend chips ── */
+.trend-legend-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.trend-legend-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;background:rgba(0,0,0,0.04);color:var(--text);border:1.5px solid var(--chip-color,#1D9E75)}
+.trend-legend-chip::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--chip-color,#1D9E75);flex-shrink:0}
+
+/* ── Combined trend chart: per-activity summary badges ── */
+.trend-acts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.trend-act-badge{background:var(--surf2);border-radius:var(--rsm);padding:8px 10px 8px 12px;display:flex;flex-direction:column;gap:2px}
+.trend-act-name{font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trend-act-arrow{font-size:11px;font-weight:700}
+.trend-act-arrow.up{color:var(--green-dk)}
+.trend-act-arrow.down{color:var(--red)}
+.trend-act-arrow.neutral{color:var(--muted)}
+.trend-act-avg{font-size:10px;color:var(--hint);margin-top:1px}
+
 /* ── ALARM MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
 .modal-box{background:#fff;border-radius:20px;padding:24px;max-width:380px;width:100%;animation:cardUp .3s both;text-align:center}

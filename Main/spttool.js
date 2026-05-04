@@ -1447,6 +1447,11 @@ function lfSaveLog(){
 ═══════════════════════════════════════ */
 let chartInstances={};
 
+/* Palette for multi-line chart — one colour per activity */
+const TREND_PALETTE=[
+  '#1D9E75','#534AB7','#BA7517','#C0392B','#2980B9','#8E44AD','#16A085','#D35400','#27AE60','#E91E8C'
+];
+
 function renderTrends(){
   const content=document.getElementById('trends-content');
   if(!content)return;
@@ -1459,32 +1464,131 @@ function renderTrends(){
   chartInstances={};
   content.innerHTML='';
 
-  const byHabit={};
+  /* ── 1. Build per-activity daily aggregates ── */
+  const byActivity={};   // { activityKey: { name, icon, unit, byDate:{date->totalDuration} } }
   ud.logs.forEach(l=>{
-    if(!byHabit[l.habitId])byHabit[l.habitId]={name:l.habitName,icon:l.habitIcon,unit:l.unit,data:[]};
-    byHabit[l.habitId].data.push({date:l.date,duration:l.duration});
+    const key=l.habitId||l.habitName.toLowerCase().replace(/\s+/g,'-');
+    if(!byActivity[key]){
+      byActivity[key]={name:l.habitName,icon:l.habitIcon||'📋',unit:l.unit||'hrs',byDate:{}};
+    }
+    byActivity[key].byDate[l.date]=(byActivity[key].byDate[l.date]||0)+l.duration;
   });
 
-  if(ud.checkInHistory.length>0){
+  const activityKeys=Object.keys(byActivity);
+  if(!activityKeys.length){
+    content.innerHTML=`<div class="no-data-msg"><div class="no-data-icon">📊</div><div>No activity logs yet.</div></div>`;
+    return;
+  }
+
+  /* ── 2. Union of all dates, sorted ── */
+  const allDatesSet=new Set();
+  activityKeys.forEach(k=>Object.keys(byActivity[k].byDate).forEach(d=>allDatesSet.add(d)));
+  const allDates=[...allDatesSet].sort();
+  const dateLabels=allDates.map(d=>new Date(d+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+
+  /* ── 3. Build datasets — one per activity ── */
+  const datasets=activityKeys.map((key,idx)=>{
+    const act=byActivity[key];
+    const color=TREND_PALETTE[idx%TREND_PALETTE.length];
+    const data=allDates.map(d=>act.byDate[d]!=null?+act.byDate[d].toFixed(2):null);
+    return{
+      label:`${act.icon} ${act.name} (${act.unit})`,
+      data,
+      borderColor:color,
+      backgroundColor:color+'22',
+      pointBackgroundColor:color,
+      pointRadius:4,
+      pointHoverRadius:6,
+      tension:.35,
+      fill:false,
+      spanGaps:true,
+      _unit:act.unit,
+      _key:key
+    };
+  });
+
+  /* ── 4. Render combined chart card ── */
+  const card=document.createElement('div');
+  card.className='chart-card';
+  card.style.cssText='padding:20px 16px 16px';
+
+  /* Legend chips */
+  const legendHTML=datasets.map((ds,i)=>{
+    const color=TREND_PALETTE[i%TREND_PALETTE.length];
+    return `<span class="trend-legend-chip" style="--chip-color:${color}">${ds.label}</span>`;
+  }).join('');
+
+  /* Trend badges per activity */
+  const trendBadgesHTML=activityKeys.map((key,i)=>{
+    const act=byActivity[key];
+    const vals=allDates.map(d=>act.byDate[d]||0).filter(v=>v>0);
+    const trend=calcTrend(vals);
+    const color=TREND_PALETTE[i%TREND_PALETTE.length];
+    const arrow=trend.dir==='up'?'↑':trend.dir==='down'?'↓':'→';
+    const label=trend.dir==='up'?'up':trend.dir==='down'?'down':'stable';
+    return `<div class="trend-act-badge" style="border-left:3px solid ${color}">
+      <span class="trend-act-name">${act.icon} ${act.name}</span>
+      <span class="trend-act-arrow ${trend.dir}">${arrow} ${label}</span>
+      <span class="trend-act-avg">avg ${trend.avg.toFixed(1)} ${act.unit}</span>
+    </div>`;
+  }).join('');
+
+  card.innerHTML=`
+    <div class="chart-title" style="margin-bottom:4px">📈 Activity Trends</div>
+    <div class="chart-sub" style="margin-bottom:14px">Daily time logged per activity — all in one view</div>
+    <div class="trend-legend-row">${legendHTML}</div>
+    <div style="position:relative;width:100%;height:260px;margin-top:12px">
+      <canvas id="chart-combined-trends" role="img" aria-label="Combined activity trends chart"></canvas>
+    </div>
+    <div class="trend-acts-grid" style="margin-top:16px">${trendBadgesHTML}</div>`;
+
+  content.appendChild(card);
+
+  /* ── 5. Render chart ── */
+  setTimeout(()=>{
+    const ctx=document.getElementById('chart-combined-trends');
+    if(!ctx)return;
+    chartInstances['combined']=new Chart(ctx,{
+      type:'line',
+      data:{labels:dateLabels,datasets},
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            callbacks:{
+              label:ctx=>{
+                if(ctx.parsed.y===null)return null;
+                return ` ${ctx.dataset.label}: ${ctx.parsed.y}`;
+              }
+            }
+          }
+        },
+        scales:{
+          x:{
+            grid:{color:'rgba(0,0,0,0.04)'},
+            ticks:{font:{size:11},color:'#a09c96',maxRotation:45,minRotation:0}
+          },
+          y:{
+            min:0,
+            grid:{color:'rgba(0,0,0,0.04)'},
+            ticks:{font:{size:11},color:'#a09c96',maxTicksLimit:6}
+          }
+        }
+      }
+    });
+  },50);
+
+  /* ── 6. Sleep score card (if check-ins exist) ── */
+  if(ud.checkInHistory&&ud.checkInHistory.length>0){
     const scoreCard=buildScoreChart(ud.checkInHistory);
     content.appendChild(scoreCard);
   }
 
-  HABITS.forEach(h=>{
-    const hData=byHabit[h.id];
-    if(!hData)return;
-    const aggr={};
-    hData.data.forEach(d=>{
-      if(!aggr[d.date])aggr[d.date]=0;
-      aggr[d.date]+=d.duration;
-    });
-    const sorted=Object.keys(aggr).sort();
-    const vals=sorted.map(d=>aggr[d]);
-    const card=buildHabitChart(h,sorted,vals,hData.unit);
-    content.appendChild(card);
-  });
-
-  const ins=buildInsight(ud.logs,ud.checkInHistory);
+  /* ── 7. Insight card ── */
+  const ins=buildInsight(ud.logs,ud.checkInHistory||[]);
   if(ins)content.appendChild(ins);
 }
 
@@ -1515,105 +1619,7 @@ function buildScoreChart(history){
   return card;
 }
 
-function buildHabitChart(habit,dates,vals,unit){
-  const card=document.createElement('div');
-  card.className='chart-card';
-  const trend=calcTrend(vals);
-  const labels=dates.map(d=>new Date(d+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}));
-  const canvasId='chart-'+habit.id;
-  const avgVal=trend.avg.toFixed(1);
-  const rec=getHabitRec(habit.id,trend,unit);
 
-  // build linear trendline points
-  const n=vals.length;
-  let trendData=[];
-  if(n>=2){
-    const sumX=vals.reduce((_,__,i)=>_+i,0);
-    const sumY=vals.reduce((a,b)=>a+b,0);
-    const sumXY=vals.reduce((a,b,i)=>a+i*b,0);
-    const sumXX=vals.reduce((a,_,i)=>a+i*i,0);
-    const slope=(n*sumXY-sumX*sumY)/(n*sumXX-sumX*sumX);
-    const intercept=(sumY-slope*sumX)/n;
-    trendData=vals.map((_,i)=>parseFloat((intercept+slope*i).toFixed(2)));
-  }
-
-  // duration-diff analysis: find start/end log entries for this habit
-  const ud=getUserData();
-  const diffLogs=(ud?.logs||[]).filter(l=>l.habitId===habit.id&&l.startTime&&l.endTime);
-  let diffHTML='';
-  if(diffLogs.length>=1){
-    const diffs=diffLogs.map(l=>{
-      const diff=calcDiff(l.startTime,l.endTime);
-      return{date:l.date,diff,start:l.startTime,end:l.endTime};
-    }).filter(d=>d.diff);
-    if(diffs.length){
-      const last=diffs[diffs.length-1];
-      const fmt=(t)=>{const f=fmt12(t);return `${f.h}:${f.m} ${f.ampm}`;};
-      diffHTML=`<div class="diff-analysis">
-        <span class="diff-chip">Last session: ${fmt(last.start)} → ${fmt(last.end)} <strong>${last.diff}</strong></span>
-        ${diffs.length>1?`<span class="diff-chip muted">Sessions logged: ${diffs.length}</span>`:''}
-      </div>`;
-    }
-  }
-
-  card.innerHTML=`
-    <div class="chart-title">${habit.icon} ${habit.name}</div>
-    <div class="chart-sub">Daily ${unit} logged · avg <strong>${avgVal} ${unit}</strong></div>
-    <div style="position:relative;width:100%;height:170px"><canvas id="${canvasId}"></canvas></div>
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px">
-      <div class="trend-badge ${trend.dir}">
-        ${trend.dir==='up'?'↑ Trending up':trend.dir==='down'?'↓ Trending down':'→ Stable'}
-      </div>
-      <span class="trendline-legend"><span class="trendline-dot"></span> Trendline</span>
-    </div>
-    ${diffHTML}
-    ${rec?`<div class="chart-rec">${rec}</div>`:''}`;
-
-  setTimeout(()=>{
-    const ctx=document.getElementById(canvasId);
-    if(!ctx)return;
-    const color=habit.color||'#1D9E75';
-    const datasets=[{
-      label:habit.name,
-      data:vals,
-      borderColor:color,
-      backgroundColor:color+'18',
-      pointBackgroundColor:color,
-      pointRadius:4,
-      tension:.35,
-      fill:true,
-      order:2
-    }];
-    if(trendData.length){
-      datasets.push({
-        label:'Trend',
-        data:trendData,
-        borderColor:color,
-        borderWidth:2,
-        borderDash:[6,4],
-        pointRadius:0,
-        tension:0,
-        fill:false,
-        backgroundColor:'transparent',
-        order:1
-      });
-    }
-    chartInstances[habit.id]=new Chart(ctx,{
-      type:'line',
-      data:{labels,datasets},
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{
-          legend:{display:false},
-          tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label==='Trend'?'Trend: ':''}${ctx.parsed.y} ${unit}`}}
-        },
-        scales:{y:{min:0,ticks:{maxTicksLimit:5}}}
-      }
-    });
-  },50);
-  return card;
-}
 
 function calcTrend(vals){
   if(!vals.length)return{dir:'neutral',avg:0,slope:0};
