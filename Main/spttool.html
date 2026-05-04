@@ -284,9 +284,13 @@
         <div class="ampm-field" style="flex:1">
           <label>From</label>
           <div class="ampm-wrap">
-            <input class="ampm-hour" id="sc-from-h" type="number" min="1" max="12" value="8" placeholder="8">
+            <select class="ampm-hour" id="sc-from-h">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8" selected>8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+            </select>
             <span class="ampm-sep">:</span>
-            <input class="ampm-min" id="sc-from-m" type="number" min="0" max="59" value="00" placeholder="00">
+            <select class="ampm-min" id="sc-from-m">
+              <option value="0" selected>00</option><option value="5">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+            </select>
             <div class="ampm-toggle">
               <button type="button" class="ampm-btn sel" id="sc-from-am" onclick="scSetAmPm('from','AM')">AM</button>
               <button type="button" class="ampm-btn" id="sc-from-pm" onclick="scSetAmPm('from','PM')">PM</button>
@@ -297,9 +301,13 @@
         <div class="ampm-field" style="flex:1">
           <label>Until</label>
           <div class="ampm-wrap">
-            <input class="ampm-hour" id="sc-to-h" type="number" min="1" max="12" value="9" placeholder="9">
+            <select class="ampm-hour" id="sc-to-h">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9" selected>9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+            </select>
             <span class="ampm-sep">:</span>
-            <input class="ampm-min" id="sc-to-m" type="number" min="0" max="59" value="00" placeholder="00">
+            <select class="ampm-min" id="sc-to-m">
+              <option value="0" selected>00</option><option value="5">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+            </select>
             <div class="ampm-toggle">
               <button type="button" class="ampm-btn sel" id="sc-to-am" onclick="scSetAmPm('to','AM')">AM</button>
               <button type="button" class="ampm-btn" id="sc-to-pm" onclick="scSetAmPm('to','PM')">PM</button>
@@ -373,9 +381,13 @@
         <div class="ampm-field" style="flex:1">
           <label>From</label>
           <div class="ampm-wrap">
-            <input class="ampm-hour" id="aa-from-h" type="number" min="1" max="12" value="8" placeholder="8">
+            <select class="ampm-hour" id="aa-from-h">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8" selected>8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+            </select>
             <span class="ampm-sep">:</span>
-            <input class="ampm-min" id="aa-from-m" type="number" min="0" max="59" value="00" placeholder="00">
+            <select class="ampm-min" id="aa-from-m">
+              <option value="0" selected>00</option><option value="5">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+            </select>
             <div class="ampm-toggle">
               <button type="button" class="ampm-btn sel" id="aa-from-am" onclick="aaSetAmPm('from','AM')">AM</button>
               <button type="button" class="ampm-btn" id="aa-from-pm" onclick="aaSetAmPm('from','PM')">PM</button>
@@ -386,9 +398,13 @@
         <div class="ampm-field" style="flex:1">
           <label>Until</label>
           <div class="ampm-wrap">
-            <input class="ampm-hour" id="aa-to-h" type="number" min="1" max="12" value="9" placeholder="9">
+            <select class="ampm-hour" id="aa-to-h">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9" selected>9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+            </select>
             <span class="ampm-sep">:</span>
-            <input class="ampm-min" id="aa-to-m" type="number" min="0" max="59" value="00" placeholder="00">
+            <select class="ampm-min" id="aa-to-m">
+              <option value="0" selected>00</option><option value="5">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+            </select>
             <div class="ampm-toggle">
               <button type="button" class="ampm-btn sel" id="aa-to-am" onclick="aaSetAmPm('to','AM')">AM</button>
               <button type="button" class="ampm-btn" id="aa-to-pm" onclick="aaSetAmPm('to','PM')">PM</button>
