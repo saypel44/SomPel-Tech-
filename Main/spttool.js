@@ -102,7 +102,6 @@ function launchApp(user) {
   renderHistory();
   renderTrackerSchedules();
   startAlarmWatcher();
-  _rescheduleAllSavedAlarms(); // restore schedule alarms after page reload
   window.scrollTo(0, 0);
 }
 function doLogout() {
@@ -745,12 +744,13 @@ function calcDiff(t1,t2){
 }
 
 function _makeHourOpts(sel){
-  return Array.from({length:12},(_,i)=>i+1).map(h=>`<option value="${h}"${h===sel?' selected':''}>${h}</option>`).join('');
+  return Array.from({length:12},(_,i)=>i+1)
+    .map(h=>`<option value="${h}"${h===sel?' selected':''}>${h}</option>`).join('');
 }
 function _makeMinOpts(sel){
-  return Array.from({length:60},(_,i)=>i).map(m=>`<option value="${m}"${m===sel?' selected':''}>${String(m).padStart(2,'0')}</option>`).join('');
+  return Array.from({length:60},(_,i)=>i)
+    .map(m=>`<option value="${m}"${m===sel?' selected':''}>${String(m).padStart(2,'0')}</option>`).join('');
 }
-
 function ampmPicker(prefix,label,defaultVal){
   const f=fmt12(defaultVal);
   const selH=parseInt(f.h)||12;
@@ -987,42 +987,13 @@ let alarmInterval=null;
 let firedToday={};
 
 function startAlarmWatcher(){
-  alarmInterval=setInterval(checkAlarms,10000); // check every 10 seconds
+  alarmInterval=setInterval(checkAlarms,30000);
   checkAlarms();
 }
 function stopAlarmWatcher(){
   if(alarmInterval)clearInterval(alarmInterval);
   alarmInterval=null;
   firedToday={};
-  // Clear any pending quick-alarm timeouts
-  if(typeof _qaTimers !== 'undefined') { _qaTimers.forEach(t=>clearTimeout(t)); _qaTimers=[]; }
-}
-
-/* Re-register setTimeout alarms for all future schedules after a page reload */
-function _rescheduleAllSavedAlarms() {
-  const ud = getUserData();
-  if (!ud) return;
-  const today = new Date().toISOString().split('T')[0];
-
-  // Re-schedule Schedule Tracker entries that are today or in the future
-  (ud.schedules || []).forEach(sc => {
-    if (sc.date >= today) {
-      const fromDisplay = _scFmt12(sc.fromTime);
-      const toDisplay   = _scFmt12(sc.toTime);
-      const hrs  = Math.floor(sc.durationMins / 60);
-      const mins = sc.durationMins % 60;
-      const durStr = (hrs > 0 ? hrs + 'h ' : '') + (mins > 0 ? mins + 'm' : '') || '—';
-      _scheduleQuickAlarm({ id: sc.id, date: sc.date, fromTime: sc.fromTime, toTime: sc.toTime,
-        category: sc.category, fromDisplay, toDisplay, duration: durStr, sound: 'bell' });
-    }
-  });
-
-  // Re-schedule Quick Alarms saved today that haven't fired yet
-  (ud.quickAlarms || []).forEach(qa => {
-    if (qa.date >= today) {
-      _scheduleQuickAlarm(qa);
-    }
-  });
 }
 function checkAlarms(){
   const ud=getUserData();if(!ud)return;
@@ -1043,16 +1014,10 @@ function checkAlarms(){
 function triggerAlarm(habit,soundId,customData){
   playSound(soundId,customData);
   currentAlarmHabit=habit;
-  const titleText=`Time to log ${habit.name}!`;
-  const subText=`Your ${habit.name.toLowerCase()} reminder is here. Ready to record?`;
   document.getElementById('alarm-modal-icon').textContent=habit.icon;
-  document.getElementById('alarm-modal-title').textContent=titleText;
-  document.getElementById('alarm-modal-sub').textContent=subText;
+  document.getElementById('alarm-modal-title').textContent=`Time to log ${habit.name}!`;
+  document.getElementById('alarm-modal-sub').textContent=`Your ${habit.name.toLowerCase()} reminder is here. Ready to record?`;
   document.getElementById('alarm-modal').style.display='flex';
-  // Browser notification for background tab awareness
-  if(Notification.permission==='granted'){
-    new Notification(titleText,{body:subText,icon:''});
-  }
 }
 function dismissAlarm(){document.getElementById('alarm-modal').style.display='none';currentAlarmHabit=null;}
 function goLogFromAlarm(){
@@ -1129,8 +1094,15 @@ function renderCalendar(){
   const today=new Date();
   const todayStr=today.toISOString().split('T')[0];
   const ud=getUserData();
+
+  // Dates that have logs
   const logDates=new Set(ud?ud.logs.map(l=>l.date):[]);
-  const futureDates=new Set([...logDates].filter(d=>d>todayStr));
+  // Dates that have schedules (future plans)
+  const scheduleDates=new Set(ud&&ud.schedules?ud.schedules.map(s=>s.date):[]);
+  // Future = scheduled date that is after today (not yet logged)
+  const futurePlanDates=new Set([...scheduleDates].filter(d=>d>todayStr));
+  // Past scheduled dates that have no log = missed
+  const missedDates=new Set([...scheduleDates].filter(d=>d<todayStr&&!logDates.has(d)));
 
   for(let i=0;i<first;i++){
     const prev=new Date(calYear,calMonth,-(first-i-1));
@@ -1146,7 +1118,8 @@ function renderCalendar(){
     el.textContent=d;
     if(today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d) el.classList.add('today');
     if(logDates.has(dateStr)) el.classList.add('has-log');
-    if(futureDates.has(dateStr)) el.classList.add('has-plan');
+    if(futurePlanDates.has(dateStr)&&!logDates.has(dateStr)) el.classList.add('has-plan');
+    if(missedDates.has(dateStr)) el.classList.add('has-missed');
     if(selectedDay===dateStr) el.classList.add('selected');
     el.onclick=()=>{selectedDay=dateStr;renderCalendar();showDayLogs(dateStr);};
     grid.appendChild(el);
@@ -1279,8 +1252,12 @@ function renderCalendar2(){
   const first=new Date(cal2Year,cal2Month,1).getDay();
   const daysInMonth=new Date(cal2Year,cal2Month+1,0).getDate();
   const today=new Date();
+  const todayStr=today.toISOString().split('T')[0];
   const ud=getUserData();
   const logDates=new Set(ud?ud.logs.map(l=>l.date):[]);
+  const scheduleDates=new Set(ud&&ud.schedules?ud.schedules.map(s=>s.date):[]);
+  const futurePlanDates=new Set([...scheduleDates].filter(d=>d>todayStr));
+  const missedDates=new Set([...scheduleDates].filter(d=>d<todayStr&&!logDates.has(d)));
   for(let i=0;i<first;i++){const el=document.createElement('div');el.className='cal-day other-month';el.textContent=new Date(cal2Year,cal2Month,-(first-i-1)).getDate();grid.appendChild(el);}
   for(let d=1;d<=daysInMonth;d++){
     const dateStr=`${cal2Year}-${String(cal2Month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -1289,6 +1266,8 @@ function renderCalendar2(){
     el.textContent=d;
     if(today.getFullYear()===cal2Year&&today.getMonth()===cal2Month&&today.getDate()===d) el.classList.add('today');
     if(logDates.has(dateStr)) el.classList.add('has-log');
+    if(futurePlanDates.has(dateStr)&&!logDates.has(dateStr)) el.classList.add('has-plan');
+    if(missedDates.has(dateStr)) el.classList.add('has-missed');
     if(selectedDay2===dateStr) el.classList.add('selected');
     el.onclick=()=>{selectedDay2=dateStr;renderCalendar2();showDayLogs2(dateStr);};
     grid.appendChild(el);
@@ -2164,50 +2143,27 @@ let _qaTimers = [];
 
 function _scheduleQuickAlarm(entry) {
   const now = new Date();
-  const entryDate = entry.date || now.toISOString().split('T')[0];
+  const [fh, fm] = entry.fromTime.split(':').map(Number);
+  const alarmTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), fh, fm, 0);
+  let delay = alarmTime - now;
+  if(delay < 0) delay += 86400000; // tomorrow
+  if(delay > 86400000) return; // more than a day away, skip for now
 
-  function _fireAt(time24, labelPrefix, emoji) {
-    const [h, m] = time24.split(':').map(Number);
-    const [yr, mo, dy] = entryDate.split('-').map(Number);
-    const alarmTime = new Date(yr, mo - 1, dy, h, m, 0);
-    let delay = alarmTime - now;
-    if (delay < 0) return; // already passed – skip
-    if (delay > 7 * 86400000) return; // more than a week away – skip
+  const t = setTimeout(() => {
+    const ud = getUserData();
+    const sound  = entry.sound;
+    const custom = (ud && ud.customSounds) ? ud.customSounds['quickalarm'] : null;
+    playSound(sound === 'custom' ? 'custom' : sound, sound === 'custom' ? custom || _aaCustomSoundData : null);
 
-    const t = setTimeout(() => {
-      const ud = getUserData();
-      const sound  = entry.sound;
-      const custom = (ud && ud.customSounds) ? ud.customSounds['quickalarm'] : null;
-      playSound(sound === 'custom' ? 'custom' : sound, sound === 'custom' ? custom || _aaCustomSoundData : null);
-
-      const catIcon = AA_CAT_ICONS[entry.category] || '⏰';
-      const titleText = `${emoji} ${labelPrefix}: ${entry.category}`;
-      const subText   = `${entry.fromDisplay} → ${entry.toDisplay} · ${entry.duration}`;
-
-      document.getElementById('alarm-modal-icon').textContent = catIcon;
-      document.getElementById('alarm-modal-title').textContent = titleText;
-      document.getElementById('alarm-modal-sub').textContent = subText;
-      document.getElementById('alarm-modal').style.display = 'flex';
-      currentAlarmHabit = { id: 'quickalarm', name: entry.category };
-
-      // Browser notification (works even when tab is in background)
-      if (Notification.permission === 'granted') {
-        new Notification(titleText, { body: subText, icon: '' });
-      }
-    }, delay);
-    _qaTimers.push(t);
-  }
-
-  _fireAt(entry.fromTime, 'Starting now', '▶️');
-  _fireAt(entry.toTime,   'Time is up',   '🏁');
+    const catIcon = AA_CAT_ICONS[entry.category] || '⏰';
+    document.getElementById('alarm-modal-icon').textContent = catIcon;
+    document.getElementById('alarm-modal-title').textContent = `Time for ${entry.category}!`;
+    document.getElementById('alarm-modal-sub').textContent = `${entry.fromDisplay} → ${entry.toDisplay} · ${entry.duration}`;
+    document.getElementById('alarm-modal').style.display = 'flex';
+    currentAlarmHabit = { id: 'quickalarm', name: entry.category };
+  }, delay);
+  _qaTimers.push(t);
 }
-
-/* Request notification permission once on load */
-document.addEventListener('DOMContentLoaded', function() {
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
-});
 
 /* Extend renderTrends to include Quick Alarm data by category */
 const _origRenderTrends = renderTrends;
@@ -2331,9 +2287,7 @@ function _scSet12(prefix, time24) {
   const isAM = h < 12;
   const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
   document.getElementById(`sc-${prefix}-h`).value = h12;
-  // minute select options use numeric values (0,5,10…); snap to nearest 5
-  const mSnap = Math.round(m / 5) * 5 % 60;
-  document.getElementById(`sc-${prefix}-m`).value = mSnap;
+  document.getElementById(`sc-${prefix}-m`).value = m; // select options use numeric values 0-59
   document.getElementById(`sc-${prefix}-am`).classList.toggle('sel', isAM);
   document.getElementById(`sc-${prefix}-pm`).classList.toggle('sel', !isAM);
 }
@@ -2465,19 +2419,11 @@ function saveSchedule() {
   const ud = getUserData();
   if (!ud.schedules) ud.schedules = [];
 
-  const fromDisplay = _scFmt12(from);
-  const toDisplay   = _scFmt12(to);
-  const hrs  = Math.floor(durationMins / 60);
-  const mins = durationMins % 60;
-  const durStr = (hrs > 0 ? hrs + 'h ' : '') + (mins > 0 ? mins + 'm' : '') || '—';
-
   if (_scEditId) {
     // Update existing
     const idx = ud.schedules.findIndex(s => s.id === _scEditId);
     if (idx !== -1) {
       ud.schedules[idx] = { ...ud.schedules[idx], category, date, fromTime: from, toTime: to, durationMins, tasks, updatedAt: new Date().toISOString() };
-      // Re-schedule alarms for updated entry
-      _scheduleQuickAlarm({ id: ud.schedules[idx].id, date, fromTime: from, toTime: to, category, fromDisplay, toDisplay, duration: durStr, sound: 'bell' });
     }
     msgEl.textContent = '✅ Schedule updated!';
   } else {
@@ -2493,14 +2439,14 @@ function saveSchedule() {
       createdAt: new Date().toISOString()
     };
     ud.schedules.push(entry);
-    // Schedule start + end alarms
-    _scheduleQuickAlarm({ id: entry.id, date, fromTime: from, toTime: to, category, fromDisplay, toDisplay, duration: durStr, sound: 'bell' });
     msgEl.textContent = '✅ Schedule saved!';
   }
 
   msgEl.className = 'auth-msg ok';
   saveUserData();
   renderTrackerSchedules();
+  renderCalendar();
+  renderCalendar2();
   setTimeout(() => closeScheduleModal(), 900);
 }
 
@@ -2511,6 +2457,8 @@ function deleteSchedule(id) {
   ud.schedules = (ud.schedules || []).filter(s => s.id !== id);
   saveUserData();
   renderTrackerSchedules();
+  renderCalendar();
+  renderCalendar2();
 }
 
 /* ── Render ── */

@@ -1231,6 +1231,14 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 /* ── PLANNED future days on calendar ── */
 .cal-day.has-plan::after{background:var(--purple)!important}
 .cal-day.has-plan{font-weight:500}
+.cal-day.has-missed::after{content:'';position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:var(--orange,#f59e0b)!important}
+.cal-day.has-missed{color:var(--hint)}
+.cal-legend{display:flex;gap:12px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.cal-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--hint);font-weight:500}
+.cal-legend-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.cal-legend-dot.green{background:var(--green)}
+.cal-legend-dot.purple{background:var(--purple,#8b5cf6)}
+.cal-legend-dot.orange{background:var(--orange,#f59e0b)}
 
 /* ── LOG FORM CARD (new Tracker tab) ── */
 .log-form-card{background:var(--surf);border:.5px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:4px}
