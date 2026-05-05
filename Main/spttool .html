@@ -533,6 +533,13 @@
           <button type="button" class="aa-cat-btn" data-cat="Exercise" onclick="swSelectCat(this)">🏃 Exercise</button>
           <button type="button" class="aa-cat-btn" data-cat="Meditation" onclick="swSelectCat(this)">🧘 Meditation</button>
           <button type="button" class="aa-cat-btn" data-cat="Reading" onclick="swSelectCat(this)">📖 Reading</button>
+          <input 
+            type="text" 
+            class="aa-custom-input" 
+            id="sc-custom-activity" 
+            placeholder="Type activity name" 
+            oninput="scClearCatIfTyping()"
+          >
           <!-- <button type="button" class="aa-cat-btn" data-cat="Other" onclick="swSelectCat(this)">✍ Other</button> -->
         </div>
         <button class="log-btn" style="margin-top:10px;width:100%" onclick="swLogTime()">💾 Save to History</button>
