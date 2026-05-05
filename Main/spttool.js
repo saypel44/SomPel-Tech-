@@ -655,6 +655,9 @@ function renderAIFeedback(section, fb) {
       ${fb.gentleReminder ? `
       <div class="ai-block ai-block-reminder">
         <p>${fb.gentleReminder}</p>
+        <button class="tracker-nav-btn" onclick="showTab('tracker')" title="Go to Tracker">
+          📊 Try the Tracker
+        </button>
       </div>` : ''}
 
       ${sourcesHtml}
