@@ -569,7 +569,7 @@ function buildLocalFeedback(a, la, sc) {
     areaOfImprovement = `You sleep ${sleep} but still feel low on energy. More hours in bed isn't always the fix — sleep quality matters too. A consistent bedtime and less screen time can help.`;
   } else {
     track('guardian');
-    areaOfImprovement = `Try going to bed and waking up at the same time every day — even on weekends. It's one of the simplest habits that makes a real difference.`;
+    areaOfImprovement = `Try going to bed and waking up at the same time every day even on weekends. It's one of the simplest habits that makes a real difference.`;
   }
 
   /* ══════════════════════════════════
