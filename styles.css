@@ -1761,6 +1761,27 @@ body::before {
   opacity: 0.45;
 }
 
+
+.findings-grid {
+  display: grid;
+  grid-template-columns: 1fr;  /* mobile */
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Tablet */
+@media (min-width: 600px) {
+  .findings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop */
+@media (min-width: 900px) {
+  .findings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 /* ── SMALL MOBILE  ≤ 640px ───────────────────────────────────
    Extra tightening for phones like iPhone SE, Galaxy A-series
 ──────────────────────────────────────────────────────────── */
