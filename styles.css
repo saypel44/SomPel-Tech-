@@ -116,6 +116,11 @@ body::before {
   flex-direction: column; gap: 8px;
 }
 
+.sidebar-logo-mark img {
+  max-width: 100%;
+  height: auto;
+}
+
 .sidebar-logo-mark {
   width: 78px; height: 48px;
   background: linear-gradient(135deg, var(--green) 0%, #8BBF88 100%);
