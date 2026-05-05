@@ -217,7 +217,7 @@ function lScore(v) {
 function sleepScore() {
   const s={};
   likertQs.forEach(q=>{s[q.id]=lScore(lAnswers[q.id]);});
-  return Math.round((((s.l1+s.l2+s.l3+s.l5)/4)+(6-s.l4))/2*10);
+  return Math.round(((s.l1+s.l2+s.l3+s.l4+s.l5)/5)*10);
 }
 function phoneRisk() {
   return{'no phone before bed':0,'less than 30 minutes':1,'30 min–1 hour':2,'1–2 hours':3,'2–3 hours':4,'more than 3 hours':5}[answers.phonetime]||0;
@@ -307,7 +307,7 @@ function showResults() {
   const poorRested=lAnswers.l3==='Not really'||lAnswers.l3==='No, never';
   const feelEnergetic=lAnswers.l5==='Yes, always'||lAnswers.l5==='Most of the time';
   const lowEnergy=lAnswers.l5==='Not really'||lAnswers.l5==='No, never';
-  const daySleepy=lAnswers.l4==='Yes, always'||lAnswers.l4==='Most of the time';
+  const daySleepy=lAnswers.l4==='Not really'||lAnswers.l4==='No, never';
   const hardToSleep=lAnswers.l1==='Not really'||lAnswers.l1==='No, never';
   const shortSleep=answers.sleep==='0–4 hours'||answers.sleep==='5–6 hours';
   const goodHours=answers.sleep==='7–8 hours'||answers.sleep==='9 or more hours';
@@ -343,7 +343,7 @@ function showResults() {
   const phoneHours = {'no phone before bed':'none','30 min–1 hour':'30 min–1 hr','1–2 hours':'1–2 hrs','2–3 hours':'2–3 hrs','more than 3 hours':'3+ hrs'}[answers.phonetime]||'some';
 
   // ── Outcome-good cards ──
-  if(outcomeGood&&late) recs.push({l:'',t:'✅ You feel great — your late-night routine is working for you',
+  if(outcomeGood&&late) recs.push({l:'',t:'✅ You feel great, your late-night routine is working for you',
     s:`You go to bed ${answers.bedtime} and still feel full of energy. That's great! Try to keep the same bedtime every day — even on weekends. That will help you keep feeling this good.`,
     b:[trackerNudge('sleep','sleep')]});
   else if(outcomeGood) recs.push({l:'',t:'✅ Your habits are working — you feel rested and full of energy',
@@ -351,7 +351,7 @@ function showResults() {
     b:[trackerNudge('sleep','sleep')]});
 
   // ── Sleep quality poor but hours are fine ──
-  if(outcomePoor&&goodHours) recs.push({l:'warn',t:"⚠️ You sleep enough hours — but the quality needs a small fix",
+  if(outcomePoor&&goodHours) recs.push({l:'warn',t:"⚠️ You sleep enough hours but the quality needs a small fix",
     s:`You already sleep ${answers.sleep}, which is good. To feel better, try putting your phone away 30–60 minutes before bed and waking up at the same time each day. This can make your sleep much more restful.`,
     b:[trackerNudge('sleep','sleep hours')]});
 
