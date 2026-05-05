@@ -355,16 +355,27 @@
     <div class="auth-body">
       <div id="tab-login">
         <form action="javascript:void(0)" onsubmit="doLogin()" autocomplete="on">
-          <div class="field"><label>Username</label><input id="li-user" type="text" placeholder="Enter your username" autocomplete="username"></div>
+          <div class="field"><label>User ID</label><input id="li-user" type="text" placeholder="Enter your user ID" autocomplete="username"></div>
           <div class="field"><label>Password</label><div class="pw-wrap"><input id="li-pass" type="password" placeholder="Enter your password" autocomplete="current-password"><button type="button" class="pw-toggle" onclick="togglePw('li-pass',this)" tabindex="-1">👁</button></div></div>
           <button type="submit" class="auth-btn">Sign in →</button>
         </form>
+        <div class="forgot-row"><button type="button" class="forgot-link" onclick="toggleForgotPanel()">Forgot password?</button></div>
+        <div id="forgot-panel" class="forgot-panel" style="display:none">
+          <div class="forgot-panel-title">Reset Password</div>
+          <form action="javascript:void(0)" onsubmit="doResetPassword()" autocomplete="on">
+          <div class="field" style="margin-bottom:10px"><label>User ID</label><input id="fp-user" type="text" placeholder="Enter your user ID" autocomplete="username"></div>
+          <div class="field" style="margin-bottom:10px"><label>New Password</label><div class="pw-wrap"><input id="fp-new-pass" type="password" placeholder="At least 6 characters" autocomplete="new-password"><button type="button" class="pw-toggle" onclick="togglePw('fp-new-pass',this)" tabindex="-1">👁</button></div></div>
+          <div class="field" style="margin-bottom:10px"><label>Confirm Password</label><div class="pw-wrap"><input id="fp-confirm-pass" type="password" placeholder="Re-enter new password" autocomplete="new-password"><button type="button" class="pw-toggle" onclick="togglePw('fp-confirm-pass',this)" tabindex="-1">👁</button></div></div>
+          <button type="submit" class="auth-btn">Reset Password →</button>
+          </form>
+          <div id="fp-msg" class="auth-msg"></div>
+        </div>
         <div id="li-msg" class="auth-msg"></div>
       </div>
       <div id="tab-signup" style="display:none">
         <form action="javascript:void(0)" onsubmit="doSignup()" autocomplete="on">
           <div class="field"><label>Full name</label><input id="su-name" type="text" placeholder="e.g. Tshering Wangmo" autocomplete="name"></div>
-          <div class="field"><label>Choose a username</label><input id="su-user" type="text" placeholder="e.g. tshering99" autocomplete="username"></div>
+          <div class="field"><label>Choose a User ID</label><input id="su-user" type="text" placeholder="e.g. tshering99" autocomplete="username"></div>
           <div class="field"><label>Create password</label><div class="pw-wrap"><input id="su-pass" type="password" placeholder="At least 6 characters" autocomplete="new-password"><button type="button" class="pw-toggle" onclick="togglePw('su-pass',this)" tabindex="-1">👁</button></div></div>
           <button type="submit" class="auth-btn">Create account →</button>
         </form>
@@ -381,10 +392,10 @@
       <div class="app-logo-icon">SPT</div>
       <span>Quick Tracker</span>
     </div>
-    <div class="user-pill" onclick="doLogout()">
+    <div class="user-pill" onclick="openSettings()" title="Settings">
       <div class="user-avatar" id="hdr-avatar"></div>
       <span class="user-pill-name" id="hdr-name"></span>
-      <span class="logout-btn">· Sign out</span>
+      <span class="user-pill-caret">⚙</span>
     </div>
   </div>
 
@@ -776,7 +787,63 @@
   </div>
 </div>
 
-<!-- ── ALARM MODAL ── -->
+<!-- ── SETTINGS MODAL ── -->
+<div id="settings-modal" class="modal-overlay" style="display:none" onclick="settingsOverlayClick(event)">
+  <div class="modal-box settings-box">
+    <div class="settings-header">
+      <div class="settings-title">⚙️ Account Settings</div>
+      <button class="add-alarm-close" onclick="closeSettings()">✕</button>
+    </div>
+
+    <!-- Avatar / info display -->
+    <div class="settings-avatar-row">
+      <div class="settings-avatar" id="st-avatar"></div>
+      <div class="settings-avatar-info">
+        <div class="settings-avatar-name" id="st-display-name"></div>
+        <div class="settings-avatar-user" id="st-display-user"></div>
+      </div>
+    </div>
+
+    <!-- Fields -->
+    <div class="settings-fields">
+
+      <div class="settings-field">
+        <label>Full Name</label>
+        <input type="text" id="st-name" class="settings-input" placeholder="Your full name" autocomplete="name">
+      </div>
+
+      <div class="settings-field">
+        <label>User ID <span class="settings-field-hint">(used to sign in)</span></label>
+        <input type="text" id="st-userid" class="settings-input" placeholder="Your user ID" autocomplete="username">
+      </div>
+
+      <div class="settings-divider"></div>
+
+      <div class="settings-field">
+        <label>Current Password <span class="settings-field-hint">(your saved password)</span></label>
+        <div class="pw-wrap">
+          <input type="text" id="st-cur-pass" class="settings-input settings-input-pass" placeholder="—" autocomplete="off" readonly>
+          <button type="button" class="pw-toggle st-copy-btn" onclick="stCopyPassword()" tabindex="-1" title="Copy">📋</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="st-msg" class="auth-msg" style="margin:0 20px 4px"></div>
+
+    <!-- Save -->
+    <div class="settings-actions">
+      <button class="auth-btn" onclick="saveSettings()">💾 Save Changes</button>
+    </div>
+
+    <!-- Sign out -->
+    <div class="settings-signout">
+      <button class="settings-signout-btn" onclick="doLogout()">↩ Sign out</button>
+    </div>
+  </div>
+</div>
+
+
 <div id="alarm-modal" class="modal-overlay" style="display:none">
   <div class="modal-box">
     <div class="modal-icon" id="alarm-modal-icon">⏰</div>

@@ -111,6 +111,7 @@ function doLogout() {
   currentUser = null;
   _currentData = null;
   restartForm();
+  document.getElementById('settings-modal').style.display = 'none';
   document.getElementById('app-screen').classList.remove('active');
   document.getElementById('auth-screen').classList.add('active');
   clearAuthMsgs();
@@ -119,6 +120,132 @@ function doLogout() {
   switchTab('login');
   window.scrollTo(0, 0);
 }
+
+/* ── Settings Modal ── */
+function openSettings() {
+  if (!currentUser) return;
+  const users = _loadUsers();
+  const u = users[currentUser.username] || {};
+  document.getElementById('st-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+  document.getElementById('st-display-name').textContent = currentUser.name;
+  document.getElementById('st-display-user').textContent = '#' + currentUser.username;
+  document.getElementById('st-name').value = currentUser.name;
+  document.getElementById('st-userid').value = currentUser.username;
+  document.getElementById('st-cur-pass').value = u.pass || '';
+  const msg = document.getElementById('st-msg');
+  msg.className = 'auth-msg';
+  msg.textContent = '';
+  document.getElementById('settings-modal').style.display = 'flex';
+}
+function closeSettings() {
+  document.getElementById('settings-modal').style.display = 'none';
+}
+function settingsOverlayClick(e) {
+  if (e.target === document.getElementById('settings-modal')) closeSettings();
+}
+function stCopyPassword() {
+  const val = document.getElementById('st-cur-pass').value;
+  if (!val) return;
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = document.querySelector('.st-copy-btn');
+    if (btn) { btn.textContent = '✓'; setTimeout(() => { btn.textContent = '📋'; }, 1500); }
+  }).catch(() => {});
+}
+function saveSettings() {
+  const newName   = document.getElementById('st-name').value.trim();
+  const newUserId = document.getElementById('st-userid').value.trim().toLowerCase();
+  const msg       = document.getElementById('st-msg');
+
+  if (!newName)   { msg.textContent = 'Name cannot be empty.'; msg.className = 'auth-msg err'; return; }
+  if (!newUserId) { msg.textContent = 'User ID cannot be empty.'; msg.className = 'auth-msg err'; return; }
+  if (newUserId.length < 3) { msg.textContent = 'User ID must be at least 3 characters.'; msg.className = 'auth-msg err'; return; }
+  if (!/^[a-z0-9_]+$/.test(newUserId)) { msg.textContent = 'User ID: letters, numbers and underscores only.'; msg.className = 'auth-msg err'; return; }
+
+  const users = _loadUsers();
+  const oldId = currentUser.username;
+  const u = users[oldId];
+  if (!u) { msg.textContent = 'Session error. Please sign in again.'; msg.className = 'auth-msg err'; return; }
+
+  if (newUserId !== oldId && users[newUserId]) {
+    msg.textContent = 'That User ID is already taken.'; msg.className = 'auth-msg err'; return;
+  }
+
+  u.name = newName;
+
+  if (newUserId !== oldId) {
+    users[newUserId] = u;
+    delete users[oldId];
+    const dataRaw = localStorage.getItem('qt_data_' + oldId);
+    if (dataRaw) {
+      localStorage.setItem('qt_data_' + newUserId, dataRaw);
+      localStorage.removeItem('qt_data_' + oldId);
+    }
+  }
+
+  _saveUsers(users);
+
+  currentUser.name     = newName;
+  currentUser.username = newUserId;
+  localStorage.setItem('qt_session', JSON.stringify({ username: newUserId }));
+
+  const firstName = newName.split(' ')[0];
+  document.getElementById('hdr-avatar').textContent      = newName.charAt(0).toUpperCase();
+  document.getElementById('hdr-name').textContent        = newName;
+  document.getElementById('greeting-name').textContent   = firstName;
+  document.getElementById('st-avatar').textContent       = newName.charAt(0).toUpperCase();
+  document.getElementById('st-display-name').textContent = newName;
+  document.getElementById('st-display-user').textContent = '#' + newUserId;
+  document.getElementById('st-userid').value             = newUserId;
+
+  msg.textContent = '✓ Changes saved!';
+  msg.className   = 'auth-msg ok';
+  setTimeout(() => { msg.className = 'auth-msg'; msg.textContent = ''; }, 3000);
+}
+
+/* ── Forgot Password ── */
+function toggleForgotPanel() {
+  const panel = document.getElementById('forgot-panel');
+  const isHidden = panel.style.display === 'none';
+  panel.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) {
+    // Pre-fill User ID from the sign-in field if already typed
+    const uid = document.getElementById('li-user').value.trim();
+    if (uid) document.getElementById('fp-user').value = uid;
+    document.getElementById('fp-new-pass').value = '';
+    document.getElementById('fp-confirm-pass').value = '';
+    const fpMsg = document.getElementById('fp-msg');
+    fpMsg.className = 'auth-msg'; fpMsg.textContent = '';
+  }
+}
+function doResetPassword() {
+  const userId  = document.getElementById('fp-user').value.trim().toLowerCase();
+  const newPass = document.getElementById('fp-new-pass').value;
+  const confirm = document.getElementById('fp-confirm-pass').value;
+  const msg     = document.getElementById('fp-msg');
+
+  if (!userId)  { msg.textContent = 'Please enter your User ID.'; msg.className = 'auth-msg err'; return; }
+  if (!newPass) { msg.textContent = 'Please enter a new password.'; msg.className = 'auth-msg err'; return; }
+  if (newPass.length < 6) { msg.textContent = 'Password must be at least 6 characters.'; msg.className = 'auth-msg err'; return; }
+  if (newPass !== confirm) { msg.textContent = 'Passwords do not match.'; msg.className = 'auth-msg err'; return; }
+
+  const users = _loadUsers();
+  if (!users[userId]) { msg.textContent = 'No account found with that User ID.'; msg.className = 'auth-msg err'; return; }
+
+  users[userId].pass = newPass;
+  _saveUsers(users);
+
+  msg.textContent = '✓ Password reset! You can now sign in.';
+  msg.className   = 'auth-msg ok';
+  // Pre-fill sign-in and close panel after short delay
+  setTimeout(() => {
+    document.getElementById('li-user').value = userId;
+    document.getElementById('li-pass').value = '';
+    document.getElementById('forgot-panel').style.display = 'none';
+    const fpMsg = document.getElementById('fp-msg');
+    fpMsg.className = 'auth-msg'; fpMsg.textContent = '';
+  }, 1800);
+}
+
 
 // Wire up keyboard shortcuts and auto-login after DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -1316,7 +1443,7 @@ function lfInit(){
   // Set today's date
   const dateEl=document.getElementById('lf-date');
   if(dateEl) dateEl.value=new Date().toISOString().split('T')[0];
-  // Wire live diff
+  // Wire live diff only if elements exist
   ['lf-start-h','lf-start-m','lf-end-h','lf-end-m'].forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.addEventListener('input',lfUpdateDiff);
@@ -1332,14 +1459,19 @@ function lfSetAmPm(side,val){
   lfUpdateDiff();
 }
 function _lfGetTime(side){
-  const h=document.getElementById(`lf-${side}-h`).value||'8';
-  const m=document.getElementById(`lf-${side}-m`).value||'00';
-  const isAM=document.getElementById(`lf-${side}-am`).classList.contains('sel');
+  const hEl=document.getElementById(`lf-${side}-h`);
+  const mEl=document.getElementById(`lf-${side}-m`);
+  const amEl=document.getElementById(`lf-${side}-am`);
+  if(!hEl||!mEl||!amEl) return null;
+  const h=hEl.value||'8';
+  const m=mEl.value||'00';
+  const isAM=amEl.classList.contains('sel');
   return to24(h,m,isAM?'AM':'PM');
 }
 function lfUpdateDiff(){
   const from=_lfGetTime('start');
   const to=_lfGetTime('end');
+  if(from===null||to===null) return;
   const diff=calcDiff(from,to);
   const el=document.getElementById('lf-diff');
   if(el) el.textContent=diff?`⏱ Duration: ${diff}`:'';
