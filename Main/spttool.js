@@ -517,22 +517,22 @@ function buildLocalFeedback(a, la, sc) {
     whatsGoingWell = `You sleep ${sleep} every night and feel rested and alert all day. That's exactly what healthy sleep looks like. Keep it up! 🎉`;
   } else if (goodSleep && !outcomeGood) {
     track('aasm');
-    whatsGoingWell = `You sleep ${sleep} every night — that's the healthy amount. You've got the foundation right. Now let's make that sleep feel more restful.`;
+    whatsGoingWell = `You sleep ${sleep} every night, that's the healthy amount. You've got the foundation right. Now let's make that sleep feel more restful.`;
   } else if (longSleep && outcomeGood) {
     track('springer');
-    whatsGoingWell = `You make time for sleep, and it shows — you feel rested and full of energy. That's a great habit to protect.`;
+    whatsGoingWell = `You make time for sleep, and it shows that you feel rested and full of energy. That's a great habit to protect.`;
   } else if (shortSleep && feelEnergy) {
     track('aasm');
     whatsGoingWell = `You manage to keep your energy up even on ${sleep}. Getting just a little more rest will help you feel even better.`;
   } else if (noPhone) {
     track('statcan');
-    whatsGoingWell = `You keep your phone away before bed — that's one of the best things you can do for sleep. Well done!`;
+    whatsGoingWell = `You keep your phone away before bed, that's one of the best things you can do for sleep. Well done!`;
   } else if (earlyBed) {
     track('guardian');
     whatsGoingWell = `Going to bed at ${bedtime} gives your body great recovery time. Early bedtimes are really good for your health.`;
   } else if (!overwork && !shortSleep) {
     track('aasm');
-    whatsGoingWell = `You're not overworking and you get enough sleep — that's a healthy balance. Your body has time to rest and recover.`;
+    whatsGoingWell = `You're not overworking and you get enough sleep, that's a healthy balance. Your body has time to rest and recover.`;
   } else {
     track('bmc');
     whatsGoingWell = `You're tracking your habits, and that's the first step. Awareness is how real change starts.`;
@@ -545,22 +545,22 @@ function buildLocalFeedback(a, la, sc) {
   let areaOfImprovement = '';
   if (highPhone && (outcomePoor || !feelRested)) {
     track('statcan');
-    areaOfImprovement = `You use your phone ${phone} before bed. Phone screens trick your brain into thinking it's still daytime — making it harder to fall into deep sleep, even if you don't notice it.`;
+    areaOfImprovement = `You use your phone ${phone} before bed. Phone screens trick your brain into thinking it's still daytime  making it harder to fall into deep sleep, even if you don't notice it.`;
   } else if (medPhone && outcomePoor) {
     track('statcan');
-    areaOfImprovement = `Using your phone ${phone} before bed is likely making your sleep lighter. Cutting that down — even by 30 minutes — can make a real difference to how rested you feel.`;
+    areaOfImprovement = `Using your phone ${phone} before bed is likely making your sleep lighter. Cutting that down even by 30 minutes can make a real difference to how rested you feel.`;
   } else if (shortSleep && outcomePoor) {
     track('aasm');
     areaOfImprovement = `You sleep ${sleep} most nights. Your body needs more time to repair and recharge. Even one extra hour of sleep can noticeably improve your energy and mood.`;
   } else if (overwork && outcomePoor) {
     track('springer');
-    areaOfImprovement = `Working ${workhours} a day makes it hard for your body to switch off at night. Try stopping all work at least 1 hour before bed — even a short walk helps your body wind down.`;
+    areaOfImprovement = `Working ${workhours} a day makes it hard for your body to switch off at night. Try stopping all work at least 1 hour before bed even a short walk helps your body wind down.`;
   } else if (lateNight && outcomePoor) {
     track('guardian');
     areaOfImprovement = `Going to bed ${bedtime} is quite late. Your body sleeps best within a regular window. Try shifting your bedtime just 15 minutes earlier each week.`;
   } else if (hardSleep) {
     track('statcan');
-    areaOfImprovement = `You find it hard to fall asleep. Your brain needs a signal that it's time to rest. Try a calm, screen-free wind-down for 20 minutes before bed — reading, stretching, or just dim lights.`;
+    areaOfImprovement = `You find it hard to fall asleep. Your brain needs a signal that it's time to rest. Try a calm, screen-free wind-down for 20 minutes before bed do reading, stretching, or just dim lights.`;
   } else if (highPhone && outcomeGood) {
     track('statcan');
     areaOfImprovement = `You feel okay now, but ${phone} of phone use before bed is slowly affecting your sleep depth. Moving phone time earlier in the evening is the easiest win.`;
@@ -578,20 +578,20 @@ function buildLocalFeedback(a, la, sc) {
   ══════════════════════════════════ */
   const actions = [];
 
-  if (goodSleep)       { track('aasm');     actions.push(`🛌 Keep sleeping ${sleep} — you're right in the healthy range`); }
+  if (goodSleep)       { track('aasm');     actions.push(`🛌 Keep sleeping ${sleep}, you're right in the healthy range`); }
   else if (shortSleep) { track('aasm');     actions.push(`🛌 Go to bed 15 minutes earlier each week until you reach 7–8 hours`); }
-  else if (longSleep)  { track('springer'); actions.push(`🛌 Try a steady 7–8 hour window — sleep quality often matters more than extra hours`); }
+  else if (longSleep)  { track('springer'); actions.push(`🛌 Try to sleep regularly for about 7–8 hours each night. Good, deep sleep is usually more important than just sleeping for many hours`); }
   else                 { track('aasm');     actions.push(`🛌 Aim for 7–8 hours of sleep each night`); }
 
-  if (noPhone)              { track('statcan'); actions.push(`📵 Keep your phone away before bed — that habit is working`); }
+  if (noPhone)              { track('statcan'); actions.push(`📵 Keep your phone away before bed, that habit is working`); }
   else if (lowPhone)        { track('statcan'); actions.push(`📵 Try cutting your pre-bed phone time from ${phone} to under 30 minutes`); }
-  else if (medPhone||highPhone) { track('statcan'); actions.push(`📵 Use your phone earlier in the evening — keep the last 30 minutes before bed screen-free`); }
+  else if (medPhone||highPhone) { track('statcan'); actions.push(`📵 Avoid using your phone or other screens during the final 30 minutes before sleeping because screens can make it harder to fall asleep.`); }
   else                      {                   actions.push(`📵 Put your phone away 30 minutes before you sleep`); }
 
-  if (lateNight)      { track('guardian'); actions.push(`🌙 Move your bedtime 15 minutes earlier each week — small shifts are easier to stick to`); }
-  else if (overwork)  { track('springer'); actions.push(`💼 Stop work at least 1 hour before bed — your brain needs that gap to switch off`); }
+  if (lateNight)      { track('guardian'); actions.push(`🌙 Try sleeping 15 minutes earlier each week, small changes are easier to maintain.`); }
+  else if (overwork)  { track('springer'); actions.push(`💼 Finish studying or working at least an hour before bedtime so your mind can relax and prepare for sleep.`); }
   else if (hardSleep) {                    actions.push(`🌙 Spend 20–30 minutes before bed doing something calm with no screens`); }
-  else                {                    actions.push(`🌙 Keep a consistent wake-up time — even on weekends`); }
+  else                {                    actions.push(`🌙 Keep a consistent wake-up time even on weekends`); }
 
   /* ══════════════════════════════════
      4. CLOSING NOTE  (replaces whyItMatters + gentleReminder)
@@ -599,15 +599,15 @@ function buildLocalFeedback(a, la, sc) {
   ══════════════════════════════════ */
   let gentleReminder = '';
   if (outcomeGood) {
-    gentleReminder = `You're already doing the important things right — consistency is all you need to keep feeling this good.`;
+    gentleReminder = `You're already doing the important things right, consistency is all you need to keep feeling this good.`;
   } else if (highPhone) {
-    gentleReminder = `You don't need to stop using your phone — just move it earlier in your evening. One small shift, big result.`;
+    gentleReminder = `You don't need to stop using your phone, just move it earlier in your evening. One small shift, big result.`;
   } else if (shortSleep) {
-    gentleReminder = `You don't need to overhaul your whole schedule — just 15 minutes earlier each week adds up to real, lasting change.`;
+    gentleReminder = `Small gradual changes are easier and more effective than sudden big changes.`;
   } else if (overwork) {
-    gentleReminder = `Rest isn't the opposite of being productive — it's what makes productivity possible. Protect your wind-down time.`;
+    gentleReminder = `Rest isn't the opposite of being productive, it's what makes productivity possible. Protect your wind-down time.`;
   } else if (lateNight) {
-    gentleReminder = `You don't have to become a morning person — just nudge your bedtime a little earlier and your body will do the rest.`;
+    gentleReminder = `You don't have to become a morning person, just nudge your bedtime a little earlier and your body will do the rest.`;
   } else {
     gentleReminder = `Small, consistent changes to your sleep routine tend to have a much bigger impact than you'd expect.`;
   }
