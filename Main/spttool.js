@@ -3356,3 +3356,4 @@ function _swRenderLaps() {
     </div>`;
   }).join('');
 }
+
