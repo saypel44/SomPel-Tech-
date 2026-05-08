@@ -1,6 +1,8 @@
 /* ═══════════════════════════════════════
    STATE  –  persisted via localStorage
 ═══════════════════════════════════════ */
+const API_BASE = 'https://nge-routine-backend.onrender.com';
+
 let currentUser = null;
 let currentAlarmHabit = null;
 
